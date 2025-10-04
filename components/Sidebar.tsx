@@ -9,7 +9,7 @@ function Sidebar({recentCommunities} : {
 }) {
     const [expanded, setExpanded] = useState(false)
     return (
-        <div className='sticky mt-15 border-r h-[87vh] p-3 w-fit'>
+        <div className='fixed mt-15 border-r h-[90vh] p-3 w-fit dark:bg-black bg-white'>
             <div className='flex flex-col space-y-2 justify-center'>
                 <div className='cursor-pointer rounded p-1'>
                     <Home className='' />
