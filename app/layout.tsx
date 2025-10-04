@@ -35,10 +35,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${poppings.className} antialiased`}
       >
         <AuthProvider>
-          <Header />
-          <Sidebar recentCommunities={[]} />
-          {children}
-          <Footer />
+          <div className="flex flex-col relative">
+            <Header />
+            <div className="flex">
+              <Sidebar recentCommunities={[]} />
+              <div className="mt-15 z-40 w-full">
+                {children}
+              </div>
+            </div>
+            <Footer />
+          </div>
         </AuthProvider>
       </body>
     </html>
