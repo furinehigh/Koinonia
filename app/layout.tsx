@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Sidebar from "@/components/Sidebar";
+import AuthProvider from "./auth-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,6 +15,9 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+
+const poppings = Poppins({ subsets: ["latin"], weight: ["200", "800"] });
 
 export const metadata: Metadata = {
   title: "Koinonia",
@@ -25,9 +32,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppings.className} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          <Header />
+          <Sidebar recentCommunities={[]} />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
