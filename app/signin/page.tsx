@@ -1,11 +1,17 @@
 'use client'
 import Loader from '@/components/Loader'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
 import React, { useState } from 'react'
 import { FaGithub } from 'react-icons/fa'
 
 function SignIn() {
   const [loading, setLoading] = useState(false)
+  const {data: session, status} = useSession()
+
+  if (session?.user) {
+    redirect('/')
+  }
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center">
       <div className="text-center space-y-4">

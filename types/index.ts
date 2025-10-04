@@ -4,4 +4,11 @@ interface Community {
     icon: string;
 }
 
+interface User {
+    id: string;
+    name: string;
+    image: string;
+    
+}
+
 export type {Community}
