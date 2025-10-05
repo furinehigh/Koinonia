@@ -35,7 +35,7 @@ function Sidebar({recentCommunities} : {
                 ))}
             </div>
             <div className='text-sm space-x-1 text-center'>
-                <p>{koins}</p>
+                <p className='font-semibold'>{koins}</p>
                 <p>Koins</p>
             </div>
         </div>

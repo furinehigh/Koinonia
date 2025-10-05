@@ -29,7 +29,6 @@ function Header() {
                 <div className='flex space-x-2 items-center'>
                     {session?.user ? (
                         <>
-                            <Button>Join</Button>
                             <Button onClick={() => setIsDialogOpen(true)} className='flex items-center space-x-1' variant={'outline'}>
                                 <span>Create</span> <Plus className='' />
                             </Button>

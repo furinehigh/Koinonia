@@ -1,5 +1,5 @@
-import { communityData } from '@/lib/data/community';
-import { notFound } from 'next/navigation';
+import { communityData, handleJoinCommunity } from '@/lib/data/community';
+import { notFound, redirect } from 'next/navigation';
 import React from 'react'
 import NotFound from './not-found';
 import {
@@ -14,6 +14,8 @@ import {
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 
 async function CommunityLayout({
     children,
@@ -23,10 +25,21 @@ async function CommunityLayout({
     params: { name: string }
 }>) {
     const slug = (await params).name
-    const community = await communityData(slug)
+
+    const session = await getServerSession(authOptions)
+    const community = await communityData(slug, session?.user.id)
+
 
     if (!community) {
         return NotFound()
+    }
+
+    const handleJoin = async () => {
+        if (!session?.user) {
+            redirect('/signin')
+        }
+
+        await handleJoinCommunity(community.id, session.user.id)
     }
     return (
         <div className="ml-15 flex flex-col">
@@ -59,17 +72,19 @@ async function CommunityLayout({
                     <Card className='rounded shadow-none'>
                         <CardHeader>
                             <CardTitle>
-                                <div className='flex items-center space-x-1'>
-                                    <div className='h-10 w-10 rounded border'>
-                                        <img src={community.avatarUrl || 'logo.png'} />
+                                <div className='flex justify-between'>
+                                    <div className='flex items-center space-x-1'>
+                                        <div className='h-10 w-10 rounded border'>
+                                            <img src={community.avatarUrl || 'logo.png'} />
+                                        </div>
+                                        <div>
+                                            {community.name}
+                                        </div>
                                     </div>
-                                    <div>
-                                        {community.name}
-                                    </div>
+                                    {community.member ? <Button variant={'destructive'}>Leave</Button> : <Button onClick={handleJoin}>Join</Button>}
                                 </div>
                             </CardTitle>
                             <CardDescription>{community.description}</CardDescription>
-                            <CardAction></CardAction>
                         </CardHeader>
                         <CardContent>
                             <div className='flex justify-between'>
