@@ -93,8 +93,7 @@ model Post {
   content     String?
   imageUrl    String?
   authorId    String
-  upVotes     Int       @default(0)
-  downVotes   Int       @default(0)
+  votes     Int       @default(0)
   views       Int       @default(0)
   author      User      @relation("UserPosts", fields: [authorId], references: [id])
   communityId String

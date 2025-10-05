@@ -6,18 +6,18 @@ function Loader({className, size} : {
 }) {
   if (size == 32) {
     return (
-    <img src={'coin_loader_32px.gif'} />
+    <img src={'/coin_loader_32px.gif'} />
   )} else if (size == 64) {
     return (
-      <img src={'coin_loader_64px.gif'} />
+      <img src={'/coin_loader_64px.gif'} />
     )
   } else if (size == 96) {
     return (
-      <img src={'coin_loader_96px.gif'} />
+      <img src={'/coin_loader_96px.gif'} />
     )
   } else {
     return (
-      <img src={'coin_loader_128px.gif'} />
+      <img src={'/coin_loader_128px.gif'} />
     )
   }
 }

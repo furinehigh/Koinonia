@@ -33,13 +33,15 @@ function CommLayout({community, handleJoin, handleLeave, children}:{
                         </Link>
                         <Link href={'/c/' + community.slug} className='hover:underline underline-offset-2 transition duration-200 flex items-center space-x-1'>
                             <div className='h-8 w-8 rounded border overflow-hidden'>
-                                <img src={community.avatarUrl || 'logo.png'} width={40} height={40} />
+                                <img src={community.avatarUrl || '/logo.png'} width={40} height={40} />
                             </div>
                             <h1 className='text-sm '>c/{community.name}</h1>
                         </Link>
 
                         <div className='ml-auto'>
+                            <Link href={'/c/' + community.slug + '/post/create'}>
                             <Button>Create Post</Button>
+                            </Link>
                         </div>
                     </div>
                     <div>
@@ -53,7 +55,7 @@ function CommLayout({community, handleJoin, handleLeave, children}:{
                                 <div className='flex justify-between'>
                                     <div className='flex items-center space-x-1'>
                                         <div className='h-10 w-10 rounded border overflow-hidden'>
-                                            <img src={community.avatarUrl || 'logo.png'} />
+                                            <img src={community.avatarUrl || '/logo.png'} />
                                         </div>
                                         <div>
                                             {community.name}

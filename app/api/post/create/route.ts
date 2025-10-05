@@ -12,14 +12,24 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { title, content, imageUrl, communityId} = body
+    const { title, content, imageUrl, slug } = body
+
+    const community = await prisma.community.findUnique({
+      where: {
+        slug
+      }
+    })
+
+    if (!community) {
+      return NextResponse.json({ error: "Community not found" }, { status: 404 })
+    }
 
     const res = await prisma.post.create({
       data: {
         title,
         content,
         imageUrl,
-        communityId,
+        communityId: community.id,
         authorId: session.user.id
       }
     })

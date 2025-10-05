@@ -10,6 +10,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Post } from '@/types'
+import { ArrowBigDown, ArrowBigUp } from 'lucide-react'
 
 function CommHome({ posts }: {
     posts: Post[]
@@ -47,25 +48,31 @@ function CommHome({ posts }: {
                                             {p.author.name}
                                         </div>
                                     </div>
-                                    
+
                                 </div>
                             </CardTitle>
-                            <CardDescription>{community.description}</CardDescription>
+                            <h1 className='font-semibold'>{p.title}</h1>
+                            <CardDescription className=''>{p.content}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className='flex justify-between'>
-
-                                <div className='text-sm flex items-center space-x-1'>
-                                    <p className='font-semibold'>{community.membersCount}</p>
-                                    <p>members</p>
-                                </div>
-                                <div className='text-sm flex items-center space-x-1'>
-                                    <p className='font-semibold'>{community.membersCount}</p>
-                                    <p>online members</p>
-                                </div>
-                            </div>
+                            <img src={p.imageUrl} />
                         </CardContent>
                         <CardFooter>
+                            <div className='flex justify-between'>
+                                <div className='flex space-x-2'>
+                                        <span>{p.votes}</span>
+                                    <div className='flex'>
+
+                                        <ArrowBigUp className='' />
+                                    </div>
+                                    <div className='flex'>
+                                        <ArrowBigDown />
+                                    </div>
+                                </div>
+                                <div>
+                                    <span>{p.views}</span> views
+                                </div>
+                            </div>
                         </CardFooter>
                     </Card>
                 )))}

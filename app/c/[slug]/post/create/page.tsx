@@ -1,9 +1,14 @@
+import CreatePost from '@/components/community/create-post'
 import React from 'react'
 
-function CreatePost() {
+
+
+function CPost({params} : {
+  params: {slug: string}
+}) {
   return (
-    <div>CreatePost</div>
+    <CreatePost slug={params.slug} />
   )
 }
 
-export default CreatePost
+export default CPost

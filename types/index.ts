@@ -21,10 +21,10 @@ interface User {
 interface Post {
     title: string
     content: string
+    imageUrl: string
     communityId: string
     author: User
-    upVote: number
-    downVote: number
+    votes: number
     views: number
     authorId: string
 }
