@@ -10,7 +10,6 @@ export default async function CommunityPage({ params, children }: any) {
     const slug = params.name
     const session = await getServerSession(authOptions)
     let community = await communityData(slug, session?.user?.id || '')
-
     if (!community) return NotFound()
 
     async function handleJoin() {
