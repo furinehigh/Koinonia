@@ -48,7 +48,6 @@ function CommLayout({community, handleJoin, handleLeave, children}:{
           </div>
         </div>
 
-        {/* Sticky Community Details */}
         <div className='w-1/3'>
           <div className="sticky top-18"> {/* top-4 for some spacing from top */}
             <Card className='rounded shadow-none'>
