@@ -9,15 +9,48 @@ datasource db {
 }
 
 model Community {
-  id          String @id @unique
+  id          String   @id @default(cuid())
   name        String
-  description String
-  slug        String @unique
+  description String?
+  slug        String   @unique
+  moderators  String[]
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id])
+  bannerUrl   String?  
+  avatarUrl   String?  
+  members     User[]   @relation("CommunityMembers")
+  posts       Post[]   @relation("CommunityPosts")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  User User[] @relation("UserCreatedCommunities")
 }
 
 model User {
-  id       String @id @unique
-  username String
-  name     String
-  bio      String
+  id        String      @id @default(cuid())
+  username  String      @unique
+  name      String
+  email     String?     @unique
+  bio       String?     
+  avatarUrl String?
+  communitiesCreated Community[] @relation("UserCreatedCommunities")
+  communitiesJoined  Community[] @relation("CommunityMembers")
+  posts     Post[]     @relation("UserPosts")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  Community Community[]
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  content     String?
+  imageUrl    String?
+  authorId    String
+  author      User      @relation("UserPosts", fields: [authorId], references: [id])
+  communityId String
+  community   Community @relation("CommunityPosts", fields: [communityId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
