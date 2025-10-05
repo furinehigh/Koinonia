@@ -19,6 +19,7 @@ interface User {
 }
 
 interface Post {
+    id: string
     title: string
     content: string
     imageUrl: string
@@ -27,6 +28,7 @@ interface Post {
     votes: number
     views: number
     authorId: string
+    community?: Community
 }
 
 export type { Community, User, Post }

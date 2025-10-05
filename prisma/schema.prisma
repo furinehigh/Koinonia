@@ -103,6 +103,7 @@ model Post {
   updatedAt DateTime @updatedAt
 }
 
+
 model Koin {
   id        String   @id @default(cuid())
   koins     Int      @default(50)

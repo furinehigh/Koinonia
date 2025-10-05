@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Community } from '@/types'
 import Image from 'next/image'
 import { useUserStore } from '@/store/useUserStore'
+import Link from 'next/link'
 
 function Sidebar({recentCommunities} : {
     recentCommunities: Community[] 
@@ -16,11 +17,11 @@ function Sidebar({recentCommunities} : {
   }, [])
 
     return (
-        <div className='fixed mt-15 border-r h-[90vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
+        <div className='fixed z-50 mt-15 border-r h-[90vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
             <div className='flex flex-col space-y-2 justify-center w-full items-center'>
-                <div className='cursor-pointer rounded p-1'>
+                <Link href={'/'} className='cursor-pointer rounded p-1'>
                     <Home className='' />
-                </div>
+                </Link>
                 <div className='cursor-pointer rounded p-1'>
                     <UsersRound className='' />
                 </div>

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card"
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
 import Loader from '../Loader'
 import { X } from 'lucide-react'
@@ -23,6 +23,7 @@ import Link from 'next/link'
 function CreatePost({ slug }: {
     slug: string
 }) {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         title: '',
         content: '',
@@ -38,6 +39,10 @@ function CreatePost({ slug }: {
 
     const handleimageSelect = () => {
         inputRef.current?.click()
+    }
+
+    const handleAction = (action: string, postId: string) => {
+
     }
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,8 +112,8 @@ function CreatePost({ slug }: {
                 setError(data.error)
                 return;
             }
-            updateKoins(koins - 10)
-            redirect('/c/' + slug)
+            updateKoins(koins - 5)
+            router.push('/c/' + slug)
         } catch (e: any) {
             console.error(e.message)
         }
@@ -117,7 +122,10 @@ function CreatePost({ slug }: {
         <Card className='rounded shadow-none m-4'>
             <CardHeader>
                 <CardTitle>
-                    Create a new post
+                    <div className='flex justify-between items-center'>
+                        <h1 className='font-semibold'>Create a new post</h1>
+                        <div className='p-1 text-xs border rounded font-light'>5 Koins</div>
+                    </div>
                 </CardTitle>
             </CardHeader>
             <CardContent>
@@ -145,11 +153,11 @@ function CreatePost({ slug }: {
                             onChange={(e) => handleFieldChange(e)}
                         />
                     </div>
-                    <div className="flex-1 gap-2 flex flex-col relative items-center">
+                    <div className="flex-1 gap-2 flex flex-col relative">
                         {image && <span onClick={() => setImage('')} className="z-50 absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
                         <div
                             onClick={handleimageSelect} className="h-20 w-20 rounded border cursor-pointer relative ">
-                            {uploading ? <Loader className={"flex items-center justify-center"} size={32} /> : <img src={image || '/logo.png'} className="" alt="post_image" onClick={handleimageSelect} />}
+                            {uploading ? <Loader className={"flex items-center justify-center w-full h-full"} size={32} /> : <img src={image || '/logo.png'} className="" alt="post_image" onClick={handleimageSelect} />}
                         </div>
                         <input
                             id="image"

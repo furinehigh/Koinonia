@@ -117,7 +117,10 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create a new community</DialogTitle>
+                    <DialogTitle><div className='flex justify-between items-center'>
+                        <h1 className='font-semibold'>Create a new community</h1>
+                        <div className='p-1 text-xs border rounded font-light'>10 Koins</div>
+                    </div></DialogTitle>
                     <DialogDescription>
                         It will create a new community and will add you automatically.
                     </DialogDescription>

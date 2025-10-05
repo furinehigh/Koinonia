@@ -20,11 +20,11 @@ function Header() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     return (
         <>
-            <div className='fixed w-full z-50 dark:bg-black bg-white border-b p-3 flex justify-between items-center'>
+            <div className='fixed w-full z-[51] dark:bg-black bg-white border-b p-3 flex justify-between items-center'>
                 <div>
-                    <h1 className='font-extrabold text-2xl'>
+                    <Link href={'/'} className='font-extrabold text-2xl'>
                         Koinonia
-                    </h1>
+                    </Link>
                 </div>
                 <div className='flex space-x-2 items-center'>
                     {session?.user ? (
