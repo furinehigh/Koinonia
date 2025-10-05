@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 import NotFound from './not-found'
 
 export default async function CommunityLayout({ params, children }: any) {
-    const slug = params.name
+    const slug = params.slug
     const session = await getServerSession(authOptions)
     const community = await communityData(slug, session?.user.id)
     if (!community) return NotFound()

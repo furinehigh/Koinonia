@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const body = await req.json()
+    const { title, content, imageUrl, communityId} = body
+
+    const res = await prisma.post.create({
+      data: {
+        title,
+        content,
+        imageUrl,
+        communityId,
+        authorId: session.user.id
+      }
+    })
+
+    return NextResponse.json({ message: "Post created", res }, { status: 200 })
+  } catch (err) {
+    console.error("POST error:", err)
+    return NextResponse.json({ error: "Post creation failed" }, { status: 400 })
+  }
+}

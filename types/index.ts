@@ -15,7 +15,18 @@ interface User {
     id: string;
     name: string;
     image: string;
-
+    username: string
 }
 
-export type { Community, User }
+interface Post {
+    title: string
+    content: string
+    communityId: string
+    author: User
+    upVote: number
+    downVote: number
+    views: number
+    authorId: string
+}
+
+export type { Community, User, Post }

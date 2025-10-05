@@ -71,17 +71,17 @@ model VerificationToken {
 }
 
 model Community {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
-  slug        String   @unique
-  moderators  User[]   @relation("CommunityModerators")
+  slug        String  @unique
+  moderators  User[]  @relation("CommunityModerators")
   creatorId   String
-  creator     User     @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
+  creator     User    @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
   bannerUrl   String?
   avatarUrl   String?
-  members     User[]   @relation("CommunityMembers")
-  posts       Post[]   @relation("CommunityPosts")
+  members     User[]  @relation("CommunityMembers")
+  posts       Post[]  @relation("CommunityPosts")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -93,6 +93,9 @@ model Post {
   content     String?
   imageUrl    String?
   authorId    String
+  upVotes     Int       @default(0)
+  downVotes   Int       @default(0)
+  views       Int       @default(0)
   author      User      @relation("UserPosts", fields: [authorId], references: [id])
   communityId String
   community   Community @relation("CommunityPosts", fields: [communityId], references: [id])

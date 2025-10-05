@@ -31,7 +31,7 @@ function CommLayout({community, handleJoin, handleLeave, children}:{
                                 <ChevronLeft className='h-5' />
                             </div>
                         </Link>
-                        <Link href={'/c/' + community.slug} className='hover:underline flex items-center space-x-1'>
+                        <Link href={'/c/' + community.slug} className='hover:underline underline-offset-2 transition duration-200 flex items-center space-x-1'>
                             <div className='h-8 w-8 rounded border overflow-hidden'>
                                 <img src={community.avatarUrl || 'logo.png'} width={40} height={40} />
                             </div>
@@ -43,7 +43,6 @@ function CommLayout({community, handleJoin, handleLeave, children}:{
                         </div>
                     </div>
                     <div>
-
                         {children}
                     </div>
                 </div>
