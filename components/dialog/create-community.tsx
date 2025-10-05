@@ -15,6 +15,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import Image from "next/image";
 import { X } from "lucide-react";
+import Loader from "../Loader";
 
 function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     isOpen: boolean;
@@ -27,6 +28,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         slug: '',
         avatarUrl: ''
     })
+    const [uploading, setUploading] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleAvatarSelect = () => {
@@ -38,7 +40,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         const file = e.target.files[0]
         const url = URL.createObjectURL(file)
         setAvatar(url)
-
+        setUploading(true)
         try {
             const base64 = await fileToBase64(file)
 
@@ -56,10 +58,12 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
 
             setFormData(prev => ({
                 ...prev,
-                avatarUrl: data.data.display_url
+                avatarUrl: data.data.url
             }))
         } catch (e: any) {
             console.error(e.message)
+        } finally {
+            setUploading(false)
         }
     }
 
@@ -108,16 +112,14 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2 flex flex-col justify-center items-center">
-                    <div className="flex-1 gap-2 flex flex-col items-center">
+                    <div className="flex-1 gap-2 flex flex-col relative items-center">
+                        {avatar && <span onClick={() => setAvatar('')} className="z-50 absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
                         <div
-                            onClick={handleAvatarSelect} className="h-20 w-20 rounded border cursor-pointer relative">
-                            {avatar && <span onClick={() => setAvatar('')} className="absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
-                            {avatar == '' ? <span
-                                id="avatar"
-                                className="h-full w-full"
-                            ></span> : <img src={avatar} className="h-full w-full" alt="comm_avatar" onClick={handleAvatarSelect} />}
+                            onClick={handleAvatarSelect} className="h-20 w-20 rounded border cursor-pointer relative ">
+                            {uploading ? <Loader className={"flex items-center justify-center"} size={32} /> : <img src={avatar || 'logo.png'} className="h-full w-full" alt="comm_avatar" onClick={handleAvatarSelect} />}
                         </div>
                         <input
+                            id="avatar"
                             type="file"
                             accept="image/*"
                             ref={inputRef}
@@ -168,7 +170,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                             Close
                         </Button>
                     </DialogClose>
-                    <Button onClick={handleSubmit} type="button" variant="default">
+                    <Button disabled={uploading} onClick={handleSubmit} type="button" variant="default">
                         Create
                     </Button>
                 </DialogFooter>

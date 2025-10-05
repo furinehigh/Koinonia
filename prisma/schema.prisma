@@ -15,7 +15,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -24,20 +24,23 @@ model User {
   memberOfCommunities Community[] @relation("CommunityMembers")
 
   posts Post[] @relation("UserPosts")
+
+  Koin Koin[] @relation("UserPosts")
 }
 
 model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,17 +69,17 @@ model VerificationToken {
 }
 
 model Community {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
-  slug        String    @unique
+  slug        String   @unique
   moderators  String[]
   creatorId   String
-  creator     User      @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
+  creator     User     @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
   bannerUrl   String?
   avatarUrl   String?
-  members     User[]    @relation("CommunityMembers")
-  posts       Post[]    @relation("CommunityPosts")
+  members     User[]   @relation("CommunityMembers")
+  posts       Post[]   @relation("CommunityPosts")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -92,6 +95,15 @@ model Post {
   communityId String
   community   Community @relation("CommunityPosts", fields: [communityId], references: [id])
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Koin {
+  id        String   @id @default(cuid())
+  koins     Int      @default(50)
+  userId    String
+  user      User     @relation("UserPosts", fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
