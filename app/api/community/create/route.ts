@@ -1,8 +1,9 @@
+import { Community } from "@/types"
 import { NextRequest, NextResponse } from "next/server"
 
 export const POST = async (req: NextRequest) => {
   try {
-    const body = await req.json()
+    const body = await req.json() as Community
 
     return NextResponse.json({ message: "Request received", data: body }, { status: 200 })
   } catch (err) {
