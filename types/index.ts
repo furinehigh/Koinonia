@@ -1,14 +1,21 @@
 interface Community {
-    id: string;
-    name: string;
-    icon: string;
+    id: string
+    name: string
+    description: string
+    slug: string
+    moderators: string[]
+    creatorId: string
+    bannerUrl?: string
+    avatarUrl?: string
+    createdAt: Date
+    updatedAt: Date
 }
 
 interface User {
     id: string;
     name: string;
     image: string;
-    
+
 }
 
-export type {Community}
+export type { Community, User }
