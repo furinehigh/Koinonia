@@ -7,38 +7,79 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Community {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  slug        String   @unique
-  moderators  String[]
-  creatorId   String
-  creator     User     @relation(fields: [creatorId], references: [id])
-  bannerUrl   String?  
-  avatarUrl   String?  
-  members     User[]   @relation("CommunityMembers")
-  posts       Post[]   @relation("CommunityPosts")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  User User[] @relation("UserCreatedCommunities")
+  createdCommunities Community[] @relation("UserCreatedCommunities")
+
+  memberOfCommunities Community[] @relation("CommunityMembers")
+
+  posts Post[] @relation("UserPosts")
 }
 
-model User {
-  id        String      @id @default(cuid())
-  username  String      @unique
-  name      String
-  email     String?     @unique
-  bio       String?     
-  avatarUrl String?
-  communitiesCreated Community[] @relation("UserCreatedCommunities")
-  communitiesJoined  Community[] @relation("CommunityMembers")
-  posts     Post[]     @relation("UserPosts")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
-  Community Community[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Community {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  slug        String    @unique
+  moderators  String[]
+  creatorId   String
+  creator     User      @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
+  bannerUrl   String?
+  avatarUrl   String?
+  members     User[]    @relation("CommunityMembers")
+  posts       Post[]    @relation("CommunityPosts")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
@@ -50,6 +91,7 @@ model Post {
   author      User      @relation("UserPosts", fields: [authorId], references: [id])
   communityId String
   community   Community @relation("CommunityPosts", fields: [communityId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

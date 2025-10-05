@@ -25,7 +25,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         name: '',
         description: '',
         slug: '',
-        avatar: ''
+        avatarUrl: ''
     })
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -33,12 +33,48 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         inputRef.current?.click()
     }
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return
         const file = e.target.files[0]
         const url = URL.createObjectURL(file)
         setAvatar(url)
+
+        try {
+            const base64 = await fileToBase64(file)
+
+            const res = await fetch("/api/images/upload", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: base64, name: file.name }),
+            })
+            if (!res.ok) {
+                setAvatar('')
+                return;
+            }
+
+            const data = await res.json()
+
+            setFormData(prev => ({
+                ...prev,
+                avatarUrl: data.data.display_url
+            }))
+        } catch (e: any) {
+            console.error(e.message)
+        }
     }
+
+    const fileToBase64 = (file: File) =>
+        new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => {
+                // Remove the data:image/...;base64, prefix
+                const base64 = (reader.result as string).split(",")[1]
+                resolve(base64)
+            }
+            reader.onerror = (err) => reject(err)
+        })
+
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData(prev => ({
@@ -47,17 +83,17 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         }))
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         try {
 
-            
-            const res = fetch('/api/community/create', {
+
+            const res = await fetch('/api/community/create', {
                 method: 'POST',
                 body: JSON.stringify(formData)
             })
 
-            isOpen = false
-        } catch(e: any) {
+            handleOpenChange(false)
+        } catch (e: any) {
             console.error(e.message)
         }
     }

@@ -1,6 +1,6 @@
 'use client'
 import { Plus } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import CreateCommunityDialog from './dialog/create-community'
@@ -53,7 +53,7 @@ function Header() {
                                         <DropdownMenuItem>Profile</DropdownMenuItem>
                                         <DropdownMenuItem>Billing</DropdownMenuItem>
                                         <DropdownMenuItem>Team</DropdownMenuItem>
-                                        <DropdownMenuItem>Subscription</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => signOut()}>SignOut</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
