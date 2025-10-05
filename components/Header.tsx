@@ -33,7 +33,7 @@ function Header() {
                                 <span>Create</span> <Plus className='' />
                             </Button>
 
-                            <div>
+                            <div className='z-[55]'> 
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger className='cursor-pointer mt-2'>
