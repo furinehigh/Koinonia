@@ -3,7 +3,7 @@ interface Community {
     name: string
     description: string
     slug: string
-    moderators: string[]
+    membersCount?: number
     creatorId: string
     bannerUrl?: string
     avatarUrl?: string

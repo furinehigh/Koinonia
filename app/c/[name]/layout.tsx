@@ -72,10 +72,19 @@ async function CommunityLayout({
                             <CardAction></CardAction>
                         </CardHeader>
                         <CardContent>
-                            <p>Card Content</p>
+                            <div className='flex justify-between'>
+
+                                <div className='text-sm flex items-center space-x-1'>
+                                    <p className='font-semibold'>{community.membersCount}</p>
+                                    <p>members</p>
+                                </div>
+                                <div className='text-sm flex items-center space-x-1'>
+                                    <p className='font-semibold'>{community.membersCount}</p>
+                                    <p>online members</p>
+                                </div>
+                            </div>
                         </CardContent>
                         <CardFooter>
-                            <p>Card Footer</p>
                         </CardFooter>
                     </Card>
                 </div>
