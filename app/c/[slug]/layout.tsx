@@ -15,15 +15,21 @@ export default async function CommunityLayout({ params, children }: any) {
     async function handleJoin() {
         'use server'
         if (!session?.user) redirect('/signin')
-        await handleJoinCommunity(community.id, session?.user.id)
-        community = await communityData(slug, session?.user?.id || '')
+        const data = await handleJoinCommunity(community.id, session?.user.id)
+        if (data) {
+            community = await communityData(slug, session?.user?.id || '')
+
+        }
     }
 
     async function handleLeave() {
         'use server'
         if (!session?.user) redirect('/signin')
-        await handleLeaveCommunity(community.id, session?.user.id)
-        community = await communityData(slug, session?.user?.id || '')
+        const data = await handleLeaveCommunity(community.id, session?.user.id)
+        if (data) {
+            community = await communityData(slug, session?.user?.id || '')
+
+        }
 
     }
 
