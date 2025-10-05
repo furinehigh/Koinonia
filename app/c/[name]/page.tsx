@@ -1,12 +1,9 @@
 import React from 'react'
 
+import CommHome from '@/components/community/home'
 function CummunityPage() {
   return (
-    <div>
-        <div>
-            
-        </div>
-    </div>
+    <CommHome />
   )
 }
 
