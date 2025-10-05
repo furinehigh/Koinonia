@@ -1,4 +1,4 @@
-// app/c/[name]/page.tsx
+// app/c/[slug]/page.tsx
 import { communityData, handleJoinCommunity, handleLeaveCommunity } from '@/lib/data/community'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 import NotFound from './not-found'
 
 export default async function CommunityPage({ params, children }: any) {
-    const slug = params.name
+    const slug = params.slug
     const session = await getServerSession(authOptions)
     let community = await communityData(slug, session?.user?.id || '')
     if (!community) return NotFound()
