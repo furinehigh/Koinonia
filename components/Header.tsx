@@ -33,7 +33,7 @@ function Header() {
                                 <span>Create</span> <Plus className='' />
                             </Button>
 
-                            <div className='z-[55]'> 
+                            <div className='z-[55]'>
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger className='cursor-pointer mt-2'>
@@ -43,10 +43,10 @@ function Header() {
                                         <DropdownMenuLabel>
                                             <span>
 
-                                            {session?.user.name}
+                                                {session?.user.name}
                                             </span>
                                             <p className='text-xs'>{session?.user.email}</p>
-                                            </DropdownMenuLabel>
+                                        </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem>Profile</DropdownMenuItem>
                                         <DropdownMenuItem>Billing</DropdownMenuItem>
