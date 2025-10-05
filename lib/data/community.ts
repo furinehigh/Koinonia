@@ -3,7 +3,7 @@ import { prisma } from "../prisma"
 
 export const communityData = async (slug: string): Promise<Community | null> => {
     try {
-        const data = await prisma.community.findFirst({
+        const data = await prisma.community.findUnique({
             where: {
                 slug
             }

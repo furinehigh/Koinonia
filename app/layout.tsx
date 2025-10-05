@@ -5,6 +5,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import AuthProvider from "./auth-provider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { getUserKoins } from "@/lib/data/user";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,11 +27,13 @@ export const metadata: Metadata = {
   description: "Coins based community forum",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions)
+  const koinData = await getUserKoins(session?.user.id)
   return (
     <html lang="en">
       <body

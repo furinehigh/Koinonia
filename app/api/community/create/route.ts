@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { name, description, slug, moderators = [], bannerUrl, avatarUrl } = body
+    const { name, description, slug, bannerUrl, avatarUrl } = body
 
     const data = await prisma.community.create({
       data: {
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
         slug,
         creator: { connect: { id: session.user.id } },
         members: { connect: [{ id: session.user.id }] },
-        moderators,
+        moderators: { connect: [{ id: session.user.id }] },
         bannerUrl,
         avatarUrl,
       },

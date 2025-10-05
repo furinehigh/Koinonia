@@ -13,6 +13,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Button } from './ui/button'
 
 function Header() {
     const { data: session, status } = useSession()
@@ -28,17 +29,15 @@ function Header() {
                 <div className='flex space-x-2 items-center'>
                     {session?.user ? (
                         <>
-                            <button className=' cursor-pointer dark:text-black dark:bg-white bg-black transition duration-300 text-white p-2 rounded'>
-                                <span>Join</span>
-                            </button>
-                            <button onClick={() => setIsDialogOpen(true)} className='cursor-pointer border-1 dark:border-white dark:text-white border-black transition duration-300 text-black p-2 rounded flex items-center space-x-1'>
+                            <Button>Join</Button>
+                            <Button onClick={() => setIsDialogOpen(true)} className='flex items-center space-x-1' variant={'outline'}>
                                 <span>Create</span> <Plus className='' />
-                            </button>
+                            </Button>
 
                             <div>
 
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger className='cursor-pointer'>
+                                    <DropdownMenuTrigger className='cursor-pointer mt-2'>
                                         <Image src={session?.user.image || 'user-placeholder.png'} className='rounded' width={30} height={30} alt='user' />
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>

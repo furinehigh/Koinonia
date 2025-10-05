@@ -2,7 +2,11 @@ import React from 'react'
 
 function CummunityPage() {
   return (
-    <div>CummunityPage</div>
+    <div>
+        <div>
+            
+        </div>
+    </div>
   )
 }
 

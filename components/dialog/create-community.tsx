@@ -16,6 +16,7 @@ import { Input } from "../ui/input";
 import Image from "next/image";
 import { X } from "lucide-react";
 import Loader from "../Loader";
+import { useUserStore } from "@/store/useUserStore";
 
 function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     isOpen: boolean;
@@ -29,7 +30,10 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         avatarUrl: ''
     })
     const [uploading, setUploading] = useState(false)
+    const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
+
+    const { updateKoins, koins } = useUserStore()
 
     const handleAvatarSelect = () => {
         inputRef.current?.click()
@@ -96,7 +100,14 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                 body: JSON.stringify(formData)
             })
 
-            handleOpenChange(false)
+            const data = await res.json()
+
+            if (!res.ok) {
+                setError(data.error)
+                return;
+            }
+            updateKoins(koins - 10)
+            handleOpenChange(false) 
         } catch (e: any) {
             console.error(e.message)
         }
@@ -116,7 +127,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                         {avatar && <span onClick={() => setAvatar('')} className="z-50 absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
                         <div
                             onClick={handleAvatarSelect} className="h-20 w-20 rounded border cursor-pointer relative ">
-                            {uploading ? <Loader className={"flex items-center justify-center"} size={32} /> : <img src={avatar || 'logo.png'} className="h-full w-full" alt="comm_avatar" onClick={handleAvatarSelect} />}
+                            {uploading ? <Loader className={"flex items-center justify-center"} size={32} /> : <img src={avatar || 'logo.png'} className="" alt="comm_avatar" onClick={handleAvatarSelect} />}
                         </div>
                         <input
                             id="avatar"

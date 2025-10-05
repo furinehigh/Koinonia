@@ -26,6 +26,8 @@ model User {
   posts Post[] @relation("UserPosts")
 
   Koin Koin[] @relation("UserPosts")
+
+  moderatorOfCommunities Community[] @relation("CommunityModerators")
 }
 
 model Account {
@@ -73,7 +75,7 @@ model Community {
   name        String
   description String?
   slug        String   @unique
-  moderators  String[]
+  moderators  User[]   @relation("CommunityModerators")
   creatorId   String
   creator     User     @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
   bannerUrl   String?
@@ -102,7 +104,7 @@ model Post {
 model Koin {
   id        String   @id @default(cuid())
   koins     Int      @default(50)
-  userId    String
+  userId    String   @unique
   user      User     @relation("UserPosts", fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
