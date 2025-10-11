@@ -26,7 +26,7 @@ export async function PUT(req: Request) {
     const authorId = post.author.id
 
     let updatedPost
-    let koinChange = 0
+    let manaChange = 0
 
     switch (action) {
       case "upvote":
@@ -34,7 +34,7 @@ export async function PUT(req: Request) {
           where: { id: postId },
           data: { votes: { increment: 1 } },
         })
-        koinChange = 1
+        manaChange = 1
         break
 
       case "downvote":
@@ -42,7 +42,7 @@ export async function PUT(req: Request) {
           where: { id: postId },
           data: { votes: { decrement: 1 } },
         })
-        koinChange = -1
+        manaChange = -1
         break
 
       case "undo-upvote":
@@ -50,7 +50,7 @@ export async function PUT(req: Request) {
           where: { id: postId },
           data: { votes: { decrement: 1 } },
         })
-        koinChange = -1
+        manaChange = -1
         break
 
       case "undo-downvote":
@@ -58,7 +58,7 @@ export async function PUT(req: Request) {
           where: { id: postId },
           data: { votes: { increment: 1 } },
         })
-        koinChange = 1
+        manaChange = 1
         break
 
       case "views":
@@ -73,10 +73,10 @@ export async function PUT(req: Request) {
     }
 
     // Only adjust coins if action affects votes
-    if (koinChange !== 0) {
-      await prisma.koin.update({
+    if (manaChange !== 0) {
+      await prisma.mana.update({
         where: { userId: authorId },
-        data: { Mana: { increment: koinChange } },
+        data: { Mana: { increment: manaChange } },
       })
     }
 
