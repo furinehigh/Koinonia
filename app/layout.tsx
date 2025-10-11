@@ -8,6 +8,7 @@ import AuthProvider from "./auth-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getUserMana } from "@/lib/data/user";
+import MagicalBG from "@/components/MagicalBG";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default async function RootLayout({
       >
         <AuthProvider>
           <div className="flex flex-col relative">
+            <MagicalBG />
             <Header />
             <div className="flex">
               <Sidebar recentCommunities={[]} />

@@ -1,0 +1,147 @@
+$black: #0b0b0b;
+$gray-light: #d1d1d1;
+$gray-mid: #888;
+$gray-dark: #333;
+$white-smoke: #f2f2f2;
+$animationtime: 1.5s;
+
+body {
+  .fire {
+    position: absolute;
+    bottom: 2vh; // adjust placement in sidebar
+    left: 50%;
+    transform: translateX(-50%);
+    height: 5vw;
+    width: 5vw;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .flames {
+      position: absolute;
+      bottom: 25%;
+      left: 50%;
+      width: 60%;
+      height: 60%;
+      transform: translateX(-50%) rotate(45deg);
+
+      .flame {
+        position: absolute;
+        right: 0%;
+        bottom: 0%;
+        width: 0%;
+        height: 0%;
+        background-color: $white-smoke;
+        border-radius: 0.3vw;
+
+        &:nth-child(2n + 1) {
+          animation: flameodd $animationtime ease-in infinite;
+        }
+
+        &:nth-child(2n) {
+          animation: flameeven $animationtime ease-in infinite;
+        }
+
+        &:nth-child(1) {
+          animation-delay: 0s;
+        }
+
+        &:nth-child(2) {
+          animation-delay: $animationtime / 4;
+        }
+
+        &:nth-child(3) {
+          animation-delay: $animationtime / 4 * 2;
+        }
+
+        &:nth-child(4) {
+          animation-delay: $animationtime / 4 * 3;
+        }
+      }
+    }
+
+    .mana-glow {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.6vw;
+      color: $white-smoke;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-shadow:
+        0 0 4px $gray-light,
+        0 0 8px $gray-mid,
+        0 0 16px $gray-dark,
+        0 0 24px $black;
+      animation: pulse 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+  }
+}
+
+@keyframes flameodd {
+  0%, 100% {
+    width: 0%;
+    height: 0%;
+  }
+  25% {
+    width: 100%;
+    height: 100%;
+  }
+  0% {
+    background-color: $white-smoke;
+    z-index: 1000000;
+    right: 0%;
+    bottom: 0%;
+  }
+  40% {
+    background-color: $gray-light;
+    z-index: 1000000;
+  }
+  100% {
+    background-color: $gray-dark;
+    z-index: -10;
+    right: 130%;
+    bottom: 150%;
+  }
+}
+
+@keyframes flameeven {
+  0%, 100% {
+    width: 0%;
+    height: 0%;
+  }
+  25% {
+    width: 100%;
+    height: 100%;
+  }
+  0% {
+    background-color: $white-smoke;
+    z-index: 1000000;
+    right: 0%;
+    bottom: 0%;
+  }
+  40% {
+    background-color: $gray-mid;
+    z-index: 1000000;
+  }
+  100% {
+    background-color: $gray-dark;
+    z-index: -10;
+    right: 150%;
+    bottom: 130%;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
