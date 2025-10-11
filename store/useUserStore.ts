@@ -2,32 +2,32 @@
 import { create } from "zustand"
 
 interface UserStore {
-  koins: number
+  Mana: number
   loading: boolean
-  fetchKoins: () => Promise<void>
-  setKoins: (koins: number) => void
-  updateKoins: (koins: number) => Promise<void>
+  fetchMana: () => Promise<void>
+  setMana: (Mana: number) => void
+  updateMana: (Mana: number) => Promise<void>
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
-  koins: 0,
+  Mana: 0,
   loading: false,
 
-  fetchKoins: async () => {
+  fetchMana: async () => {
     set({ loading: true })
-    const res = await fetch("/api/user/koins")
+    const res = await fetch("/api/user/mana")
     const data = await res.json()
-    set({ koins: data.koins ?? 0, loading: false })
+    set({ Mana: data.Mana ?? 0, loading: false })
   },
 
-  setKoins: (koins) => set({ koins }),
+  setMana: (Mana) => set({ Mana }),
 
-  updateKoins: async (koins) => {
-    set({ koins })
-    await fetch("/api/user/koins", {
+  updateMana: async (Mana) => {
+    set({ Mana })
+    await fetch("/api/user/mana", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ koins }),
+      body: JSON.stringify({ Mana }),
     })
   },
 }))

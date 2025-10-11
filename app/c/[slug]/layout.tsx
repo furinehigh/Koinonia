@@ -14,13 +14,13 @@ export default async function CommunityPage({ params, children }: any) {
 
     async function handleJoin() {
         'use server'
-        if (!session?.user) redirect('/signin')
+        if (!session || !session?.user) redirect('/signin')
         await handleJoinCommunity(community.id, session.user.id)
     }
 
     async function handleLeave() {
         'use server'
-        if (!session?.user) redirect('/signin')
+        if (!session || !session?.user) redirect('/signin')
         await handleLeaveCommunity(community.id, session.user.id)
     }
 

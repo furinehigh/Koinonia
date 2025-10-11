@@ -25,7 +25,7 @@ model User {
 
   posts Post[] @relation("UserPosts")
 
-  Koin Koin[] @relation("UserPosts")
+  Mana Mana[] @relation("UserPosts")
 
   moderatorOfCommunities Community[] @relation("CommunityModerators")
 }
@@ -104,9 +104,9 @@ model Post {
 }
 
 
-model Koin {
+model Mana {
   id        String   @id @default(cuid())
-  koins     Int      @default(50)
+  Mana     Int      @default(50)
   userId    String   @unique
   user      User     @relation("UserPosts", fields: [userId], references: [id])
   createdAt DateTime @default(now())

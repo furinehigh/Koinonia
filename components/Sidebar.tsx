@@ -10,10 +10,10 @@ function Sidebar({recentCommunities} : {
     recentCommunities: Community[] 
 }) {
     const [expanded, setExpanded] = useState(false)
-    const { koins, loading, fetchKoins, updateKoins } = useUserStore()
+    const { Mana, loading, fetchMana, updateMana } = useUserStore()
 
   useEffect(() => {
-    fetchKoins()
+    fetchMana()
   }, [])
 
     return (
@@ -36,8 +36,8 @@ function Sidebar({recentCommunities} : {
                 ))}
             </div>
             <div className='text-sm space-x-1 text-center'>
-                <p className='font-semibold'>{koins}</p>
-                <p>Koins</p>
+                <p className='font-semibold'>{Mana}</p>
+                <p>Mana</p>
             </div>
         </div>
     )

@@ -35,7 +35,7 @@ function CreatePost({ slug }: {
     const [error, setError] = useState('')
     const inputRef = useRef(null)
 
-    const { updateKoins, koins } = useUserStore()
+    const { updateMana, Mana } = useUserStore()
 
     const handleimageSelect = () => {
         inputRef.current?.click()
@@ -112,7 +112,7 @@ function CreatePost({ slug }: {
                 setError(data.error)
                 return;
             }
-            updateKoins(koins - 5)
+            updateMana(Mana - 5)
             router.push('/c/' + slug)
         } catch (e: any) {
             console.error(e.message)
@@ -124,7 +124,7 @@ function CreatePost({ slug }: {
                 <CardTitle>
                     <div className='flex justify-between items-center'>
                         <h1 className='font-semibold'>Create a new post</h1>
-                        <div className='p-1 text-xs border rounded font-light'>5 Koins</div>
+                        <div className='p-1 text-xs border rounded font-light'>5 Mana</div>
                     </div>
                 </CardTitle>
             </CardHeader>

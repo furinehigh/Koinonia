@@ -7,7 +7,7 @@ import Sidebar from "@/components/Sidebar";
 import AuthProvider from "./auth-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getUserKoins } from "@/lib/data/user";
+import { getUserMana } from "@/lib/data/user";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +33,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions)
-  const koinData = await getUserKoins(session?.user.id)
+  const koinData = await getUserMana(session?.user.id)
   return (
     <html lang="en">
       <body

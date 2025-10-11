@@ -43,7 +43,7 @@ export const authOptions = {
           await prisma.koin.create({
             data: {
               userId: user.id,
-              koins: 50,
+              Mana: 50,
             },
           })
           console.log(`Created default koin record for ${user.email}`)

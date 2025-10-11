@@ -76,7 +76,7 @@ export async function PUT(req: Request) {
     if (koinChange !== 0) {
       await prisma.koin.update({
         where: { userId: authorId },
-        data: { koins: { increment: koinChange } },
+        data: { Mana: { increment: koinChange } },
       })
     }
 

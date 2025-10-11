@@ -75,7 +75,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                     <CardHeader>
                         <CardTitle>Welcome!!</CardTitle>
                         <CardDescription>
-                            We are very happy to see you here in this community, start new posts and keep earning koins and trust.
+                            We are very happy to see you here in this community, start new posts and keep earning Mana and trust.
                         </CardDescription>
                     </CardHeader>
                 </Card>

@@ -33,7 +33,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
 
-    const { updateKoins, koins } = useUserStore()
+    const { updateMana, Mana } = useUserStore()
 
     const handleAvatarSelect = () => {
         inputRef.current?.click()
@@ -106,7 +106,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                 setError(data.error)
                 return;
             }
-            updateKoins(koins - 10)
+            updateMana(Mana - 10)
             handleOpenChange(false) 
         } catch (e: any) {
             console.error(e.message)
@@ -119,7 +119,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                 <DialogHeader>
                     <DialogTitle><div className='flex justify-between items-center'>
                         <h1 className='font-semibold'>Create a new community</h1>
-                        <div className='p-1 text-xs border rounded font-light'>10 Koins</div>
+                        <div className='p-1 text-xs border rounded font-light'>10 Mana</div>
                     </div></DialogTitle>
                     <DialogDescription>
                         It will create a new community and will add you automatically.
