@@ -98,3 +98,12 @@ export const handleLeaveCommunity = async (communityId: string, userId: string) 
 }
 
 
+export const rankAllCommunities = async (crrPage: number, limit: number) => {
+  try {
+    const communities = await prisma.community.aggregate({
+      
+    })
+  } catch (e: any) {
+    return e.message
+  }
+}

@@ -20,9 +20,33 @@ export const getUser = async (username: string) => {
         const user = await prisma.user.findUnique({
             where: {
                 username
+            },
+            include: {
+                mana: true,
+                spells: true
             }
         })
         return user;
+    } catch (e: any) {
+        return e.message
+    }
+}
+
+export const getUserCommunities = async (username: string) => {
+    try {
+        const communities = await prisma.community.findMany({
+            where: {
+                creator: {
+                    username
+                }
+            },
+            include: {
+                _count: {
+                    select: { members: true },
+                },
+            }
+        })
+        return communities
     } catch (e: any) {
         return e.message
     }
