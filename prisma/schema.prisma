@@ -19,7 +19,7 @@ model User {
 
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
-  spells    UserSpells[] @relation("UserSpells")
+  spells    UserSpell[]
 
   createdCommunities Community[] @relation("UserCreatedCommunities")
 
@@ -121,13 +121,15 @@ model Mana {
   updatedAt DateTime @updatedAt
 }
 
-model UserSpells {
-  id         String @id @default(cuid())
-  userId     String @unique
-  boostSpell Int    @default(0)
-  rageSpell  Int    @default(0)
-  user       User   @relation("UserSpells", fields: [userId], references: [id])
+model UserSpell {
+  id        String   @id @default(cuid())
+  userId    String
+  spellId   String
+  user      User     @relation(fields: [userId], references: [id])
+  spell     Spell    @relation(fields: [spellId], references: [id])
+  createdAt DateTime @default(now())
 }
+
 
 model Spell {
   id        String   @id @default(cuid())
@@ -140,6 +142,8 @@ model Spell {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  UserSpell UserSpell[]
 }
 
 model CastSpell {

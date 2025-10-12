@@ -55,7 +55,7 @@ export const authOptions = {
               mana: 50,
             },
           })
-          await prisma.userSpells.create({
+          await prisma.userSpell.create({
             data: {
               userId: user.id,
             },

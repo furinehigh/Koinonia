@@ -31,9 +31,9 @@ function Header() {
                 <div className='flex space-x-2 items-center'>
                     {session?.user ? (
                         <>
-                            <Link href={'/alchemist-shop'}>
+                            <Link href={'/mana-shop'}>
                                 <Button className='flex items-center space-x-1' variant={'outline'}>
-                                    <span>Alchemist Shop</span> <Plus className='' />
+                                    <span>Mana Shop</span> <Plus className='' />
                                 </Button>
                             </Link>
                             <Button onClick={() => setIsDialogOpen(true)} className='flex items-center space-x-1' variant={'outline'}>
