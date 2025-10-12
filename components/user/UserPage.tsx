@@ -4,9 +4,10 @@ import { Community, User } from '@/types'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import Link from 'next/link'
 
-function UserPage({ user, communities }: {
+function UserPage({ user, communities, recentPosts }: {
     user: any,
-    communities: any[]
+    communities: any[],
+    recentPosts: any[]
 }) {
     console.log(user)
     return (
@@ -45,6 +46,26 @@ function UserPage({ user, communities }: {
                                     </CardHeader>
                                     <CardFooter className='text-xs'>
                                         <span className='font-semibold mr-1'>{c._count.members}</span> member/s
+                                    </CardFooter>
+                                </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                    <div className='flex flex-col my-5'>
+                        <h1 className='text-lg font-semibold'>Recent posts</h1>
+                        <div className='flex flex-col space-y-2'>
+                            {recentPosts.map((p, i) => (
+                                <Link href={'/c/' + p.community.slug + ''}>
+                                <Card className='rounded shadow-none w-full'>
+                                    <CardHeader>
+                                        <CardTitle>
+                                            {p.title}
+                                        </CardTitle>
+                                        <CardDescription>{p.content}</CardDescription>
+                                    </CardHeader>
+                                    <CardFooter className='text-xs'>
+                                        <span className='font-semibold mr-1'>{p.votes}</span> vote/s
                                     </CardFooter>
                                 </Card>
                                 </Link>

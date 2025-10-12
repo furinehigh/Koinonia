@@ -87,17 +87,17 @@ function HomePosts({ posts }: { posts: Post[] }) {
                         </div>
                       )}
 
-                      <div className='relative z-10 flex items-center space-x-2'>
+                      <Link href={'/u/' + p.author.username} className='relative z-10 flex items-center space-x-2 group'>
                         <div className='h-10 w-10 rounded border overflow-hidden'>
                           <img src={p.author.image || 'logo.png'} alt='author' />
                         </div>
                         <div>
-                          <div className='font-medium'>{p.author.name}</div>
+                          <div className='font-medium group-hover:underline underline-offset-2'>{p.author.name}</div>
                           <div className='text-xs text-muted-foreground'>
                             {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     </div>
                   </div>
                 </div>

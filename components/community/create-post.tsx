@@ -103,7 +103,7 @@ function CreatePost({ slug }: {
 
             const res = await fetch('/api/post/create', {
                 method: 'POST',
-                body: JSON.stringify({...formData, slug})
+                body: JSON.stringify({ ...formData, slug })
             })
 
             const data = await res.json()
@@ -129,7 +129,7 @@ function CreatePost({ slug }: {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="space-y-2 flex flex-col justify-center items-center">
+                <div className="space-y-2 flex flex-col">
 
                     <div className="grid flex-1 gap-2 w-full">
                         <Label htmlFor="title" className="">
@@ -154,10 +154,13 @@ function CreatePost({ slug }: {
                         />
                     </div>
                     <div className="flex-1 gap-2 flex flex-col relative">
+                        <Label htmlFor="content" className="">
+                            Post Image
+                        </Label>
                         {image && <span onClick={() => setImage('')} className="z-50 absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
                         <div
                             onClick={handleimageSelect} className="h-20 w-20 rounded border cursor-pointer relative ">
-                            {uploading ? <Loader className={"flex items-center justify-center w-full h-full"} size={32} /> : <img src={image || '/logo.png'} className="" alt="post_image" onClick={handleimageSelect} />}
+                            {uploading ? <Loader className={"flex items-center justify-center w-full h-full"} size={32} /> : <img src={image} className="" alt="post_image" onClick={handleimageSelect} />}
                         </div>
                         <input
                             id="image"

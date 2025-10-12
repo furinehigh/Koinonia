@@ -51,3 +51,26 @@ export const getUserCommunities = async (username: string) => {
         return e.message
     }
 }
+
+export const getRecentPosts = async (username: string, limit = 10) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        author: {
+          username,
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+      include: {
+        community: true
+      },
+    })
+    return posts
+  } catch (e: any) {
+    console.error("Error fetching posts:", e)
+    return []
+  }
+}

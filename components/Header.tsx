@@ -14,10 +14,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from './ui/button'
+import { useRouter } from 'next/navigation'
 
 function Header() {
     const { data: session, status } = useSession()
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const router = useRouter()
     return (
         <>
             <div className='fixed w-full z-[51] dark:bg-black bg-white border-b p-3 flex justify-between items-center'>
@@ -29,13 +31,18 @@ function Header() {
                 <div className='flex space-x-2 items-center'>
                     {session?.user ? (
                         <>
+                            <Link href={'/alchemist-shop'}>
+                                <Button className='flex items-center space-x-1' variant={'outline'}>
+                                    <span>Alchemist Shop</span> <Plus className='' />
+                                </Button>
+                            </Link>
                             <Button onClick={() => setIsDialogOpen(true)} className='flex items-center space-x-1' variant={'outline'}>
                                 <span>Create</span> <Plus className='' />
                             </Button>
 
                             <div className='z-[55]'>
 
-                                <DropdownMenu>
+                                <DropdownMenu >
                                     <DropdownMenuTrigger className='cursor-pointer mt-2'>
                                         <Image src={session?.user.image || 'user-placeholder.png'} className='rounded' width={30} height={30} alt='user' />
                                     </DropdownMenuTrigger>
@@ -48,9 +55,7 @@ function Header() {
                                             <p className='text-xs'>{session?.user.email}</p>
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                                        <DropdownMenuItem>Billing</DropdownMenuItem>
-                                        <DropdownMenuItem>Team</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => router.push('/u/' + session?.user?.username)}>Profile</DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => signOut()}>SignOut</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>

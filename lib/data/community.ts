@@ -98,12 +98,37 @@ export const handleLeaveCommunity = async (communityId: string, userId: string) 
 }
 
 
-export const rankAllCommunities = async (crrPage: number, limit: number) => {
+export const rankAllCommunities = async (crrPage = 1, limit = 10) => {
   try {
-    const communities = await prisma.community.aggregate({
-      
+    const skip = (crrPage - 1) * limit
+
+    // count total communities for pagination
+    const totalCommunities = await prisma.community.count()
+
+    // rank communities
+    const communities = await prisma.community.findMany({
+      include: {
+        _count: {
+          select: {
+            members: true,
+            posts: true,
+          },
+        },
+        creator: true
+      },
+      orderBy: [
+        { members: { _count: 'desc' } },
+        { posts: { _count: 'desc' } },
+      ],
+      skip,
+      take: limit,
     })
+
+    const totalPages = Math.ceil(totalCommunities / limit)
+
+    return { totalPages, communities }
   } catch (e: any) {
-    return e.message
+    console.error("Error ranking communities:", e)
+    return { totalPages: 0, communities: [] }
   }
 }
