@@ -1,5 +1,5 @@
 'use client'
-import { Plus } from 'lucide-react'
+import { Plus, ShoppingCart } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import React, { useState } from 'react'
@@ -33,7 +33,7 @@ function Header() {
                         <>
                             <Link href={'/mana-shop'}>
                                 <Button className='flex items-center space-x-1' variant={'outline'}>
-                                    <span>Mana Shop</span> <Plus className='' />
+                                    <span>Mana Shop</span> <ShoppingCart className='' />
                                 </Button>
                             </Link>
                             <Button onClick={() => setIsDialogOpen(true)} className='flex items-center space-x-1' variant={'outline'}>
