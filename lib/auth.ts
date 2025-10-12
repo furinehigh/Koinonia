@@ -52,7 +52,7 @@ export const authOptions = {
           await prisma.mana.create({
             data: {
               userId: user.id,
-              Mana: 50,
+              mana: 50,
             },
           })
           await prisma.userSpells.create({
@@ -61,7 +61,7 @@ export const authOptions = {
             },
           })
 
-          console.log(`Created default mana record for ${user.email}`)
+          console.log(`Created default mana and users spells record for ${user.email}`)
         }
       } catch (err) {
         console.error("Error creating mana record:", err)

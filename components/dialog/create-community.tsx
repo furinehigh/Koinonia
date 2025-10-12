@@ -33,7 +33,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
 
-    const { updateMana, Mana } = useUserStore()
+    const { updateMana, mana } = useUserStore()
 
     const handleAvatarSelect = () => {
         inputRef.current?.click()
@@ -106,7 +106,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                 setError(data.error)
                 return;
             }
-            updateMana(Mana - 10)
+            updateMana(mana - 10)
             handleOpenChange(false) 
         } catch (e: any) {
             console.error(e.message)

@@ -9,7 +9,7 @@ import '@/styles/flame.scss'
 
 function Sidebar({ recentCommunities }: { recentCommunities: Community[] }) {
   const [expanded, setExpanded] = useState(false)
-  const { Mana, loading, fetchMana, updateMana } = useUserStore()
+  const { mana, loading, fetchMana, updateMana } = useUserStore()
 
   useEffect(() => {
     fetchMana()
@@ -45,7 +45,7 @@ function Sidebar({ recentCommunities }: { recentCommunities: Community[] }) {
             <div className="flame"></div>
           </div>
           {/* 💎 Mana glowing over fire */}
-          <div className="mana-glow">{Mana}</div>
+          <div className="mana-glow">{mana}</div>
         </div>
         <p className='font-semibold mt-2'>Mana</p>
       </div>

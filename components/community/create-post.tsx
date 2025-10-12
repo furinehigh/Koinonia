@@ -35,7 +35,7 @@ function CreatePost({ slug }: {
     const [error, setError] = useState('')
     const inputRef = useRef(null)
 
-    const { updateMana, Mana } = useUserStore()
+    const { updateMana, mana } = useUserStore()
 
     const handleimageSelect = () => {
         inputRef.current?.click()
@@ -112,7 +112,7 @@ function CreatePost({ slug }: {
                 setError(data.error)
                 return;
             }
-            updateMana(Mana - 5)
+            updateMana(mana - 5)
             router.push('/c/' + slug)
         } catch (e: any) {
             console.error(e.message)

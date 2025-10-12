@@ -2,32 +2,32 @@
 import { create } from "zustand"
 
 interface UserStore {
-  Mana: number
+  mana: number
   loading: boolean
   fetchMana: () => Promise<void>
-  setMana: (Mana: number) => void
-  updateMana: (Mana: number) => Promise<void>
+  setMana: (mana: number) => void
+  updateMana: (mana: number) => Promise<void>
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
-  Mana: 0,
+  mana: 0,
   loading: false,
 
   fetchMana: async () => {
     set({ loading: true })
     const res = await fetch("/api/user/mana")
     const data = await res.json()
-    set({ Mana: data.Mana ?? 0, loading: false })
+    set({ mana: data.mana ?? 0, loading: false })
   },
 
-  setMana: (Mana) => set({ Mana }),
+  setMana: (mana) => set({ mana }),
 
-  updateMana: async (Mana) => {
-    set({ Mana })
+  updateMana: async (mana) => {
+    set({ mana })
     await fetch("/api/user/mana", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ Mana }),
+      body: JSON.stringify({ mana }),
     })
   },
 }))

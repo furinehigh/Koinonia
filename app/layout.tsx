@@ -34,7 +34,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions)
-  const koinData = await getUserMana(session?.user.id)
   return (
     <html lang="en">
       <body

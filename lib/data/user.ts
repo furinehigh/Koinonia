@@ -15,7 +15,7 @@ export const getUserMana = async (userId: string) => {
     }
 }
 
-export const getUser = (username: string) => {
+export const getUser = async (username: string) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -23,5 +23,7 @@ export const getUser = (username: string) => {
             }
         })
         return user;
+    } catch (e: any) {
+        return e.message
     }
 }
