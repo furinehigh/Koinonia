@@ -14,7 +14,8 @@ export const authOptions = {
           name: profile.name || profile.login,
           email: profile.email || `${profile.id}@github.local`, // fallback if email is null
           image: profile.avatar_url,
-          username: profile.login
+          username: profile.login,
+
         }
       },
     }),
@@ -23,14 +24,21 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id
+      if (user) {
+        token.id = user.id
+        token.username = user.username
+      }
       return token
     },
 
     async session({ session, token }) {
-      if (token) session.user.id = token.id
+      if (token) {
+        session.user.id = token.id
+        session.user.username = token.username
+      }
       return session
-    },
+    }
+
   },
 
   events: {
@@ -49,9 +57,10 @@ export const authOptions = {
           })
           await prisma.userSpells.create({
             data: {
-              
-            }
+              userId: user.id,
+            },
           })
+
           console.log(`Created default mana record for ${user.email}`)
         }
       } catch (err) {

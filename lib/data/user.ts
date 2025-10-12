@@ -17,6 +17,11 @@ export const getUserMana = async (userId: string) => {
 
 export const getUser = (username: string) => {
     try {
-        const user = await prisma.user.findUnique
+        const user = await prisma.user.findUnique({
+            where: {
+                username
+            }
+        })
+        return user;
     }
 }
