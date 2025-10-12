@@ -10,14 +10,15 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  username      String    @unique 
   email         String    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
   spells    UserSpells[] @relation("UserSpells")
 
   createdCommunities Community[] @relation("UserCreatedCommunities")
@@ -73,18 +74,18 @@ model VerificationToken {
 }
 
 model Community {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
-  slug        String   @unique
-  moderators  User[]   @relation("CommunityModerators")
+  slug        String  @unique
+  moderators  User[]  @relation("CommunityModerators")
   creatorId   String
-  creator     User     @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
+  creator     User    @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
   bannerUrl   String?
   avatarUrl   String?
-  members     User[]   @relation("CommunityMembers")
-  posts       Post[]   @relation("CommunityPosts")
-  spells      String[] @default([])
+  members     User[]  @relation("CommunityMembers")
+  posts       Post[]  @relation("CommunityPosts")
+  spells      Spell[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -101,7 +102,7 @@ model Post {
   author      User      @relation("UserPosts", fields: [authorId], references: [id])
   communityId String
   community   Community @relation("CommunityPosts", fields: [communityId], references: [id])
-  spells      String[]  @default([])
+  spells      Spell[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -116,17 +117,20 @@ model Mana {
   updatedAt DateTime @updatedAt
 }
 
-model SpellsPrice {
-  id         String @id @default(cuid())
-  boostSpell Int    @default(20)
-  rageSpell  Int    @default(10)
-}
-
 model UserSpells {
   id         String @id @default(cuid())
-  userId     String
+  userId     String @unique
   boostSpell Int    @default(0)
   rageSpell  Int    @default(0)
   user       User   @relation("UserSpells", fields: [userId], references: [id])
 }
-  
+
+model Spell {
+  id        String      @id @default(cuid())
+  name      String
+  effect    String
+  duration  Int
+  price     Int
+  community Community[]
+  post      Post[]
+}

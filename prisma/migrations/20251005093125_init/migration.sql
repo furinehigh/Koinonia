@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Koin" ALTER COLUMN "koins" SET DEFAULT 50;
