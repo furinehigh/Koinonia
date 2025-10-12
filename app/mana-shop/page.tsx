@@ -19,7 +19,7 @@ async function page() {
   })
 
   return (
-    <div className="p-10 space-y-6">
+    <div className="p-10 space-y-6 ml-15">
       <h1 className="text-3xl font-bold text-center">🪄 Mana Shop</h1>
       <p className="text-center text-muted-foreground">
         Balance: <span className="font-semibold text-blue-600">{mana?.mana ?? 0}</span> Mana
@@ -39,7 +39,7 @@ async function page() {
               <form
                 action={async () => {
                   "use server"
-                  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/shop/buy`, {
+                  const res = await fetch(`/api/shop/buy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ spellId: spell.id }),
