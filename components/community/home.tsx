@@ -77,7 +77,7 @@ function CommHome({ posts }: { posts: Post[] }) {
   const castSpell = async (postId: string, spellName: string) => {
     try {
       const res = await fetch('/api/spell/cast', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           targetType: 'post',

@@ -32,7 +32,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
   const castSpell = async (spellName: string) => {
     try {
       const res = await fetch('/api/spell/cast', {
-        method: 'POST',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           targetType: 'community',
