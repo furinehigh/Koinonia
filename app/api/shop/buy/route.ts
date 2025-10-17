@@ -23,11 +23,6 @@ export async function POST(req: Request) {
     if (!mana || mana.mana < spell.price)
       return NextResponse.json({ error: "Not enough mana" }, { status: 400 })
 
-    await prisma.mana.update({
-      where: { userId: session.user.id },
-      data: { mana: { decrement: spell.price } },
-    })
-
     await prisma.userSpell.create({
       data: {
         userId: session.user.id,
@@ -35,7 +30,7 @@ export async function POST(req: Request) {
       },
     })
 
-    return NextResponse.json({ message: "Purchase successful", spell })
+    return NextResponse.json({ success: true, spell })
   } catch (e) {
     console.error("Buy spell error:", e)
     return NextResponse.json({ error: "Server error" }, { status: 500 })

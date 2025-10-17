@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp, Sparkles } from 'lucide-react'
+import { Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -41,14 +41,30 @@ function CommHome({ posts }: { posts: Post[] }) {
         : isUp
           ? 'up'
           : 'down'
+    let serverAction;
 
-    const delta =
-      current === 'up' && newVote === null ? -1 :
-        current === 'down' && newVote === null ? +1 :
-          current === 'up' && newVote === 'down' ? -2 :
-            current === 'down' && newVote === 'up' ? +2 :
-              current === null && newVote === 'up' ? +1 :
-                current === null && newVote === 'down' ? -1 : 0
+    let delta = 0
+
+    if (current === 'up' && newVote === null) {
+      serverAction = 'undo-upvote'
+      delta = -1
+    } else if (current === 'down' && newVote === null) {
+      serverAction = 'undo-downvote'
+      delta = +1
+    } else if (current === 'up' && newVote === 'down') {
+      serverAction = 'up-downvote'
+      delta = -2
+    } else if (current === 'down' && newVote === 'up') {
+      serverAction = 'down-upvote'
+      delta = +2
+    } else if (current === null && newVote === 'up') {
+      serverAction = 'upvote'
+      delta = +1
+    } else if (current === null && newVote === 'down') {
+      serverAction = 'downvote'
+      delta = -1
+    }
+
 
     setLocalPosts(prev =>
       prev.map(p => (p.id === postId ? { ...p, votes: p.votes + delta } : p))
@@ -58,11 +74,6 @@ function CommHome({ posts }: { posts: Post[] }) {
     saveVotes(updatedVotes)
 
     try {
-      const serverAction = newVote
-        ? action
-        : current === 'up'
-          ? 'undo-upvote'
-          : 'undo-downvote'
 
       await fetch('/api/post/actions', {
         method: 'PUT',
@@ -101,16 +112,16 @@ function CommHome({ posts }: { posts: Post[] }) {
           <CardHeader>
             <CardTitle>Welcome!!</CardTitle>
             <CardDescription>
-              We are very happy to see you here in this community, start new posts and keep earning Mana and trust.
+              We are very happy to see you here in this network, start new posts and keep earning Mana and trust.
             </CardDescription>
           </CardHeader>
         </Card>
       </div>
 
       <div className='my-5'>
-        <h1 className='font-semibold'>Posts</h1>
+        <h1 className='font-semibold'>Signals</h1>
 
-        {localPosts.length === 0 && <div>No posts found in this community.</div>}
+        {localPosts.length === 0 && <div>No signals found in this network.</div>}
 
         {localPosts.map(p => (
           <Card key={p.id} className='rounded shadow-none m-3'>
@@ -130,9 +141,14 @@ function CommHome({ posts }: { posts: Post[] }) {
                   </Link>
                   <DropdownMenu>
                     <DropdownMenuTrigger className='cursor-pointer'>
-                      <Button variant='outline' size='sm' className='flame-button'>
-                        <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
-                      </Button>
+                      <div className='flex space-x-2'>
+                        <Button variant='outline' size='sm' className='flame-button'>
+                          <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
+                        </Button>
+                        <div className='text-gray-500'>
+                          {p.votes == 0 ? <div>no signal</div> : p.votes < 0 ? <div>signal fading</div> : (p.votes > 0 && p.votes < 3) ? <SignalLow /> : (p.votes > 2 && p.votes < 6) ? <SignalHigh /> : <Signal />}
+                        </div>
+                      </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
@@ -143,7 +159,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                   </DropdownMenu>
                 </div>
               </CardTitle>
-              <h1 className='font-semibold'>{p.title}</h1>
+              <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>{p.title}</Link>
               <CardDescription>{p.content}</CardDescription>
             </CardHeader>
 
@@ -160,25 +176,25 @@ function CommHome({ posts }: { posts: Post[] }) {
                 <div className='flex items-center space-x-1'>
                   <span>{p.votes}</span>
 
-                  <ArrowBigUp
+                  <SignalHigh
                     onClick={() => handleVote(p.id, 'upvote')}
-                    className={`cursor-pointer transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
-                      ? 'fill-green-600'
-                      : 'hover:fill-green-600'
+                    className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
+                      ? 'bg-gray-200'
+                      : 'hover:bg-gray-200'
                       }`}
                   />
 
-                  <ArrowBigDown
+                  <SignalLow
                     onClick={() => handleVote(p.id, 'downvote')}
-                    className={`cursor-pointer transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
-                      ? 'fill-red-600'
-                      : 'hover:fill-red-600'
+                    className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
+                      ? 'bg-gray-200'
+                      : 'hover:bg-gray-200'
                       }`}
                   />
                 </div>
 
                 <div>
-                  <span>{p.views}</span> views
+                  <span>{p.views}</span> signal strength
                 </div>
               </div>
             </CardFooter>

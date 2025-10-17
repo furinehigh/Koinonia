@@ -33,41 +33,41 @@ function UserPage({ user, communities, recentPosts }: {
                         </div>
                     </div>
                     <div className='flex flex-col my-5'>
-                        <h1 className='text-lg font-semibold'>Communities created</h1>
+                        <h1 className='text-lg font-semibold'>Networks created</h1>
                         <div className='flex flex-col space-y-2'>
                             {communities.map((c, i) => (
                                 <Link href={'/c/' + c.slug}>
-                                <Card className='rounded shadow-none w-full'>
-                                    <CardHeader>
-                                        <CardTitle>
-                                            {c.name}
-                                        </CardTitle>
-                                        <CardDescription>{c.description}</CardDescription>
-                                    </CardHeader>
-                                    <CardFooter className='text-xs'>
-                                        <span className='font-semibold mr-1'>{c._count.members}</span> member/s
-                                    </CardFooter>
-                                </Card>
+                                    <Card className='rounded shadow-none w-full'>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                {c.name}
+                                            </CardTitle>
+                                            <CardDescription>{c.description}</CardDescription>
+                                        </CardHeader>
+                                        <CardFooter className='text-xs'>
+                                            <span className='font-semibold mr-1'>{c._count.members}</span> member/s
+                                        </CardFooter>
+                                    </Card>
                                 </Link>
                             ))}
                         </div>
                     </div>
                     <div className='flex flex-col my-5'>
-                        <h1 className='text-lg font-semibold'>Recent posts</h1>
+                        <h1 className='text-lg font-semibold'>Recent signals</h1>
                         <div className='flex flex-col space-y-2'>
                             {recentPosts.map((p, i) => (
                                 <Link href={'/c/' + p.community.slug + ''}>
-                                <Card className='rounded shadow-none w-full'>
-                                    <CardHeader>
-                                        <CardTitle>
-                                            {p.title}
-                                        </CardTitle>
-                                        <CardDescription>{p.content}</CardDescription>
-                                    </CardHeader>
-                                    <CardFooter className='text-xs'>
-                                        <span className='font-semibold mr-1'>{p.votes}</span> vote/s
-                                    </CardFooter>
-                                </Card>
+                                    <Card className='rounded shadow-none w-full'>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                {p.title}
+                                            </CardTitle>
+                                            <CardDescription>{p.content}</CardDescription>
+                                        </CardHeader>
+                                        <CardFooter className='text-xs'>
+                                            <span className='font-semibold mr-1'>{p.votes}</span> vote/s
+                                        </CardFooter>
+                                    </Card>
                                 </Link>
                             ))}
                         </div>

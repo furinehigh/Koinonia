@@ -118,11 +118,11 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle><div className='flex justify-between items-center'>
-                        <h1 className='font-semibold'>Create a new community</h1>
+                        <h1 className='font-semibold'>Create a new network</h1>
                         <div className='p-1 text-xs border rounded font-light'>10 Mana</div>
                     </div></DialogTitle>
                     <DialogDescription>
-                        It will create a new community and will add you automatically.
+                        It will create a new network and will add you automatically.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-2 flex flex-col justify-center items-center">

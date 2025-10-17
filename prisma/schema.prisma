@@ -160,3 +160,4 @@ model CastSpell {
 
   createdAt   DateTime    @default(now())
 }
+

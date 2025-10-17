@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { ArrowBigDown, ArrowBigUp } from 'lucide-react'
+import { SignalHigh, SignalLow } from 'lucide-react'
 import { Post } from '@/types'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
@@ -28,28 +28,40 @@ function HomePosts({ posts }: { posts: Post[] }) {
     const newVote =
       current === (isUp ? 'up' : 'down') ? null : isUp ? 'up' : 'down'
 
-    const delta =
-      current === 'up' && newVote === null ? -1 :
-        current === 'down' && newVote === null ? +1 :
-          current === 'up' && newVote === 'down' ? -2 :
-            current === 'down' && newVote === 'up' ? +2 :
-              current === null && newVote === 'up' ? +1 :
-                current === null && newVote === 'down' ? -1 :
-                  0
+
+    let serverAction;
+
+    let delta = 0
+
+    if (current === 'up' && newVote === null) {
+      serverAction = 'undo-upvote'
+      delta = -1
+    } else if (current === 'down' && newVote === null) {
+      serverAction = 'undo-downvote'
+      delta = +1
+    } else if (current === 'up' && newVote === 'down') {
+      serverAction = 'up-downvote'
+      delta = -2
+    } else if (current === 'down' && newVote === 'up') {
+      serverAction = 'down-upvote'
+      delta = +2
+    } else if (current === null && newVote === 'up') {
+      serverAction = 'upvote'
+      delta = +1
+    } else if (current === null && newVote === 'down') {
+      serverAction = 'downvote'
+      delta = -1
+    }
+
 
     setLocalPosts(prev =>
-      prev.map(p => p.id === postId ? { ...p, votes: p.votes + delta } : p)
+      prev.map(p => (p.id === postId ? { ...p, votes: p.votes + delta } : p))
     )
 
     const updatedVotes = { ...userVotes, [postId]: newVote }
     saveVotes(updatedVotes)
 
     try {
-      const serverAction = newVote
-        ? action
-        : current === 'up'
-          ? 'undo-upvote'
-          : 'undo-downvote'
 
       await fetch('/api/post/actions', {
         method: 'PUT',
@@ -64,9 +76,9 @@ function HomePosts({ posts }: { posts: Post[] }) {
   return (
     <div className='flex flex-col'>
       <div className='my-5'>
-        <h1 className='font-semibold text-xl'>All Posts</h1>
+        <h1 className='font-semibold text-xl'>All Signals</h1>
 
-        {localPosts.length === 0 && <div>No posts found on Koinonia.</div>}
+        {localPosts.length === 0 && <div>No signals found on Koinonia.</div>}
 
         {localPosts.map(p => (
           <Card key={p.id} className='rounded shadow-none m-3'>
@@ -75,8 +87,8 @@ function HomePosts({ posts }: { posts: Post[] }) {
                 <div className='flex justify-between items-center'>
                   <div className='flex flex-col space-y-1'>
                     {p.community && (
-                      <Link href={`/c/${p.community.slug}`} className='flex items-center space-x-1'>
-                        <span className='text-sm font-medium hover:underline'>c/{p.community.name}</span>
+                      <Link href={`/n/${p.community.slug}`} className='flex items-center space-x-1'>
+                        <span className='text-sm font-medium hover:underline'>n/{p.community.name}</span>
                       </Link>
                     )}
                     <div className='flex items-center space-x-2 relative'>
@@ -100,10 +112,14 @@ function HomePosts({ posts }: { posts: Post[] }) {
                       </Link>
                     </div>
                   </div>
+
+                  <div className='text-gray-500'>
+                    {p.votes == 0 ? <div>no signal</div> : p.votes < 0 ? <div>signal fading</div> : (p.votes > 0 && p.votes < 3) ? <SignalLow /> : (p.votes > 2 && p.votes < 6) ? <SignalHigh /> : <Signal />}
+                  </div>
                 </div>
               </CardTitle>
 
-              <h1 className='font-semibold text-lg mt-2'>{p.title}</h1>
+              <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold text-lg mt-2'>{p.title}</Link>
               <CardDescription>{p.content}</CardDescription>
             </CardHeader>
 
@@ -120,18 +136,25 @@ function HomePosts({ posts }: { posts: Post[] }) {
                 <div className='flex items-center space-x-1'>
                   <span>{p.votes}</span>
 
-                  <ArrowBigUp
+                  <SignalHigh
                     onClick={() => handleVote(p.id, 'upvote')}
-                    className={`cursor-pointer transition duration-200 text-green-600 ${userVotes[p.id] === 'up' ? 'fill-green-600' : 'hover:fill-green-600'}`}
+                    className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
+                      ? 'bg-gray-200'
+                      : 'hover:bg-gray-200'
+                      }`}
                   />
-                  <ArrowBigDown
+
+                  <SignalLow
                     onClick={() => handleVote(p.id, 'downvote')}
-                    className={`cursor-pointer transition duration-200 text-red-600 ${userVotes[p.id] === 'down' ? 'fill-red-600' : 'hover:fill-red-600'}`}
+                    className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
+                      ? 'bg-gray-200'
+                      : 'hover:bg-gray-200'
+                      }`}
                   />
                 </div>
 
                 <div>
-                  <span>{p.views}</span> views
+                  <span>{p.views}</span> signal strength
                 </div>
               </div>
             </CardFooter>

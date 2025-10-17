@@ -7,9 +7,10 @@ import { useUserStore } from '@/store/useUserStore'
 import Link from 'next/link'
 import '@/styles/flame.scss'
 
-function Sidebar({ recentCommunities }: { recentCommunities: Community[] }) {
+function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Community[], userSpells: any[] }) {
   const [expanded, setExpanded] = useState(false)
-  const { mana, loading, fetchMana, updateMana } = useUserStore()
+  const { mana, fetchMana } = useUserStore()
+  console.log(userSpells)
 
   useEffect(() => {
     fetchMana()
@@ -34,8 +35,19 @@ function Sidebar({ recentCommunities }: { recentCommunities: Community[] }) {
           </div>
         ))}
       </div>
+      <div>
+        <h1 className='font-semibold text-sm border-t py-2'>Spells</h1>
+        <div className='rounded border flex-col'>
+          {userSpells.map((s, i) => (
+            <div className='flex flex-col text-center text-sm border-b p-1'>
+              <span className='font-semibold'>{s.count}</span>
+              {s.spellName?.split(' ')[0]}
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* 🔥 Fire + Mana Display */}
+      {/*  Fire + Mana Display */}
       <div className='relative flex flex-col items-center text-sm'>
         <div className="fire">
           <div className="flames">
@@ -44,7 +56,7 @@ function Sidebar({ recentCommunities }: { recentCommunities: Community[] }) {
             <div className="flame"></div>
             <div className="flame"></div>
           </div>
-          {/* 💎 Mana glowing over fire */}
+          {/* Mana glowing over fire */}
           <div className="mana-glow">{mana}</div>
         </div>
         <p className='font-semibold mt-2'>Mana</p>

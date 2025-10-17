@@ -5,7 +5,7 @@ function NotFound() {
 
     <div className="w-full min-h-screen flex flex-col items-center justify-center">
       <div className="text-center space-y-4">
-        User not found</div>
+        Network not found</div>
     </div>
   )
 }

@@ -41,10 +41,6 @@ function CreatePost({ slug }: {
         inputRef.current?.click()
     }
 
-    const handleAction = (action: string, postId: string) => {
-
-    }
-
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return
         const file = e.target.files[0]
@@ -123,7 +119,7 @@ function CreatePost({ slug }: {
             <CardHeader>
                 <CardTitle>
                     <div className='flex justify-between items-center'>
-                        <h1 className='font-semibold'>Create a new post</h1>
+                        <h1 className='font-semibold'>Create a new signal</h1>
                         <div className='p-1 text-xs border rounded font-light'>5 Mana</div>
                     </div>
                 </CardTitle>
@@ -174,7 +170,7 @@ function CreatePost({ slug }: {
                 </div>
             </CardContent>
             <CardFooter className='flex justify-end space-x-2'>
-                <Link href={'/c/' + slug}>
+                <Link href={'/n/' + slug}>
                     <Button type="button" variant="secondary">
                         Cancel
                     </Button>

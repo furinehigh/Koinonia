@@ -42,3 +42,19 @@ export const recentPosts = async () => {
     return []
   }
 }
+
+export const getPost = async (id: string) => {
+  try {
+    const post = await prisma.post.findUnique({
+      where: {
+        id
+      },
+      include: {
+        author: true,
+      }
+    })
+    return post
+  } catch (e: any) {  
+    return e.message
+  }
+}

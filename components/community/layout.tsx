@@ -24,8 +24,8 @@ import '@/styles/flamebutton.scss'
 
 function CommLayout({ community, handleJoin, handleLeave, children }: {
   community: Community,
-  handleJoin: () => void,
-  handleLeave: () => void,
+  handleJoin: () => Promise<boolean>,
+  handleLeave: () => Promise<boolean>,
   children: React.ReactNode
 }) {
 
@@ -58,7 +58,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
                 <ChevronLeft className='h-5' />
               </div>
             </Link>
-            <Link href={'/c/' + community.slug} className='hover:underline underline-offset-2 transition duration-200 flex items-center space-x-1'>
+            <Link href={'/n/' + community.slug} className='hover:underline underline-offset-2 transition duration-200 flex items-center space-x-1'>
               <div className='h-8 w-8 rounded border overflow-hidden'>
                 <img src={community.avatarUrl || '/logo.png'} width={40} height={40} />
               </div>
@@ -66,8 +66,8 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
             </Link>
 
             <div className='ml-auto '>
-              <Link href={'/c/' + community.slug + '/post/create'} className='mr-2'>
-                <Button>Create Post</Button>
+              <Link href={'/n/' + community.slug + '/post/create'} className='mr-2'>
+                <Button>Create Signal</Button>
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger className='cursor-pointer mt-2'>
@@ -99,7 +99,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
                       <div>{community.name}</div>
                     </div>
                     {community.member
-                      ? <Button onClick={() => handleLeave()} variant={'destructive'}>Leave</Button>
+                      ? <Button onClick={() => handleLeave().then()} variant={'destructive'}>Leave</Button>
                       : <Button onClick={() => handleJoin()}>Join</Button>}
                   </div>
                 </CardTitle>

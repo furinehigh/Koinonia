@@ -60,6 +60,20 @@ export async function PUT(req: Request) {
         })
         manaChange = 1
         break
+      case "down-upvote":
+        updatedPost = await prisma.post.update({
+          where: { id: postId },
+          data: { votes: { increment: 2 } },
+        })
+        manaChange = 2
+        break
+      case "up-downvote":
+        updatedPost = await prisma.post.update({
+          where: { id: postId },
+          data: { votes: { decrement: 2 } },
+        })
+        manaChange = -2
+        break
 
       case "views":
         updatedPost = await prisma.post.update({

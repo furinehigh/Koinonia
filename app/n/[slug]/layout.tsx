@@ -16,18 +16,20 @@ export default async function CommunityPage({ params, children }: any) {
         'use server'
         if (!session || !session?.user) redirect('/signin')
         await handleJoinCommunity(community.id, session.user.id)
+        return true
     }
 
     async function handleLeave() {
         'use server'
         if (!session || !session?.user) redirect('/signin')
         await handleLeaveCommunity(community.id, session.user.id)
+        return true
     }
 
     // Force re-fetch after join/leave by giving a dynamic key
     return (
         <CommLayout
-            key={community.id + community.membersCount} 
+            key={community.id + community.membersCount}
             community={community}
             handleJoin={handleJoin}
             handleLeave={handleLeave}

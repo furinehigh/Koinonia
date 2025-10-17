@@ -5,10 +5,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import AuthProvider from "./auth-provider";
+import MagicalBG from "@/components/MagicalBG";
+import { getUserSpellsCount } from "@/lib/data/spells";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getUserMana } from "@/lib/data/user";
-import MagicalBG from "@/components/MagicalBG";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +34,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions)
+  const userSpells = await getUserSpellsCount(session?.user?.id)
   return (
     <html lang="en">
       <body
@@ -44,7 +45,7 @@ export default async function RootLayout({
             <MagicalBG />
             <Header />
             <div className="flex">
-              <Sidebar recentCommunities={[]} />
+              <Sidebar recentCommunities={[]} userSpells={userSpells}/>
               <div className="mt-15 z-40 w-full">
                 {children}
               </div>
