@@ -153,8 +153,8 @@ function CommHome({ posts }: { posts: Post[] }) {
                     <DropdownMenuContent>
                       <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => castSpell(p.id, 'rage')}>Rage Spell</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => castSpell(p.id, 'heal')}>Heal Spell</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => castSpell(p.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => castSpell(p.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

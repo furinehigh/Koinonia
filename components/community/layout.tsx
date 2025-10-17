@@ -76,8 +76,8 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>Cast a magical spell</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => castSpell('rage')}>Rage Spell</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => castSpell('heal')}>Heal Spell</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => castSpell('Rage Spell')}>Rage Spell</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => castSpell('Heal Spell')}>Heal Spell</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

@@ -161,8 +161,8 @@ function PostPage({ post }: {
                                 <DropdownMenuContent>
                                     <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => castSpell(localPost.id, 'rage')}>Rage Spell</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => castSpell(localPost.id, 'heal')}>Heal Spell</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
