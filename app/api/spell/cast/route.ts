@@ -7,7 +7,7 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json()
     const session = await getServerSession(authOptions)
-    const { spellType, targetType, targetId } = body
+    const { spellName: spellType, targetType, targetId } = body
     if (!session || !session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
     const userId = session.user.id
