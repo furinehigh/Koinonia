@@ -1,6 +1,8 @@
 # Koinonia
 A Mana based open-source community forum, where u can create communities and post in your or others communities by spending your mana. You earn mana when your post gets more votes. 
 
+NOTE: This website is not much responsive yet, so please use laptops or large devices to view the site:)
+
 # Features
 - Great logo and names (at least i think so)
 - Easy steps to create communities and posts
