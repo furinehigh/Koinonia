@@ -1,6 +1,6 @@
 'use client'
 import { Community } from '@/types'
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Card,
   CardContent,
@@ -21,6 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import '@/styles/flamebutton.scss'
+import { toast } from 'sonner';
+import { Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 function CommLayout({ community, handleJoin, handleLeave, children }: {
   community: Community,
@@ -28,6 +31,9 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
   handleLeave: () => Promise<boolean>,
   children: React.ReactNode
 }) {
+
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const castSpell = async (spellName: string) => {
     try {
@@ -42,9 +48,43 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
-      console.log('✨ Spell cast success:', data)
+      toast.success("Spell casted!", { description: `You’ve casted ${spellName}` })
     } catch (err: any) {
-      console.error('Spell fizzled:', err.message)
+      toast.error("Spell cast failed!", { description: err.message })
+    } finally {
+      router.refresh()
+    }
+  }
+
+  const handleCommJoin = async () => {
+    try {
+      setLoading(true)
+      const data = await handleJoin()
+      if (!data) {
+        throw Error('Please refresh the page and try again')
+      }
+      toast.success("Network Joined!", { description: `You’ve joined ${community.name}` })
+    } catch (err: any) {
+      toast.error("Network join failed!", { description: err.message })
+    } finally {
+      router.refresh()
+      setLoading(false)
+    }
+  }
+
+  const handleCommLeave = async () => {
+    try {
+      setLoading(true)
+      const data = await handleLeave()
+      if (!data) {
+        throw Error('Please refresh the page and try again')
+      }
+      toast.success("Network Leaved!", { description: `You’ve leaved ${community.name}` })
+    } catch (err: any) {
+      toast.error("Network leave failed!", { description: err.message })
+    } finally {
+      router.refresh()
+      setLoading(false)
     }
   }
 
@@ -99,8 +139,8 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
                       <div>{community.name}</div>
                     </div>
                     {community.member
-                      ? <Button onClick={() => handleLeave().then()} variant={'destructive'}>Leave</Button>
-                      : <Button onClick={() => handleJoin()}>Join</Button>}
+                      ? <Button onClick={() => handleCommLeave()} variant={'destructive'}>{loading ? <Loader size={12} className='animate-spin' /> : 'Leave'}</Button>
+                      : <Button onClick={() => handleCommJoin()}>{loading ? <Loader size={12} className='animate-spin' /> : 'Join'}</Button>}
                   </div>
                 </CardTitle>
                 <CardDescription>{community.description}</CardDescription>

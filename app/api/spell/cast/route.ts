@@ -41,7 +41,7 @@ export async function PUT(req: Request) {
 
     let effectSummary = ""
 
-    // 🧙‍♂️ spell casting logic
+    // spell casting logic
     switch (spellType) {
       case "Rage Spell":
         if (targetType === "post") {

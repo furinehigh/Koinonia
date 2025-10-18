@@ -17,6 +17,7 @@ import Image from "next/image";
 import { X } from "lucide-react";
 import Loader from "../Loader";
 import { useUserStore } from "@/store/useUserStore";
+import { toast } from "sonner";
 
 function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     isOpen: boolean;
@@ -107,6 +108,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                 return;
             }
             updateMana(mana - 10)
+            toast.success("Network created!", { description: "You’ve spent 10 mana" })
             handleOpenChange(false) 
         } catch (e: any) {
             console.error(e.message)

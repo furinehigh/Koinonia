@@ -19,6 +19,7 @@ import { X } from 'lucide-react'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import Link from 'next/link'
+import { toast } from "sonner"
 
 function CreatePost({ slug }: {
     slug: string
@@ -109,6 +110,7 @@ function CreatePost({ slug }: {
                 return;
             }
             updateMana(mana - 5)
+            toast.success("Signal created!", { description: "You’ve spent 5 mana" })
             router.push('/n/' + slug)
         } catch (e: any) {
             console.error(e.message)

@@ -10,15 +10,15 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  username      String    @unique 
+  username      String    @unique
   email         String    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
 
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   spells    UserSpell[]
 
   createdCommunities Community[] @relation("UserCreatedCommunities")
@@ -32,6 +32,8 @@ model User {
   moderatorOfCommunities Community[] @relation("CommunityModerators")
 
   casts CastSpell[]
+
+  recentActivities RecentActivity[]
 }
 
 model Account {
@@ -75,42 +77,43 @@ model VerificationToken {
 }
 
 model Community {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
-  slug        String   @unique
-  moderators  User[]   @relation("CommunityModerators")
+  slug        String  @unique
+  moderators  User[]  @relation("CommunityModerators")
   creatorId   String
-  creator     User     @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
+  creator     User    @relation("UserCreatedCommunities", fields: [creatorId], references: [id])
   bannerUrl   String?
   avatarUrl   String?
-  members     User[]   @relation("CommunityMembers")
-  posts       Post[]   @relation("CommunityPosts")
+  members     User[]  @relation("CommunityMembers")
+  posts       Post[]  @relation("CommunityPosts")
 
-  casts       CastSpell[] // 👈 all spells cast on this community
+  casts            CastSpell[]
+  recentActivities RecentActivity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Post {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   content     String?
   imageUrl    String?
   authorId    String
-  votes       Int      @default(0)
-  views       Int      @default(0)
-  author      User     @relation("UserPosts", fields: [authorId], references: [id])
+  votes       Int       @default(0)
+  views       Int       @default(0)
+  author      User      @relation("UserPosts", fields: [authorId], references: [id])
   communityId String
   community   Community @relation("CommunityPosts", fields: [communityId], references: [id])
 
-  casts       CastSpell[] // 👈 all spells cast on this post
+  casts            CastSpell[]
+  recentActivities RecentActivity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 
 model Mana {
   id        String   @id @default(cuid())
@@ -130,15 +133,14 @@ model UserSpell {
   createdAt DateTime @default(now())
 }
 
-
 model Spell {
-  id        String   @id @default(cuid())
-  name      String
-  effect    String
-  duration  Int
-  price     Int
+  id       String @id @default(cuid())
+  name     String
+  effect   String
+  duration Int
+  price    Int
 
-  casts     CastSpell[]
+  casts CastSpell[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,17 +149,33 @@ model Spell {
 }
 
 model CastSpell {
-  id          String      @id @default(cuid())
+  id          String  @id @default(cuid())
   userId      String
   spellId     String
   postId      String?
   communityId String?
 
-  user        User        @relation(fields: [userId], references: [id])
-  spell       Spell       @relation(fields: [spellId], references: [id])
-  post        Post?       @relation(fields: [postId], references: [id])
-  community   Community?  @relation(fields: [communityId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
+  spell     Spell      @relation(fields: [spellId], references: [id])
+  post      Post?      @relation(fields: [postId], references: [id])
+  community Community? @relation(fields: [communityId], references: [id])
 
-  createdAt   DateTime    @default(now())
+  createdAt DateTime @default(now())
 }
 
+model RecentActivity {
+  id          String     @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  description String
+  postId      String?
+  communityId String?
+  post        Post?      @relation(fields: [postId], references: [id])
+  community   Community? @relation(fields: [communityId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}

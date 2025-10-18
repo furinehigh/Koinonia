@@ -9,6 +9,7 @@ import MagicalBG from "@/components/MagicalBG";
 import { getUserSpellsCount } from "@/lib/data/spells";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,6 +54,8 @@ export default async function RootLayout({
             <Footer />
           </div>
         </AuthProvider>
+
+        <Toaster />
       </body>
     </html>
   );

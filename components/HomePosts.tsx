@@ -125,8 +125,11 @@ function HomePosts({ posts }: { posts: Post[] }) {
 
             <CardContent>
               {p.imageUrl && (
-                <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='border rounded h-fit w-fit overflow-hidden'>
+                <Link href={'/n/' + p.community?.slug + '/post/' + p.id} >
+                  <div className='border rounded h-fit w-fit overflow-hidden'>
+
                   <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
+                  </div>
                 </Link>
               )}
             </CardContent>

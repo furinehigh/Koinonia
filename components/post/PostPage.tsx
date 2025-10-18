@@ -20,6 +20,7 @@ import '@/styles/flamebutton.scss'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import Loader from '../Loader'
+import { toast } from 'sonner'
 
 function PostPage({ post }: {
     post: Post
@@ -129,9 +130,9 @@ function PostPage({ post }: {
             })
             const data = await res.json()
             if (!res.ok) throw new Error(data.error || 'Something went wrong')
-            console.log('✨ Post spell success:', data)
+            toast.success("Spell casted!", { description: `You’ve casted ${spellName}` })
         } catch (err: any) {
-            console.error('Post spell error:', err.message)
+            toast.error("Spell cast failed!", { description: err.message })
         }
     }
 

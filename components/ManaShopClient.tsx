@@ -4,6 +4,7 @@ import { Spell } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUserStore } from '@/store/useUserStore'
+import { toast } from 'sonner'
 
 interface ManaShopClientProps {
   spells: Spell[]
@@ -14,7 +15,7 @@ export default function ManaShopClient({ spells }: ManaShopClientProps) {
   const [owned, setOwned] = useState<{ [key: string]: boolean }>({})
   const { mana, updateMana } = useUserStore()
 
-  const handleBuy = async (spellId: string, price: number) => {
+  const handleBuy = async (spellId: string, price: number, name: string) => {
     if (mana < price) return alert('Not enough mana!')
     setLoading(prev => ({ ...prev, [spellId]: true }))
 
@@ -28,12 +29,12 @@ export default function ManaShopClient({ spells }: ManaShopClientProps) {
       if (data.success) {
         updateMana(mana - price)
         setOwned(prev => ({ ...prev, [spellId]: true }))
+        toast.success('Spell Bought Successfully!', {description: `You've successfully bought ${name}`})
       } else {
-        alert(data.error)
+        toast.error("Error buying spell!", {description: data.error})
       }
-    } catch (e) {
-      console.error(e)
-      alert('Error buying spell')
+    } catch (e: any) {
+        toast.error("Error buying spell!", {description: e.message})
     } finally {
       setLoading(prev => ({ ...prev, [spellId]: false }))
     }
@@ -59,7 +60,7 @@ export default function ManaShopClient({ spells }: ManaShopClientProps) {
               <Button
                 className="w-full flame-button"
                 disabled={loading[spell.id] || owned[spell.id] || mana < spell.price}
-                onClick={() => handleBuy(spell.id, spell.price)}
+                onClick={() => handleBuy(spell.id, spell.price, spell.name)}
               >
                 {owned[spell.id] ? 'Owned' : loading[spell.id] ? 'Buying...' : 'Buy Spell'}
               </Button>
