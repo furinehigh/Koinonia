@@ -3,7 +3,7 @@ import React from 'react'
 function NotFound() {
   return (
 
-    <div className="w-full min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-[92.5vh] flex flex-col items-center justify-center">
       <div className="text-center space-y-4">
         No Spell found</div>
     </div>

@@ -1,7 +1,10 @@
 # Koinonia
-A Mana based open-source community forum, where u can create communities and post in your or others communities by spending your mana. You earn mana when your post gets more votes. 
+A Mana based open-source community forum, where u can create communities(networks) and posts(signals) in your or others communities by spending your mana. You earn mana when your post gets more frequency amplification. 
 
 NOTE: This website is not much responsive yet, so please use laptops or large devices to view the site:)
+
+# Why am i building this?
+I love building Full-Stack stuffs like this....:) thats true.... or maybe i want the Siege grant so badly...
 
 # Features
 - Great logo and names (at least i think so)
@@ -9,15 +12,22 @@ NOTE: This website is not much responsive yet, so please use laptops or large de
 - Mana shop to buy spells such as Rage n Heal spells
 - Bost posts or communities with spells
 - Seperate profile page for each users.
-
-# Upcomming features and changes
-- Changing these words:
+- Changed these words:
     community -> network
     post -> signal
-- Users can add echoes(comments) to signals(posts)
-- Seperate page for all the signals(posts)
-- Fading posts according to signal strength
 - Instead of votes there will be signal strength
+- Seperate page for all the signals(posts)
+
+# Upcomming features and changes
+- Users can add echoes(comments) to signals(posts)
+- Fading posts according to signal strength
+
+# Prerequisites
+- Node JS
+- NPM
+- PostgreSQL or other DB
+- Github OAuth Client and Secret
+- Image hosting API
 
 # Installation
 1. Clone the repo, i'm sure u know how to achieve this, r? or maybe not so...
@@ -38,14 +48,25 @@ npm run dev
 
 Now u can easily visit `http://localhost:3000` to get the result.
 
+# How was it build?
+Koinonia was build with crazy amount of mana and strong brain signals. Its my first community forum and I just want it to look super simple and clean. The design is mostly inspired by Reddit, but its more cleaner. Caching isn't implemented yet, bcoz it sucks sometimes...(me: "Why the post isn't updating, maybe its cached but whereeee..."  )
+## Tech Used
+- VS Code (my fav:)
+- Git and GitHub (to control the flow of mana)
+- NodeJS n NPM 
+- NextJS 
+- Vercel (for deployment, duh)
+- Mana generator, fr
+
 # AI usage
-AI usage on this project is very minimal, I have only used ChatGPT for dubugging and nothing more.
+AI usage on this project is very minimal, I have only used ChatGPT for dubugging and nothing more. I haven't used any types of copilot or smth(bcoz its sooooo annoying).
 
 
 # Theme followed
 Koinonia is a Siege(by HackClub) project and aligns with following themes:
 - Coins
 - Magic
-- Signal (upcomming)
+- Signal
 
+I will prob try to align Koinonia with all the upcomming siege themes :)
 

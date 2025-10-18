@@ -17,7 +17,7 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
   }, [])
 
   return (
-    <div className='fixed z-50 mt-15 border-r h-[90vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
+    <div className='fixed z-50 mt-15 border-r h-[95vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
       <div className='flex flex-col space-y-2 justify-center w-full items-center'>
         <Link href={'/'} className='cursor-pointer rounded p-1'>
           <Home />
