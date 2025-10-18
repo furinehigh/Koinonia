@@ -45,7 +45,7 @@ export default async function RootLayout({
             <MagicalBG />
             <Header />
             <div className="flex">
-              <Sidebar recentCommunities={[]} userSpells={userSpells}/>
+              <Sidebar recentCommunities={[]} userSpells={session ? userSpells : []}/>
               <div className="mt-15 z-40 w-full">
                 {children}
               </div>

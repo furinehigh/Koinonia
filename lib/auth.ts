@@ -1,6 +1,8 @@
 import GithubProvider from "next-auth/providers/github"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
+import CredentialsProvider from "next-auth/providers/credentials"
+
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -19,6 +21,32 @@ export const authOptions = {
         }
       },
     }),
+    CredentialsProvider({
+      name: 'Specter Login',
+      credentials: {},
+      async authorize(_, req) {
+        const specterId = `specter_${Math.random().toString(36).slice(2, 10)}`
+        const username = `Specter_${specterId.slice(-4)}`
+
+        let user = await prisma.user.findUnique({ where: { id: specterId } })
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              id: specterId,
+              name: username,
+              email: `${specterId}@specter.node`,
+              username,
+              image: '/logo.png'
+            }
+          })
+          await prisma.mana.create({
+            data: { userId: user.id, mana: 50 },
+          })
+        }
+
+        return user
+      }
+    })
   ],
   session: { strategy: "jwt" },
 
@@ -53,11 +81,6 @@ export const authOptions = {
             data: {
               userId: user.id,
               mana: 50,
-            },
-          })
-          await prisma.userSpell.create({
-            data: {
-              userId: user.id,
             },
           })
 

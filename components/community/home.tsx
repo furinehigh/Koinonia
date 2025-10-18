@@ -101,7 +101,7 @@ function CommHome({ posts }: { posts: Post[] }) {
       console.log('✨ Post spell success:', data)
     } catch (err: any) {
       console.error('Post spell error:', err.message)
-    }
+    } finally {}
   }
 
   return (
