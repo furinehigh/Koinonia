@@ -1,13 +1,15 @@
 'use client'
 import React from 'react'
 import { Community, User } from '@/types'
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import Link from 'next/link'
+import { formatDistanceToNow } from 'date-fns'
 
-function UserPage({ user, communities, recentPosts }: {
+function UserPage({ user, communities, recentPosts, activities }: {
     user: any,
     communities: any[],
-    recentPosts: any[]
+    recentPosts: any[],
+    activities: any[]
 }) {
     console.log(user)
     return (
@@ -78,7 +80,28 @@ function UserPage({ user, communities, recentPosts }: {
                         <CardTitle>
                             Recent Activities
                         </CardTitle>
-                        <CardDescription>Coming soon..</CardDescription>
+                        <CardContent className="p-0">
+                            <div className="flex flex-col gap-5 w-full text-xs">
+
+                                {activities.map((a, i) => (
+                                    <Link key={i} href={a.slug || '#'}>
+                                        <div className="border rounded p-1">
+                                            <div className="flex space-x-2 items-center justify-between">
+                                                <div>
+
+                                                    <h1 className="font-semibold text-sm">{a.title}</h1>
+                                                </div>
+                                                <p>{formatDistanceToNow(new Date(a.createdAt), { addSuffix: true })}</p>
+                                            </div>
+                                            <div>
+                                                <p>{a.description}</p>
+
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </CardContent>
                     </CardHeader>
                 </Card>
             </div>

@@ -131,6 +131,16 @@ export async function PUT(req: Request) {
       }
     })
 
+    await prisma.recentActivity.create({
+      data: {
+        userId: session.user.id,
+        type: 'spell_casted',
+        title: `Casted ${spellType}`,
+        description: `You've successfully casted a ${spellType} on a ${targetType}.`,
+        spellId: spell.id
+      }
+    })
+
     return NextResponse.json({
       success: true,
       message: `Casted ${spellType} spell on ${targetType} (${effectSummary})`,

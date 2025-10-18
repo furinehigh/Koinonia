@@ -27,6 +27,17 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    await prisma.recentActivity.create({
+      data: {
+        userId: session.user.id,
+        type: 'community_created',
+        title: `Created ${name}`,
+        description: `You've successfully created a new network called ${name}.`,
+        slug: `/n/${slug}`,
+        communityId: data.id
+      }
+    })
+
     return NextResponse.json({ message: "Community created", data }, { status: 200 })
   } catch (err) {
     console.error("POST error:", err)

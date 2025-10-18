@@ -74,3 +74,24 @@ export const getRecentPosts = async (username: string, limit = 10) => {
     return []
   }
 }
+
+export const getUserActivities = async (userId: string) => {
+    try {
+        const data = await prisma.recentActivity.findMany({
+            where: {
+                userId
+            },
+            include: {
+                post: {
+                    include: {
+                        author: true
+                    }
+                },
+                community: true
+            }
+        })
+        return data
+    } catch (e: any) {
+        return e.message
+    }
+}

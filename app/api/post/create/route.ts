@@ -34,6 +34,17 @@ export async function POST(req: NextRequest) {
       }
     })
 
+    await prisma.recentActivity.create({
+      data: {
+        userId: session.user.id,
+        type: 'post_created',
+        title: `Created: ${title}`,
+        description: `You've successfully created a new signal.`,
+        slug: `/n/${slug}/post/${res.id}`,
+        postId: res.id
+      }
+    })
+
     return NextResponse.json({ message: "Post created", res }, { status: 200 })
   } catch (err) {
     console.error("POST error:", err)

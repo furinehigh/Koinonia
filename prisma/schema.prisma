@@ -146,6 +146,8 @@ model Spell {
   updatedAt DateTime @updatedAt
 
   UserSpell UserSpell[]
+
+  recentActivities RecentActivity[]
 }
 
 model CastSpell {
@@ -166,15 +168,18 @@ model CastSpell {
 model RecentActivity {
   id          String     @id @default(cuid())
   userId      String
+  spellId     String?
   type        String
   title       String
   description String
+  slug        String?
   postId      String?
   communityId String?
   post        Post?      @relation(fields: [postId], references: [id])
   community   Community? @relation(fields: [communityId], references: [id])
 
-  user User @relation(fields: [userId], references: [id])
+  spell Spell? @relation(fields: [spellId], references: [id])
+  user  User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())

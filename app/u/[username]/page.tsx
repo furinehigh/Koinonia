@@ -1,4 +1,4 @@
-import { getRecentPosts, getUser, getUserCommunities } from '@/lib/data/user'
+import { getRecentPosts, getUser, getUserActivities, getUserCommunities } from '@/lib/data/user'
 import React from 'react'
 import UserPage from '@/components/user/UserPage'
 import NotFound from './not-found'
@@ -12,8 +12,9 @@ async function page({params} : {
 
   const communities = await getUserCommunities(username)
   const recentPosts = await getRecentPosts(username)
+  const activities = await getUserActivities(user.id)
   return (
-    <UserPage user={user} communities={communities} recentPosts={recentPosts} />
+    <UserPage user={user} communities={communities} recentPosts={recentPosts} activities={activities} />
   )
 }
 

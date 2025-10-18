@@ -30,6 +30,16 @@ export async function POST(req: Request) {
       },
     })
 
+    await prisma.recentActivity.create({
+      data: {
+        userId: session.user.id,
+        type: 'spell_bought',
+        title: `Bought a ${spell.name}`,
+        description: `You've successfully bought a ${spell.name} by spending ${spell.price} mana.`,
+        spellId: spell.id
+      }
+    })
+
     return NextResponse.json({ success: true, spell })
   } catch (e) {
     console.error("Buy spell error:", e)

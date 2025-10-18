@@ -9,6 +9,7 @@ export const getAllPosts = async (slug: string) => {
       },
       include: {
         author: true,
+        community: true
       },
       orderBy: {
         createdAt: 'desc',
