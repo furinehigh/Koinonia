@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { SignalHigh, SignalLow } from 'lucide-react'
+import { Signal, SignalHigh, SignalLow } from 'lucide-react'
 import { Post } from '@/types'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
@@ -125,9 +125,9 @@ function HomePosts({ posts }: { posts: Post[] }) {
 
             <CardContent>
               {p.imageUrl && (
-                <div className='border rounded h-fit w-fit overflow-hidden'>
+                <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='border rounded h-fit w-fit overflow-hidden'>
                   <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
-                </div>
+                </Link>
               )}
             </CardContent>
 

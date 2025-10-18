@@ -19,18 +19,21 @@ import {
 import '@/styles/flamebutton.scss'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
+import Loader from '../Loader'
 
 function PostPage({ post }: {
     post: Post
 }) {
     const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
     const [localPost, setLocalPost] = useState(post)
+    const [loading, setLoading] = useState(true)
 
 
     const increaseViews = async () => {
         try {
-            const alreadyViewed = localStorage.getItem('alreadyViewed')
-            if (alreadyViewed == 'true') {
+            const raw = localStorage.getItem('alreadyViewed')
+            const alreadyViewed: Record<string, boolean> = raw ? JSON.parse(raw) : {}
+            if (alreadyViewed[post.id as string]) {
                 return;
             }
             await fetch('/api/post/actions', {
@@ -38,9 +41,12 @@ function PostPage({ post }: {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ postId: post.id, action: 'views' }),
             })
-            localStorage.setItem('alreadyViewed', 'true')
+            alreadyViewed[post.id as string] = true
+            localStorage.setItem('alreadyViewed', JSON.stringify(alreadyViewed))
         } catch (e) {
             console.error('vote error', e)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -127,6 +133,13 @@ function PostPage({ post }: {
         } catch (err: any) {
             console.error('Post spell error:', err.message)
         }
+    }
+
+    if (loading) {
+        return (
+            <div className='flex justify-center items-center w-full h-full'><Loader className='' size={96} /></div>
+
+        )
     }
 
     return (

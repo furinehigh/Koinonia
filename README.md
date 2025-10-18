@@ -12,7 +12,7 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Mana shop to buy spells such as Rage n Heal spells
 - Bost posts or communities with spells
 - Seperate profile page for each users.
-- Added Specter/Guest login option (for guys who think i will steal their data.... im no thief...:( u guys r bad.... but )
+- Added Specter/Guest login option (for guys who think i will steal their data.... im no thief...:( u guys r bad.... and one more thing: if ur a biz then let's talk biz... cantact here: buydata@atcheap.rate :)
 - Changed these words:
     community -> network
     post -> signal
@@ -60,7 +60,7 @@ Koinonia was build with crazy amount of mana and strong brain signals. Its my fi
 - Mana generator, fr
 
 # AI usage
-AI usage on this project is very minimal, I have only used ChatGPT for dubugging and nothing more. I haven't used any types of copilot or smth(bcoz its sooooo annoying).
+AI usage on this project is very minimal, I have only used ChatGPT for dubugging and nothing more. I haven't used any type of copilots or smth either(bcoz its sooooo annoying).
 
 
 # Theme followed
