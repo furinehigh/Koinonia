@@ -54,7 +54,6 @@ export default async function RootLayout({
             <Footer />
           </div>
         </AuthProvider>
-
         <Toaster />
       </body>
     </html>

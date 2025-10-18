@@ -229,8 +229,8 @@ function PostPage({ post }: {
                     </div>
                     <div className='flex space-x-2 items-end justify-between'>
                         <Textarea />
-                        <Button>
-                            Create
+                        <Button disabled>
+                            Coming soon
                         </Button>
                     </div>
                 </div>
