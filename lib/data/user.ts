@@ -88,6 +88,9 @@ export const getUserActivities = async (userId: string) => {
                     }
                 },
                 community: true
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
         })
         return data
