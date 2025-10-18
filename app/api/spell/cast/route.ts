@@ -51,11 +51,20 @@ export async function PUT(req: Request) {
           })
           effectSummary = "+5 votes"
         } else {
-          await prisma.community.update({
+          const comm = await prisma.community.findUnique({
             where: { id: targetId },
-            data: { updatedAt: new Date() },
+            select: { members: true },
           })
-          effectSummary = "Community empowered"
+
+          // increment mana for all members
+          await prisma.mana.updateMany({
+            where: {
+              userId: { in: comm?.members.map(m => m.id) },
+            },
+            data: { mana: { increment: 5 } },
+          })
+
+          effectSummary = `Community raged (+5 mana to ${comm?.members.length} members)`
         }
         break
 

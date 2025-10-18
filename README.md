@@ -12,6 +12,7 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Mana shop to buy spells such as Rage n Heal spells
 - Bost posts or communities with spells
 - Seperate profile page for each users.
+- Added Specter/Guest login option (for guys who think i will steal their data.... im no thief...:( u guys r bad.... but )
 - Changed these words:
     community -> network
     post -> signal

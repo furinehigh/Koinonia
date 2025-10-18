@@ -166,7 +166,7 @@ function CommHome({ posts }: { posts: Post[] }) {
             <CardContent>
               {p.imageUrl && (
                 <div className='border rounded h-fit w-fit overflow-hidden'>
-                  <img src={p.imageUrl} alt='post' />
+                  <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
                 </div>
               )}
             </CardContent>

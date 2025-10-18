@@ -109,7 +109,7 @@ function CreatePost({ slug }: {
                 return;
             }
             updateMana(mana - 5)
-            router.push('/c/' + slug)
+            router.push('/n/' + slug)
         } catch (e: any) {
             console.error(e.message)
         }
