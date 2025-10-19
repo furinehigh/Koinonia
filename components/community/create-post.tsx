@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
 import Loader from '../Loader'
-import { X } from 'lucide-react'
+import { LoaderIcon, X } from 'lucide-react'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import Link from 'next/link'
@@ -35,6 +35,7 @@ function CreatePost({ slug }: {
     const [uploading, setUploading] = useState(false)
     const [error, setError] = useState('')
     const inputRef = useRef(null)
+    const [loading, setLoading] = useState(false)
 
     const { updateMana, mana } = useUserStore()
 
@@ -97,7 +98,7 @@ function CreatePost({ slug }: {
     const handleSubmit = async () => {
         try {
 
-
+            setLoading(true)
             const res = await fetch('/api/post/create', {
                 method: 'POST',
                 body: JSON.stringify({ ...formData, slug })
@@ -114,6 +115,8 @@ function CreatePost({ slug }: {
             router.push('/n/' + slug)
         } catch (e: any) {
             console.error(e.message)
+        } finally {
+            setLoading(false)
         }
     }
     return (
@@ -177,8 +180,8 @@ function CreatePost({ slug }: {
                         Cancel
                     </Button>
                 </Link>
-                <Button disabled={uploading} onClick={handleSubmit} type="button" variant="default">
-                    Create
+                <Button disabled={uploading || loading} onClick={handleSubmit} type="button" variant="default">
+                    {loading ? <LoaderIcon size={12} className='animate-spin' /> : 'Create'}
                 </Button>
             </CardFooter>
         </Card>

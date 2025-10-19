@@ -27,21 +27,21 @@ export default async function Home() {
 
                 {activities.map((a, i) => (
                   <Link key={i} href={a.slug || '#'}>
-                  <div className="border rounded p-1">
-                    <div className="flex space-x-2 items-center justify-between">
-                      <div>
-
-                      <h1 className="font-semibold text-sm">{a.title}</h1>
+                    <div className="border rounded p-1">
+                      <div className="flex space-x-2 items-center justify-between">
+                        <div>
+                          <p className="bg-gray-300 rounded px-2  w-fit">{a.type}</p>
+                          <h1 className="font-semibold text-sm">{a.title}</h1>
+                        </div>
+                        <p>{formatDistanceToNow(new Date(a.createdAt), { addSuffix: true })}</p>
                       </div>
-                      <p>{formatDistanceToNow(new Date(a.createdAt), { addSuffix: true })}</p>
-                    </div>
-                    <div>
-                      <p>{a.description}</p>
+                      <div>
+                        <p>{a.description}</p>
 
+                      </div>
                     </div>
-                  </div>
                   </Link>
-                ))} 
+                ))}
               </div>
             </CardContent>
           </CardHeader>

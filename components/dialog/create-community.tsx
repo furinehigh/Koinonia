@@ -13,8 +13,7 @@ import React, { useRef, useState } from 'react'
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import Image from "next/image";
-import { X } from "lucide-react";
+import { LoaderIcon, X } from "lucide-react";
 import Loader from "../Loader";
 import { useUserStore } from "@/store/useUserStore";
 import { toast } from "sonner";
@@ -33,6 +32,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     const [uploading, setUploading] = useState(false)
     const [error, setError] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
+    const [loading, setLoading] = useState(false)
 
     const { updateMana, mana } = useUserStore()
 
@@ -95,7 +95,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
     const handleSubmit = async () => {
         try {
 
-
+            setLoading(true)
             const res = await fetch('/api/community/create', {
                 method: 'POST',
                 body: JSON.stringify(formData)
@@ -112,6 +112,8 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
             handleOpenChange(false) 
         } catch (e: any) {
             console.error(e.message)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -186,8 +188,8 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
                             Close
                         </Button>
                     </DialogClose>
-                    <Button disabled={uploading} onClick={handleSubmit} type="button" variant="default">
-                        Create
+                    <Button disabled={uploading || loading} onClick={handleSubmit} type="button" variant="default">
+                        {loading ? <LoaderIcon size={12} className="animate-spin" /> : 'Create'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
