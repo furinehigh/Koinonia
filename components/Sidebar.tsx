@@ -59,7 +59,6 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
           {/* Mana glowing over fire */}
           <div className="mana-glow">{mana}</div>
         </div>
-        <p className='font-semibold'>Mana</p>
       </div>
     </div>
   )
