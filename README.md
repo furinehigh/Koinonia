@@ -3,6 +3,8 @@ A Mana based open-source community forum, where u can create communities(network
 
 NOTE: This website is not much responsive yet, so please use laptops or large devices to view the site:)
 
+IF THE VERCEL SITE IS DOWN PLEASE USE THIS: https://koinonia-pk.ditdrive.info and github login won't work on this site so u have to login as Specter/Guest on this :(
+
 # Why am i building this?
 I love building Full-Stack stuffs like this....:) thats true.... or maybe i want the Siege grant so badly...
 
