@@ -10,7 +10,7 @@ import Link from "next/link";
 export default async function Home() {
   const posts = await recentPosts()
   const session = await getServerSession(authOptions)
-  let activities;
+  let activities = [];
   if (session && session.user) {
     activities = await getUserActivities(session?.user.id)
   }
