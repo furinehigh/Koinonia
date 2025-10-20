@@ -77,7 +77,6 @@ export const getRecentPosts = async (username: string, limit = 10) => {
 
 export const getUserActivities = async (userId: string) => {
     try {
-        if (!userId) return 'Please login';
         const data = await prisma.recentActivity.findMany({
             where: {
                 userId

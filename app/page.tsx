@@ -10,7 +10,10 @@ import Link from "next/link";
 export default async function Home() {
   const posts = await recentPosts()
   const session = await getServerSession(authOptions)
-  const activities = await getUserActivities(session?.user.id)
+  let activities;
+  if (session && session.user) {
+    activities = await getUserActivities(session?.user.id)
+  }
   return (
     <div className="ml-15 p-4 space-y-4 flex justify-between max-w-full">
       <div className="w-2/3">
@@ -25,7 +28,7 @@ export default async function Home() {
             <CardContent className="p-0">
               <div className="flex flex-col gap-5 w-full text-xs">
 
-                {activities.map((a, i) => (
+                {(activities || []).map((a, i) => (
                   <Link key={i} href={a.slug || '#'}>
                     <div className="border rounded p-1">
                       <div className="flex space-x-2 items-center justify-between">
