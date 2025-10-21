@@ -38,7 +38,7 @@ function UserPage({ user, communities, recentPosts, activities }: {
                         <h1 className='text-lg font-semibold'>Networks created</h1>
                         <div className='flex flex-col space-y-2'>
                             {communities.map((c, i) => (
-                                <Link href={'/c/' + c.slug}>
+                                <Link href={'/n/' + c.slug}>
                                     <Card className='rounded shadow-none w-full'>
                                         <CardHeader>
                                             <CardTitle>
