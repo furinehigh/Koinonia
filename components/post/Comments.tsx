@@ -31,6 +31,7 @@ function Comments({ comments, postId }: {
                 setError(data.error)
                 return;
             }
+            setContent('')
             router.refresh()
         } catch (e: any) {
             setError(e.message)

@@ -12,7 +12,7 @@ export const getAllPostComments = async (postId: string) => {
             },
             orderBy: [
                 { votes: 'desc' },
-                { createdAt: 'desc' },
+                { createdAt: 'asc' },
             ],
         })
         return comments
