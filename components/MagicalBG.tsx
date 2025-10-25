@@ -16,7 +16,6 @@ export default function MagicalBG() {
   const [positions, setPositions] = useState<{ left: number; delay: number }[]>([])
 
   useEffect(() => {
-    // randomize leaf positions & stagger timings
     setPositions(
       leaves.map(() => ({
         left: Math.random() * 100,
@@ -41,8 +40,8 @@ export default function MagicalBG() {
               top: `-${item.size}px`,
             }}
             animate={{
-              y: ["-10vh", "110vh"], // fall down beyond bottom
-              x: [0, 20, -20, 10, 0], // gentle drift
+              y: ["-10vh", "110vh"],
+              x: [0, 20, -20, 10, 0],
               rotate: [0, 45, -45, 0],
             }}
             transition={{

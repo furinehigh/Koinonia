@@ -23,7 +23,6 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 
 # Upcomming features and changes
 - Users can add echoes(comments) to signals(posts)
-- Fading posts according to signal strength
 
 # Prerequisites
 - Node JS
@@ -53,6 +52,7 @@ Now u can easily visit `http://localhost:3000` to get the result.
 
 # How was it build?
 Koinonia was build with crazy amount of mana and strong brain signals. Its my first community forum and I just want it to look super simple and clean. The design is mostly inspired by Reddit, but its more cleaner. Caching isn't implemented yet, bcoz it sucks sometimes...(me: "Why the post isn't updating, maybe its cached but whereeee..."  )
+
 ## Tech Used
 - VS Code (my fav:)
 - Git and GitHub (to control the flow of mana)
@@ -66,10 +66,11 @@ AI usage on this project is very minimal, I have only used ChatGPT for dubugging
 
 
 # Theme followed
-Koinonia is a Siege(by HackClub) project and aligns with following themes:
+Koinonia is a Siege(by Hack Club) project and aligns with following themes:
 - Coins
 - Magic
 - Signal
+- Fall
 
 I will prob try to align Koinonia with all the upcomming siege themes :)
 

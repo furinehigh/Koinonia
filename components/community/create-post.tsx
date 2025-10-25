@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
 import { useUserStore } from '@/store/useUserStore'
 import Loader from '../Loader'
-import { LoaderIcon, X } from 'lucide-react'
+import { Loader2, LoaderIcon, X } from 'lucide-react'
 import { Textarea } from '../ui/textarea'
 import { Button } from '../ui/button'
 import Link from 'next/link'
@@ -160,8 +160,8 @@ function CreatePost({ slug }: {
                         </Label>
                         {image && <span onClick={() => setImage('')} className="z-50 absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
                         <div
-                            onClick={handleimageSelect} className="h-20 w-20 rounded border cursor-pointer relative ">
-                            {uploading ? <Loader className={"flex items-center justify-center w-full h-full"} size={32} /> : <img src={image} className="" alt="post_image" onClick={handleimageSelect} />}
+                            className="h-20 w-20 rounded border cursor-pointer relative ">
+                            {uploading ? <Loader2 className='animate-spin' /> : <img src={image || '/logo.png'} className="object-contain" alt="post_image"  onClick={handleimageSelect} />}
                         </div>
                         <input
                             id="image"

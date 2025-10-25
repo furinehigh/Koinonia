@@ -1,0 +1,34 @@
+import { prisma } from "../prisma"
+
+export const getAllPostComments = async (postId: string) => {
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                postId
+            },
+            include: {
+                user: true,
+                replies: true
+            }
+        })
+        return comments
+    } catch (e: any ){
+        return e.message
+    }
+}
+
+export const getAllUserComments = async (userId: string) => {
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                userId
+            },
+            include: {
+                post: true
+            }
+        })
+        return comments
+    } catch (e: any) {
+        return e.message
+    }
+}
