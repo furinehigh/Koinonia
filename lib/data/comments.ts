@@ -9,10 +9,14 @@ export const getAllPostComments = async (postId: string) => {
             include: {
                 user: true,
                 replies: true
-            }
+            },
+            orderBy: [
+                { votes: 'desc' },
+                { createdAt: 'desc' },
+            ],
         })
         return comments
-    } catch (e: any ){
+    } catch (e: any) {
         return e.message
     }
 }

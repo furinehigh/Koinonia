@@ -20,9 +20,11 @@ import '@/styles/flamebutton.scss'
 import { Textarea } from '../ui/textarea'
 import Loader from '../Loader'
 import { toast } from 'sonner'
+import Comments from './Comments'
 
-function PostPage({ post }: {
-    post: Post
+function PostPage({ post, comments }: {
+    post: Post,
+    comments: any[]
 }) {
     const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
     const [localPost, setLocalPost] = useState(post)
@@ -221,19 +223,7 @@ function PostPage({ post }: {
                 </CardFooter>
             </Card>
 
-            <div className='mt-6 w-full' >
-                <div key={localPost.id + 'comments'} className='rounded shadow-none m-3 flex p-2 gap-2 flex-col'>
-                    <div className=''>
-                        <h1 className='font-semibold '>Create Echoes</h1>
-                    </div>
-                    <div className='flex space-x-2 items-end justify-between'>
-                        <Textarea />
-                        <Button disabled>
-                            Coming soon
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <Comments comments={comments} postId={localPost.id} />
         </div>
     )
 }

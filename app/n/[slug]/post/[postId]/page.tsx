@@ -3,6 +3,7 @@ import React from 'react'
 import NotFound from './not-found'
 import { Post } from '@/types'
 import PostPage from '@/components/post/PostPage'
+import { getAllPostComments, getAllUserComments } from '@/lib/data/comments'
 
 async function page({params}: {
   params: {postId: string}
@@ -11,8 +12,9 @@ async function page({params}: {
 
   const post = await getPost(postId) as Post
   if (!post) return NotFound();
+  const comments = await getAllPostComments(postId)
   return (
-    <PostPage post={post} />
+    <PostPage post={post} comments={comments} />
   )
 }
 

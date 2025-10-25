@@ -190,17 +190,18 @@ model RecentActivity {
 }
 
 model Comment {
-  id        String    @id @default(cuid())
-  content   String
-  postId    String
-  userId    String
-  parentId  String?
+  id       String  @id @default(cuid())
+  content  String
+  votes    Int     @default(0)
+  postId   String
+  userId   String
+  parentId String?
 
-  post      Post      @relation(fields: [postId], references: [id])
-  user      User      @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies   Comment[] @relation("CommentReplies")
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
 
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
