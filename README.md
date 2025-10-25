@@ -20,9 +20,13 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
     post -> signal
 - Instead of votes there will be signal strength
 - Seperate page for all the signals(posts)
+- Users can add echoes(comments) to signals(posts)
 
 # Upcomming features and changes
-- Users can add echoes(comments) to signals(posts)
+- Proper moderation tools for moderators
+- Auto moderation
+- Image moderation
+
 
 # Prerequisites
 - Node JS

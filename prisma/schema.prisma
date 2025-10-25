@@ -107,6 +107,7 @@ model Post {
   votes       Int       @default(0)
   views       Int       @default(0)
   author      User      @relation("UserPosts", fields: [authorId], references: [id])
+  isDeleted   Boolean   @default(false)
   communityId String
   community   Community @relation("CommunityPosts", fields: [communityId], references: [id])
 
@@ -190,12 +191,13 @@ model RecentActivity {
 }
 
 model Comment {
-  id       String  @id @default(cuid())
-  content  String
-  votes    Int     @default(0)
-  postId   String
-  userId   String
-  parentId String?
+  id        String  @id @default(cuid())
+  content   String
+  votes     Int     @default(0)
+  postId    String
+  userId    String
+  parentId  String?
+  isDeleted Boolean @default(false)
 
   post Post @relation(fields: [postId], references: [id])
   user User @relation(fields: [userId], references: [id])

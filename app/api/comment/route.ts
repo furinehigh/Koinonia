@@ -30,7 +30,9 @@ export async function POST(req: NextRequest) {
                     include: {
                         community: true
                     }
-                }
+                },
+                user: true,
+                replies: true
             }
         })
 

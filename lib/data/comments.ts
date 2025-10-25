@@ -12,7 +12,7 @@ export const getAllPostComments = async (postId: string) => {
             },
             orderBy: [
                 { votes: 'desc' },
-                { createdAt: 'asc' },
+                { createdAt: 'desc' },
             ],
         })
         return comments
@@ -28,8 +28,15 @@ export const getAllUserComments = async (userId: string) => {
                 userId
             },
             include: {
-                post: true
-            }
+                post: {
+                    include: {
+                        community: true
+                    }
+                }
+            },
+            orderBy: [
+                { createdAt: 'desc' }
+            ]
         })
         return comments
     } catch (e: any) {

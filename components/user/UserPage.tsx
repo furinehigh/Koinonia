@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 
-function UserPage({ user, communities, recentPosts, activities }: {
+function UserPage({ user, communities, recentPosts, activities, comments }: {
     user: any,
     communities: any[],
     recentPosts: any[],
-    activities: any[]
+    activities: any[],
+    comments: any[]
 }) {
     console.log(user)
     return (
@@ -68,6 +69,26 @@ function UserPage({ user, communities, recentPosts, activities }: {
                                         </CardHeader>
                                         <CardFooter className='text-xs'>
                                             <span className='font-semibold mr-1'>{p.votes}</span> vote/s
+                                        </CardFooter>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                    <div className='flex flex-col my-5'>
+                        <h1 className='text-lg font-semibold'>Recent echoes</h1>
+                        <div className='flex flex-col space-y-2'>
+                            {comments.map((c, i) => (
+                                <Link href={'/n/' + c.post.community.slug + '/post/' + c.post.id}>
+                                    <Card className='rounded shadow-none w-full'>
+                                        <CardHeader>
+                                            <CardTitle>
+                                                Echoed on: {c.post.title}
+                                            </CardTitle>
+                                            <CardDescription>{c.content}</CardDescription>
+                                        </CardHeader>
+                                        <CardFooter className='text-xs'>
+                                            <span className='font-semibold mr-1'>{c.votes}</span> vote/s
                                         </CardFooter>
                                     </Card>
                                 </Link>
