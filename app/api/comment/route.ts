@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
             data: {
                 userId: session.user.id,
                 type: 'comment_created',
-                title: parentId ? `Replied to a comment` : `Commented on ${data.post.title}`,
-                description: parentId ? `You've successfully replied to a comment on a post.` : `You've successfully created a new echo on post ${name}.`,
+                title: parentId ? `Replied to an echo` : `Echoed on ${data.post.title}`,
+                description: parentId ? `You've successfully replied to a comment on a post.` : `You've successfully created a new echo on post ${data.post.title}.`,
                 slug: `/n/${data.post.community.slug}/post/${data.post.id}`,
                 postId: data.id
             }
