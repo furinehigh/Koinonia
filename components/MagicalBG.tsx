@@ -1,39 +1,41 @@
 "use client"
 import { motion } from "framer-motion"
 
-const items = [
-  { name: "Scroll of Wisdom", color: "rgba(200,200,200,0.15)", size: 90 },
-  { name: "Arcane Orb", color: "rgba(150,150,150,0.2)", size: 60 },
-  { name: "Silver Wand", color: "rgba(180,180,180,0.1)", size: 70 },
-  { name: "Crystal Rune", color: "rgba(220,220,220,0.1)", size: 80 },
-  { name: "Book of Mana", color: "rgba(255,255,255,0.08)", size: 100 },
+const leaves = [
+  { emoji: "🍁", size: 40 },
+  { emoji: "🍂", size: 36 },
+  { emoji: "🍃", size: 42 },
+  { emoji: "🍁", size: 50 },
+  { emoji: "🍂", size: 45 },
+  { emoji: "🍃", size: 38 },
 ]
 
 export default function MagicalBG() {
   return (
     <div className="fixed inset-0 overflow-hidden -z-10">
-      {items.map((item, i) => (
+      {leaves.map((leaf, i) => (
         <motion.div
           key={i}
-          className="absolute backdrop-blur-md rounded-full"
+          className="absolute select-none"
           style={{
-            background: item.color,
-            width: `${item.size}px`,
-            height: `${item.size}px`,
+            fontSize: `${leaf.size}px`,
             left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
+            top: `${-10 - Math.random() * 20}%`,
           }}
           animate={{
-            y: [0, -40, 0],
-            x: [0, 20, 0],
-            rotate: [0, 360],
+            y: ["0%", "110%"],
+            x: [0, Math.random() * 40 - 20, Math.random() * 40 - 20, 0],
+            rotate: [0, 90, 180, 270, 360],
           }}
           transition={{
             duration: 10 + Math.random() * 10,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: "linear",
+            delay: Math.random() * 5,
           }}
-        />
+        >
+          {leaf.emoji}
+        </motion.div>
       ))}
     </div>
   )
