@@ -1,42 +1,59 @@
 "use client"
 import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
 
 const leaves = [
-  { emoji: "🍁", size: 40 },
-  { emoji: "🍂", size: 36 },
-  { emoji: "🍃", size: 42 },
-  { emoji: "🍁", size: 50 },
-  { emoji: "🍂", size: 45 },
-  { emoji: "🍃", size: 38 },
+  { src: "/leaves/leaf1.png", size: 40 },
+  { src: "/leaves/leaf2.png", size: 50 },
+  { src: "/leaves/leaf3.png", size: 45 },
+  { src: "/leaves/leaf4.png", size: 55 },
+  { src: "/leaves/leaf1.png", size: 60 },
+  { src: "/leaves/leaf2.png", size: 48 },
+  { src: "/leaves/leaf3.png", size: 52 },
 ]
 
 export default function MagicalBG() {
+  const [positions, setPositions] = useState<{ left: number; delay: number }[]>([])
+
+  useEffect(() => {
+    // randomize leaf positions & stagger timings
+    setPositions(
+      leaves.map(() => ({
+        left: Math.random() * 100,
+        delay: Math.random() * 8,
+      }))
+    )
+  }, [])
+
   return (
     <div className="fixed inset-0 overflow-hidden -z-10">
-      {leaves.map((leaf, i) => (
-        <motion.div
-          key={i}
-          className="absolute select-none"
-          style={{
-            fontSize: `${leaf.size}px`,
-            left: `${Math.random() * 100}%`,
-            top: `${-10 - Math.random() * 20}%`,
-          }}
-          animate={{
-            y: ["0%", "110%"],
-            x: [0, Math.random() * 40 - 20, Math.random() * 40 - 20, 0],
-            rotate: [0, 90, 180, 270, 360],
-          }}
-          transition={{
-            duration: 10 + Math.random() * 10,
-            repeat: Infinity,
-            ease: "linear",
-            delay: Math.random() * 5,
-          }}
-        >
-          {leaf.emoji}
-        </motion.div>
-      ))}
+      {leaves.map((item, i) => {
+        const pos = positions[i] || { left: 0, delay: 0 }
+        return (
+          <motion.img
+            key={i}
+            src={item.src}
+            className="absolute opacity-90"
+            style={{
+              width: `${item.size}px`,
+              height: `${item.size}px`,
+              left: `${pos.left}%`,
+              top: `-${item.size}px`,
+            }}
+            animate={{
+              y: ["-10vh", "110vh"], // fall down beyond bottom
+              x: [0, 20, -20, 10, 0], // gentle drift
+              rotate: [0, 45, -45, 0],
+            }}
+            transition={{
+              duration: 10 + Math.random() * 10,
+              repeat: Infinity,
+              ease: "linear",
+              delay: pos.delay,
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
