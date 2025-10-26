@@ -27,9 +27,9 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
         <Link href={'/'} className='cursor-pointer rounded p-1'>
           <Home />
         </Link>
-        <div className='cursor-pointer rounded p-1'>
+        <Link href={'/settings'} className='cursor-pointer rounded p-1'>
           <Settings />
-        </div>
+        </Link>
         <div className='w-[80%] mx-auto my-2 border-b'></div>
         {recentCommunities.map((c, i) => (
           <Tooltip >
@@ -44,7 +44,7 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
           </Tooltip>
         ))}
       </div>
-      
+
       <div className='max-h-1/3 overflow-y-auto'>
         <h1 className='font-semibold text-sm border-t py-2'>Spells</h1>
         <div className='rounded border flex-col'>

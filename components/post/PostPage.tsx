@@ -232,13 +232,13 @@ function PostPage({ post, comments }: {
                 <CardHeader>
                     <CardTitle>
                         <div className='flex justify-between'>
-                            <Link href={'/u/' + localPost.author.username} className='flex items-center space-x-2 group'>
+                            <Link href={localPost.isDeleted ? '#' : '/u/' + localPost.author.username} className='flex items-center space-x-2 group'>
                                 <div className='h-10 w-10 rounded border overflow-hidden'>
-                                    {post.isDeleted ? <Ban /> : <img src={localPost.author.image || 'logo.png'} alt='user' />}
+                                    {localPost.isDeleted ? <Ban className='h-full w-full' /> : <img src={localPost.author.image || 'logo.png'} alt='user' />}
                                 </div>
                                 <div>
                                     <div className='font-semibold group-hover:underline underline-offset-2'>
-                                        {post.isDeleted ? (
+                                        {localPost.isDeleted ? (
                                             'Post deleted'
                                         ) : (
                                             <>
@@ -256,11 +256,11 @@ function PostPage({ post, comments }: {
                                     </div>
                                 </div>
                             </Link>
-                            <div>
+                            <div className='flex gap-2 items-center'>
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger disabled={localPost.isDeleted} className='cursor-pointer'>
-                                        <div className='flex space-x-2'>
+                                        <div className='flex space-x-2 items-center'>
                                             <Button variant='outline' size='sm' className='flame-button'>
                                                 <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
                                             </Button>
@@ -375,7 +375,10 @@ function PostPage({ post, comments }: {
                         </div>
                     </CardTitle>
                     {localPost.isDeleted ? (
-                        <p>Post has been deleted</p>
+                        <>
+                            <p>Post has been deleted</p>
+                            <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
+                        </>
                     ) : (
                         <><h1 className='font-semibold'>{localPost.title}</h1><CardDescription>{localPost.content}</CardDescription></>
                     )}

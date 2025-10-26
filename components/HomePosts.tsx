@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Signal, SignalHigh, SignalLow } from 'lucide-react'
+import { Ban, Signal, SignalHigh, SignalLow } from 'lucide-react'
 import { Post } from '@/types'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
@@ -99,12 +99,25 @@ function HomePosts({ posts }: { posts: Post[] }) {
                         </div>
                       )}
 
-                      <Link href={'/u/' + p.author.username} className='relative z-10 flex items-center space-x-2 group'>
+                      <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='relative z-10 flex items-center space-x-2 group'>
                         <div className='h-10 w-10 rounded border overflow-hidden'>
-                          <img src={p.author.image || 'logo.png'} alt='author' />
+                          {p.isDeleted ? <Ban className='h-full w-full bg-white' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
                         </div>
                         <div>
-                          <div className='font-medium group-hover:underline underline-offset-2'>{p.author.name}</div>
+                          <div className='font-semibold group-hover:underline underline-offset-2'>
+                            {p.isDeleted ? (
+                              'Post deleted'
+                            ) : (
+                              <>
+                                {p.author.name} {' '}
+                                {p.edited && (
+                                  <span className='text-xs opacity-70'>
+                                    (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
                           <div className='text-xs text-muted-foreground'>
                             {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
                           </div>
@@ -119,16 +132,22 @@ function HomePosts({ posts }: { posts: Post[] }) {
                 </div>
               </CardTitle>
 
-              <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold text-lg mt-2'>{p.title}</Link>
-              <CardDescription>{p.content}</CardDescription>
+              {p.isDeleted ? (
+                <>
+                  <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>Post has been deleted</Link>
+                  <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
+                </>
+              ) : (
+                <><Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>{p.title}</Link><CardDescription>{p.content}</CardDescription></>
+              )}
             </CardHeader>
 
             <CardContent>
-              {p.imageUrl && (
+              {(p.imageUrl && !p.isDeleted) && (
                 <Link href={'/n/' + p.community?.slug + '/post/' + p.id} >
                   <div className='border rounded h-fit w-fit overflow-hidden'>
 
-                  <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
+                    <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
                   </div>
                 </Link>
               )}
@@ -140,7 +159,7 @@ function HomePosts({ posts }: { posts: Post[] }) {
                   <span>{p.votes}</span>
 
                   <SignalHigh
-                    onClick={() => handleVote(p.id, 'upvote')}
+                    onClick={() => {if (!p.isDeleted) handleVote(p.id, 'upvote')}}
                     className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
                       ? 'bg-gray-200'
                       : 'hover:bg-gray-200'
@@ -148,7 +167,7 @@ function HomePosts({ posts }: { posts: Post[] }) {
                   />
 
                   <SignalLow
-                    onClick={() => handleVote(p.id, 'downvote')}
+                    onClick={() => {if (!p.isDeleted) handleVote(p.id, 'downvote')}}
                     className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
                       ? 'bg-gray-200'
                       : 'hover:bg-gray-200'
