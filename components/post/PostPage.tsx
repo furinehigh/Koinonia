@@ -380,7 +380,10 @@ function PostPage({ post, comments }: {
                             <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
                         </>
                     ) : (
-                        <><h1 className='font-semibold'>{localPost.title}</h1><CardDescription>{localPost.content}</CardDescription></>
+                        <>
+                            <h1 className='font-semibold'>{localPost.title}</h1>
+                            <CardDescription>{localPost.content}</CardDescription>
+                        </>
                     )}
                 </CardHeader>
 

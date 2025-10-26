@@ -204,7 +204,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                   <span>{p.votes}</span>
 
                   <SignalHigh
-                    onClick={() => {if (!p.isDeleted) handleVote(p.id, 'upvote')}}
+                    onClick={() => { if (!p.isDeleted) handleVote(p.id, 'upvote') }}
                     className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
                       ? 'bg-gray-200'
                       : 'hover:bg-gray-200'
@@ -212,7 +212,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                   />
 
                   <SignalLow
-                    onClick={() => {if (!p.isDeleted) handleVote(p.id, 'downvote')}}
+                    onClick={() => { if (!p.isDeleted) handleVote(p.id, 'downvote') }}
                     className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
                       ? 'bg-gray-200'
                       : 'hover:bg-gray-200'

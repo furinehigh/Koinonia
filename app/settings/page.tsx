@@ -1,10 +1,10 @@
+import SettingsPage from '@/components/settings/SettingsPage'
 import React from 'react'
 
 function page() {
+
   return (
-    <div>
-      
-    </div>
+    <SettingsPage />
   )
 }
 

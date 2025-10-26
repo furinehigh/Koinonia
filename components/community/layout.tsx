@@ -106,9 +106,6 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
             </Link>
 
             <div className='ml-auto '>
-              <Link href={'/n/' + community.slug + '/post/create'} className='mr-2'>
-                <Button>Create Signal</Button>
-              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger className='cursor-pointer mt-2'>
                   <Button className='flame-button'>Cast Spell</Button>
@@ -120,6 +117,10 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
                   <DropdownMenuItem onClick={() => castSpell('Heal Spell')}>Heal Spell</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Link href={'/n/' + community.slug + '/post/create'} className='ml-2'>
+                <Button>Create Signal</Button>
+              </Link>
+
             </div>
           </div>
 

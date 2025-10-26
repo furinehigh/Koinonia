@@ -30,6 +30,20 @@ export async function DELETE(req: NextRequest) {
             },
             data: {
                 isDeleted: true
+            },
+            include: {
+                community: true
+            }
+        })
+
+        await prisma.recentActivity.create({
+            data: {
+                userId: session.user.id,
+                type: 'post_deleted',
+                title: `Deleted a signal`,
+                description: `You've successfully deleted a signal.`,
+                slug: `/n/${res.community.slug}/post/${res.id}`,
+                postId: res.id
             }
         })
 

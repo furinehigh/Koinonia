@@ -61,10 +61,16 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                                 <Link href={'/n/' + p.community.slug + '/post/' + p.id}>
                                     <Card className='rounded shadow-none w-full'>
                                         <CardHeader>
-                                            <CardTitle>
-                                                {p.title}
-                                            </CardTitle>
-                                            <CardDescription>{p.content}</CardDescription>
+                                            {p.isDeleted ? (
+                                                <>
+                                                    <p>Post has been deleted</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CardTitle className='font-semibold'>{p.title}</CardTitle>
+                                                    <CardDescription>{p.content}</CardDescription>
+                                                </>
+                                            )}
                                         </CardHeader>
                                         <CardFooter className='text-xs'>
                                             <span className='font-semibold mr-1'>{p.votes}</span> vote/s
@@ -119,7 +125,6 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                                     </Link>
                                 ))}
                             </div>
-
                         </CardContent>
                     </CardHeader>
                 </Card>
