@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Ban, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
+import { Ban, Signal, SignalHigh, SignalLow, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
