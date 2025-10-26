@@ -42,7 +42,7 @@ function PostPage({ post, comments }: {
     const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
     const [localPost, setLocalPost] = useState(post)
     const [loading, setLoading] = useState(true)
-    const [showNewDialog, setShowNewDialog] = useState(false)
+    const [showEditDialog, setShowEditDialog] = useState(false)
     const [showShareDialog, setShowShareDialog] = useState(false)
     const [editPost, setEditPost] = useState(post)
     const [editError, setEditError] = useState('')
@@ -177,9 +177,13 @@ function PostPage({ post, comments }: {
 
             const data = await res.json()
 
-            if (!res.ok) {
+            if (!res.ok || data.error) {
                 setEditError(data.error)
+                return;
             }
+
+            setShowEditDialog(false)
+            setLocalPost(editPost)
         } catch (e: any) {
             setEditError(e.message)
         } finally {
@@ -205,7 +209,7 @@ function PostPage({ post, comments }: {
                                     <img src={localPost.author.image || 'logo.png'} alt='user' />
                                 </div>
                                 <div>
-                                    <div className='font-semibold group-hover:underline underline-offset-2'>{localPost.author.name}</div>
+                                    <div className='font-semibold group-hover:underline underline-offset-2'>{localPost.author.name} {localPost.edited && <span className='text-xs opacity-70'>(Edited {formatDistanceToNow(new Date(localPost.editedAt), { addSuffix: true })})</span>}</div>
                                     <div className='text-xs text-muted-foreground'>
                                         {formatDistanceToNow(new Date(localPost.createdAt), { addSuffix: true })}
                                     </div>
@@ -240,7 +244,7 @@ function PostPage({ post, comments }: {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-40" align="end">
                                         <DropdownMenuGroup>
-                                            <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
+                                            <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
                                                 Edit post
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
@@ -251,7 +255,7 @@ function PostPage({ post, comments }: {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
+                            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
                                         <DialogTitle>Edit a post</DialogTitle>
@@ -269,12 +273,14 @@ function PostPage({ post, comments }: {
                                             <Input value={editPost.content} onChange={e => setEditPost(prev => ({ ...prev, content: e.target.value }))} id="filename" name="filename" placeholder="document.txt" />
                                         </Field>
                                     </FieldGroup>
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == ''} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
+                                    <DialogFooter className='flex justify-between'>
                                         <p className='text-xs text-red-500'>{editError}</p>
+                                        <div className='flex gap-2'>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">Cancel</Button>
+                                            </DialogClose>
+                                            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == ''} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
+                                        </div>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
