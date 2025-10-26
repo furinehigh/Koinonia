@@ -1,13 +1,12 @@
 'use client'
 import React, { useState } from 'react'
-import { Spell } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUserStore } from '@/store/useUserStore'
 import { toast } from 'sonner'
 
 interface ManaShopClientProps {
-  spells: Spell[]
+  spells: any[]
 }
 
 export default function ManaShopClient({ spells }: ManaShopClientProps) {

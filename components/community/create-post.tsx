@@ -40,7 +40,7 @@ function CreatePost({ slug }: {
     const { updateMana, mana } = useUserStore()
 
     const handleimageSelect = () => {
-        inputRef.current?.click()
+        (inputRef.current as any).click()
     }
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

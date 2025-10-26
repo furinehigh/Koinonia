@@ -10,6 +10,7 @@ import { getUserSpellsCount } from "@/lib/data/spells";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { getRecentCommunities } from "@/lib/data/community";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default async function RootLayout({
 }>) {
   const session = await getServerSession(authOptions)
   const userSpells = await getUserSpellsCount(session?.user?.id)
+  const recentCommunities = await getRecentCommunities(session?.user.id)
   return (
     <html lang="en">
       <body
@@ -46,7 +48,7 @@ export default async function RootLayout({
             <MagicalBG />
             <Header />
             <div className="flex">
-              <Sidebar recentCommunities={[]} userSpells={session ? userSpells : []}/>
+              <Sidebar recentCommunities={recentCommunities} userSpells={session ? userSpells : []}/>
               <div className="mt-15 z-40 w-full">
                 {children}
               </div>

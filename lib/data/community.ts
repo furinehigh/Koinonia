@@ -13,9 +13,9 @@ export const communityData = async (slug: string, userId?: string): Promise<Comm
           select: { members: true },
         },
         members: {
-            where: {
-                id: userId
-            }
+          where: {
+            id: userId
+          }
         }
       },
     })
@@ -130,5 +130,28 @@ export const rankAllCommunities = async (crrPage = 1, limit = 10) => {
   } catch (e: any) {
     console.error("Error ranking communities:", e)
     return { totalPages: 0, communities: [] }
+  }
+}
+
+
+export const getRecentCommunities = async (userId: string, limit = 10) => {
+  try {
+    const activities = await prisma.recentActivity.findMany({
+      where: {
+        userId,
+        communityId: { not: '' }
+      },
+      include: {
+        community: true
+      },
+      distinct: ['communityId'],
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    })
+
+    return activities.map(a => a.community).filter(Boolean)
+  } catch (error) {
+    console.error('⚠️ Failed to fetch recent communities:', error)
+    throw new Error('Could not fetch recent communities.')
   }
 }

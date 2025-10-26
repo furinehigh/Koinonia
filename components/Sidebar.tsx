@@ -6,6 +6,11 @@ import Image from 'next/image'
 import { useUserStore } from '@/store/useUserStore'
 import Link from 'next/link'
 import '@/styles/flame.scss'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Community[], userSpells: any[] }) {
   const [expanded, setExpanded] = useState(false)
@@ -23,16 +28,20 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
           <Home />
         </Link>
         <div className='cursor-pointer rounded p-1'>
-          <UsersRound />
-        </div>
-        <div className='cursor-pointer rounded p-1'>
           <Settings />
         </div>
         <div className='w-[80%] mx-auto my-2 border-b'></div>
         {recentCommunities.map((c, i) => (
-          <div key={i} className='cursor-pointer'>
-            <Image src={c.avatarUrl || 'comm_placeholder.png'} width={20} height={20} alt={c.name} />
-          </div>
+          <Tooltip >
+            <TooltipTrigger>
+              <Link href={'/n/' + c.slug}>
+              <div className='h-8 w-8 rounded border overflow-hidden'>
+                <img src={c.avatarUrl || '/logo.png'} alt={c.slug} />
+              </div>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent  >{c.name}</TooltipContent>
+          </Tooltip>
         ))}
       </div>
       <div>
