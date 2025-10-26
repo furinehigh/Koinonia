@@ -21,6 +21,7 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Instead of votes there will be signal strength
 - Seperate page for all the signals(posts)
 - Users can add echoes(comments) to signals(posts)
+- Users can also reply to comments/echoes infinitly :) (but don't do that ∞ plsss)
 - Posts/Signals can now be deleted
 - Posts/Signal can also be edited now (u can't update images yet)
 
