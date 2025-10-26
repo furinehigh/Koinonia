@@ -136,6 +136,9 @@ export const rankAllCommunities = async (crrPage = 1, limit = 10) => {
 
 export const getRecentCommunities = async (userId: string, limit = 10) => {
   try {
+    if (!userId){
+      return []
+    }
     const activities = await prisma.recentActivity.findMany({
       where: {
         userId,
