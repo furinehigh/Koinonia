@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
     Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Check, Copy, Loader2, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
+import { Ban, Check, Copy, Loader2, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -44,10 +44,12 @@ function PostPage({ post, comments }: {
     const [loading, setLoading] = useState(true)
     const [showEditDialog, setShowEditDialog] = useState(false)
     const [showShareDialog, setShowShareDialog] = useState(false)
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [editPost, setEditPost] = useState(post)
     const [editError, setEditError] = useState('')
     const [editLoading, setEditLoading] = useState(false)
     const [copied, setCopied] = useState(false)
+    const [deleteLoading, setDeleteLoading] = useState(false)
 
     const handleCopy = async () => {
         try {
@@ -183,11 +185,37 @@ function PostPage({ post, comments }: {
             }
 
             setShowEditDialog(false)
-            setLocalPost(editPost)
+            setLocalPost({ ...editPost, edited: true, editedAt: new Date() })
         } catch (e: any) {
             setEditError(e.message)
         } finally {
             setEditLoading(false)
+        }
+    }
+
+    const handlePostDelete = async () => {
+        try {
+            setDeleteLoading(true)
+            const res = await fetch('/api/post/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ postId: post.id })
+            })
+
+            const data = await res.json()
+            if (!res.ok || data.error) {
+                toast.error('Error deleting post :(', { description: data.error })
+                return;
+            }
+
+            setLocalPost(prev => ({ ...prev, isDeleted: true }))
+            setShowDeleteDialog(false)
+        } catch (e: any) {
+            toast.error('Error deleting post :(', { description: e.message })
+        } finally {
+            setDeleteLoading(false)
         }
     }
 
@@ -206,10 +234,23 @@ function PostPage({ post, comments }: {
                         <div className='flex justify-between'>
                             <Link href={'/u/' + localPost.author.username} className='flex items-center space-x-2 group'>
                                 <div className='h-10 w-10 rounded border overflow-hidden'>
-                                    <img src={localPost.author.image || 'logo.png'} alt='user' />
+                                    {post.isDeleted ? <Ban /> : <img src={localPost.author.image || 'logo.png'} alt='user' />}
                                 </div>
                                 <div>
-                                    <div className='font-semibold group-hover:underline underline-offset-2'>{localPost.author.name} {localPost.edited && <span className='text-xs opacity-70'>(Edited {formatDistanceToNow(new Date(localPost.editedAt), { addSuffix: true })})</span>}</div>
+                                    <div className='font-semibold group-hover:underline underline-offset-2'>
+                                        {post.isDeleted ? (
+                                            'Post deleted'
+                                        ) : (
+                                            <>
+                                                {localPost.author.name} {' '}
+                                                {localPost.edited && (
+                                                    <span className='text-xs opacity-70'>
+                                                        (Edited {formatDistanceToNow(new Date(localPost.editedAt), { addSuffix: true })})
+                                                    </span>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
                                     <div className='text-xs text-muted-foreground'>
                                         {formatDistanceToNow(new Date(localPost.createdAt), { addSuffix: true })}
                                     </div>
@@ -218,7 +259,7 @@ function PostPage({ post, comments }: {
                             <div>
 
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger className='cursor-pointer'>
+                                    <DropdownMenuTrigger disabled={localPost.isDeleted} className='cursor-pointer'>
                                         <div className='flex space-x-2'>
                                             <Button variant='outline' size='sm' className='flame-button'>
                                                 <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
@@ -237,7 +278,7 @@ function PostPage({ post, comments }: {
                                 </DropdownMenu>
 
                                 <DropdownMenu modal={false}>
-                                    <DropdownMenuTrigger asChild>
+                                    <DropdownMenuTrigger disabled={localPost.isDeleted} asChild>
                                         <Button variant="outline" aria-label="Open menu" size="icon-sm">
                                             <MoreVerticalIcon />
                                         </Button>
@@ -250,7 +291,7 @@ function PostPage({ post, comments }: {
                                             <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
                                                 Share post
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem className='text-red-500'>Delete</DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
                                         </DropdownMenuGroup>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -265,12 +306,12 @@ function PostPage({ post, comments }: {
                                     </DialogHeader>
                                     <FieldGroup className="pb-3">
                                         <Field>
-                                            <FieldLabel htmlFor="filename">Title</FieldLabel>
-                                            <Input value={editPost.title} onChange={(e) => setEditPost(prev => ({ ...prev, title: e.target.value }))} id="filename" name="filename" placeholder="document.txt" />
+                                            <FieldLabel htmlFor="title">Title</FieldLabel>
+                                            <Input value={editPost.title} onChange={(e) => setEditPost(prev => ({ ...prev, title: e.target.value }))} id="title" name="title" />
                                         </Field>
                                         <Field>
-                                            <FieldLabel htmlFor="filename">Content</FieldLabel>
-                                            <Input value={editPost.content} onChange={e => setEditPost(prev => ({ ...prev, content: e.target.value }))} id="filename" name="filename" placeholder="document.txt" />
+                                            <FieldLabel htmlFor="description">Content</FieldLabel>
+                                            <Textarea value={editPost.content} onChange={e => setEditPost(prev => ({ ...prev, content: e.target.value }))} id="description" name="description" />
                                         </Field>
                                     </FieldGroup>
                                     <DialogFooter className='flex justify-between'>
@@ -281,6 +322,24 @@ function PostPage({ post, comments }: {
                                             </DialogClose>
                                             <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == ''} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
                                         </div>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                            <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Delete the post
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            This will only delete your post but the comments or replies won't get deleted.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <DialogClose>
+                                            <Button variant={'outline'}>Cancel</Button>
+                                        </DialogClose>
+                                        <Button onClick={handlePostDelete} variant={'destructive'} disabled={deleteLoading}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Confirm'}</Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
@@ -315,12 +374,15 @@ function PostPage({ post, comments }: {
 
                         </div>
                     </CardTitle>
-                    <h1 className='font-semibold'>{localPost.title}</h1>
-                    <CardDescription>{localPost.content}</CardDescription>
+                    {localPost.isDeleted ? (
+                        <p>Post has been deleted</p>
+                    ) : (
+                        <><h1 className='font-semibold'>{localPost.title}</h1><CardDescription>{localPost.content}</CardDescription></>
+                    )}
                 </CardHeader>
 
                 <CardContent>
-                    {localPost.imageUrl && (
+                    {(localPost.imageUrl && !localPost.isDeleted) && (
                         <div className='border rounded h-fit w-fit overflow-hidden'>
                             <img src={localPost.imageUrl} alt='post' />
                         </div>
@@ -333,15 +395,25 @@ function PostPage({ post, comments }: {
                             <span>{localPost.votes}</span>
 
                             <SignalHigh
-                                onClick={() => handleVote(localPost.id, 'upvote')}
+                                onClick={() => {
+                                    if (!localPost.isDeleted) {
+
+                                        handleVote(localPost.id, 'upvote')
+                                    }
+                                }
+                                }
                                 className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[localPost.id] === 'up'
                                     ? 'bg-gray-200'
                                     : 'hover:bg-gray-200'
                                     }`}
+
+
                             />
 
                             <SignalLow
-                                onClick={() => handleVote(localPost.id, 'downvote')}
+                                onClick={() => {
+                                    if (!localPost.isDeleted) handleVote(localPost.id, 'downvote')
+                                }}
                                 className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[localPost.id] === 'down'
                                     ? 'bg-gray-200'
                                     : 'hover:bg-gray-200'
@@ -356,7 +428,7 @@ function PostPage({ post, comments }: {
                 </CardFooter>
             </Card>
 
-            <Comments comments={comments} postId={localPost.id} />
+            <Comments comments={comments} postId={localPost.id} isDeleted={post.isDeleted} />
         </div>
     )
 }

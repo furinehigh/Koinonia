@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { Loader2, Reply, SignalHigh, SignalLow } from 'lucide-react'
 
-function Comments({ comments, postId }: { comments: any[], postId: string }) {
+function Comments({ comments, postId, isDeleted }: { comments: any[], postId: string, isDeleted: boolean }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [replyError, setReplyError] = useState('')
@@ -60,6 +60,9 @@ function Comments({ comments, postId }: { comments: any[], postId: string }) {
   const handleSubmit = async () => {
     setLoading(true)
     setError('')
+    if (isDeleted) {
+      return;
+    }
     try {
       const res = await fetch('/api/comment', {
         method: 'POST',
@@ -80,6 +83,9 @@ function Comments({ comments, postId }: { comments: any[], postId: string }) {
   const handleReplySubmit = async () => {
     setReplyLoading(true)
     setReplyError('')
+    if (isDeleted) {
+      return;
+    }
     try {
       const res = await fetch('/api/comment', {
         method: 'POST',
@@ -143,12 +149,12 @@ function Comments({ comments, postId }: { comments: any[], postId: string }) {
 
           {replying.parentId === comment.id && (
             <div className='mt-2 flex flex-col gap-2'>
-              <Textarea value={replying.content} onChange={(e) => setReplying(prev => ({ ...prev, content: e.target.value }))} />
+              <Textarea value={replying.content} disabled={isDeleted} onChange={(e) => setReplying(prev => ({ ...prev, content: e.target.value }))} />
               <div className='flex gap-2'>
                 <Button variant='ghost' onClick={() => setReplying({ parentId: '', content: '' })} disabled={replyLoading}>
                   Cancel
                 </Button>
-                <Button onClick={handleReplySubmit} disabled={!replying.content || replyLoading}>
+                <Button onClick={handleReplySubmit} disabled={!replying.content || replyLoading || isDeleted}>
                   {replyLoading ? <Loader2 className='animate-spin' /> : 'Reply'}
                 </Button>
               </div>
@@ -166,8 +172,8 @@ function Comments({ comments, postId }: { comments: any[], postId: string }) {
     <div className='p-3'>
       <div className='rounded shadow-none mb-5 flex flex-col gap-2'>
         <h1 className='font-semibold text-sm'>Create Echoes</h1>
-        <Textarea value={content} onChange={(e) => setContent(e.target.value)} />
-        <Button onClick={handleSubmit} disabled={!content || loading}>
+        <Textarea value={content} onChange={(e) => setContent(e.target.value)} disabled={isDeleted} />
+        <Button onClick={handleSubmit} disabled={!content || loading || isDeleted}>
           {loading ? <Loader2 className='animate-spin' /> : 'Create'}
         </Button>
         <p className='text-xs text-red-500'>{error}</p>

@@ -29,6 +29,10 @@ interface Post {
     views: number
     authorId: string
     community?: Community
+    edited: boolean
+    editedAt: Date
+    createdAt: Date
+    isDeleted: boolean
 }
 
 export type { Community, User, Post }
