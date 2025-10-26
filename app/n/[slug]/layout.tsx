@@ -26,7 +26,6 @@ export default async function CommunityPage({ params, children }: any) {
         return res
     }
 
-    // Force re-fetch after join/leave by giving a dynamic key
     return (
         <CommLayout
             key={community.id + community.membersCount}

@@ -161,7 +161,7 @@ function CreatePost({ slug }: {
                         {image && <span onClick={() => setImage('')} className="z-50 absolute top-0 rounded bg-white p-0.5 right-[-5px]"><X className="h-3" /></span>}
                         <div
                             className="h-20 w-20 rounded border cursor-pointer relative ">
-                            {uploading ? <Loader2 className='animate-spin' /> : <img src={image || '/logo.png'} className="object-contain" alt="post_image"  onClick={handleimageSelect} />}
+                            {uploading ? <Loader2 className='animate-spin' /> : <img src={image || '/logo.png'} className="object-contain" alt="post_image" onClick={handleimageSelect} />}
                         </div>
                         <input
                             id="image"
@@ -174,15 +174,18 @@ function CreatePost({ slug }: {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className='flex justify-end space-x-2'>
-                <Link href={'/n/' + slug}>
-                    <Button type="button" variant="secondary">
-                        Cancel
+            <CardFooter className='flex justify-between space-x-2'>
+                <p className='text-xs text-red-500'>{error}</p>
+                <div className='flex space-x-2'>
+                    <Link href={'/n/' + slug}>
+                        <Button type="button" variant="secondary">
+                            Cancel
+                        </Button>
+                    </Link>
+                    <Button disabled={uploading || loading} onClick={handleSubmit} type="button" variant="default">
+                        {loading ? <LoaderIcon size={12} className='animate-spin' /> : 'Create'}
                     </Button>
-                </Link>
-                <Button disabled={uploading || loading} onClick={handleSubmit} type="button" variant="default">
-                    {loading ? <LoaderIcon size={12} className='animate-spin' /> : 'Create'}
-                </Button>
+                </div>
             </CardFooter>
         </Card>
     )

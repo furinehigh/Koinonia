@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { title, content, imageUrl, slug } = body
 
+    if (!title || !content || !slug) {
+      return NextResponse.json({error: 'Missing required fields'}, {status: 401})
+    }
+
     const community = await prisma.community.findUnique({
       where: {
         slug
