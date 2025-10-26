@@ -15,15 +15,15 @@ export default async function CommunityPage({ params, children }: any) {
     async function handleJoin() {
         'use server'
         if (!session || !session?.user) redirect('/signin')
-        await handleJoinCommunity(community.id, session.user.id)
-        return true
+        const res = await handleJoinCommunity(community.id, session.user.id)
+        return res
     }
 
     async function handleLeave() {
         'use server'
         if (!session || !session?.user) redirect('/signin')
-        await handleLeaveCommunity(community.id, session.user.id)
-        return true
+        const res = await handleLeaveCommunity(community.id, session.user.id)
+        return res
     }
 
     // Force re-fetch after join/leave by giving a dynamic key

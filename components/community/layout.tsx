@@ -27,8 +27,8 @@ import { useRouter } from 'next/navigation';
 
 function CommLayout({ community, handleJoin, handleLeave, children }: {
   community: Community,
-  handleJoin: () => Promise<boolean>,
-  handleLeave: () => Promise<boolean>,
+  handleJoin: () => Promise<"Something went wrong" | "Already a member of this community" | "Joined successfully">,
+  handleLeave: () => Promise<"Something went wrong" | "Creator or moderator cannot leave the community, sorry:)" | "Left successfully">,
   children: React.ReactNode
 }) {
 
@@ -63,7 +63,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
       if (!data) {
         throw Error('Please refresh the page and try again')
       }
-      toast.success("Network Joined!", { description: `You’ve joined ${community.name}` })
+      toast(data)
     } catch (err: any) {
       toast.error("Network join failed!", { description: err.message })
     } finally {
@@ -79,7 +79,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
       if (!data) {
         throw Error('Please refresh the page and try again')
       }
-      toast.success("Network Leaved!", { description: `You’ve leaved ${community.name}` })
+      toast(data)
     } catch (err: any) {
       toast.error("Network leave failed!", { description: err.message })
     } finally {

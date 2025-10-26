@@ -24,7 +24,7 @@ function SettingsPage() {
                     <TabsContent value="account" className='flex flex-col p-5 gap-3' >
                         <div className='flex justify-between'>
                             <Label className='font-semibold'>SignIn Options</Label>
-                            <Button variant={'outline'}></Button>
+                            <Button variant={'outline'}>{session?.user.username.startsWith('Specter') ? "Guest login" : 'GitHub lgin'}</Button>
                         </div>
                     </TabsContent>
                     <TabsContent value="password">Change your password here.</TabsContent>
