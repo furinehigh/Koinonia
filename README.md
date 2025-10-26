@@ -21,12 +21,14 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Instead of votes there will be signal strength
 - Seperate page for all the signals(posts)
 - Users can add echoes(comments) to signals(posts)
+- Posts/Signals can now be deleted
+- Posts/Signal can also be edited now (u can't update images yet)
 
 # Upcomming features and changes
 - Proper moderation tools for moderators
 - Auto moderation
 - Image moderation
-
+- Guest users can link their github account
 
 # Prerequisites
 - Node JS
