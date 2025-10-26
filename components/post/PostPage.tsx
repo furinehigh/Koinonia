@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
     Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
+import { Check, Copy, Loader2, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -45,6 +45,19 @@ function PostPage({ post, comments }: {
     const [showNewDialog, setShowNewDialog] = useState(false)
     const [showShareDialog, setShowShareDialog] = useState(false)
     const [editPost, setEditPost] = useState(post)
+    const [editError, setEditError] = useState('')
+    const [editLoading, setEditLoading] = useState(false)
+    const [copied, setCopied] = useState(false)
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText('https://koinonia-pk.vercel.app/n/' + post.community?.slug + '/post/' + post.id)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000);
+        } catch (e) {
+            console.error('Error encountered during copy: ' + e)
+        }
+    }
 
     const increaseViews = async () => {
         try {
@@ -153,6 +166,7 @@ function PostPage({ post, comments }: {
 
     const handleEditSubmit = async () => {
         try {
+            setEditLoading(true)
             const res = await fetch('/api/post/edit', {
                 headers: {
                     "Content-Type": 'application/json'
@@ -164,10 +178,12 @@ function PostPage({ post, comments }: {
             const data = await res.json()
 
             if (!res.ok) {
-
+                setEditError(data.error)
             }
         } catch (e: any) {
-            
+            setEditError(e.message)
+        } finally {
+            setEditLoading(false)
         }
     }
 
@@ -243,58 +259,51 @@ function PostPage({ post, comments }: {
                                             Edit the title and the content of the post.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <FieldGroup className="pb-3" onSubmit={handleEditSubmit}>
+                                    <FieldGroup className="pb-3">
                                         <Field>
                                             <FieldLabel htmlFor="filename">Title</FieldLabel>
-                                            <Input value={editPost.title} onChange={(e) => setEditPost(prev => ({...prev, title: e.target.value}))} id="filename" name="filename" placeholder="document.txt" />
+                                            <Input value={editPost.title} onChange={(e) => setEditPost(prev => ({ ...prev, title: e.target.value }))} id="filename" name="filename" placeholder="document.txt" />
                                         </Field>
                                         <Field>
                                             <FieldLabel htmlFor="filename">Content</FieldLabel>
-                                            <Input value={editPost.content} onChange={e => setEditPost(prev => ({...prev, content: e.target.value}))} id="filename" name="filename" placeholder="document.txt" />
+                                            <Input value={editPost.content} onChange={e => setEditPost(prev => ({ ...prev, content: e.target.value }))} id="filename" name="filename" placeholder="document.txt" />
                                         </Field>
                                     </FieldGroup>
                                     <DialogFooter>
                                         <DialogClose asChild>
                                             <Button variant="outline">Cancel</Button>
                                         </DialogClose>
-                                        <Button type="submit">Create</Button>
+                                        <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == ''} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
+                                        <p className='text-xs text-red-500'>{editError}</p>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
                             <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
-                                        <DialogTitle>Share File</DialogTitle>
+                                        <DialogTitle>Share Post</DialogTitle>
                                         <DialogDescription>
-                                            Anyone with the link will be able to view this file.
+                                            Anyone with the link will be able to view this post.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <FieldGroup className="py-3">
-                                        <Field>
-                                            <Label htmlFor="email">Email Address</Label>
-                                            <Input
-                                                id="email"
-                                                name="email"
-                                                type="email"
-                                                placeholder="shadcn@vercel.com"
-                                                autoComplete="off"
-                                            />
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="message">Message (Optional)</FieldLabel>
-                                            <Textarea
-                                                id="message"
-                                                name="message"
-                                                placeholder="Check out this file"
-                                            />
+                                        <Field >
+                                            <Label htmlFor="link">Post Link</Label>
+                                            <div className='flex gap-2'>
+                                                <Input
+                                                    id="link"
+                                                    name="link"
+                                                    type="text"
+                                                    value={'https://koinonia-pk.vercel.app/n/' + post.community?.slug + '/post/' + post.id}
+                                                    autoComplete="off"
+                                                    disabled
+                                                />
+                                                <Button variant={'outline'} onClick={handleCopy}>
+                                                    {copied ? <Check className='opacity-70' size={20} /> : <Copy className='opacity-70' size={20} />}
+                                                </Button>
+                                            </div>
                                         </Field>
                                     </FieldGroup>
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button type="submit">Send Invite</Button>
-                                    </DialogFooter>
                                 </DialogContent>
                             </Dialog>
 

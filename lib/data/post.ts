@@ -52,6 +52,7 @@ export const getPost = async (id: string) => {
       },
       include: {
         author: true,
+        community: true
       }
     })
     return post

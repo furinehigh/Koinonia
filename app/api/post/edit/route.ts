@@ -24,10 +24,12 @@ export async function PUT(req: NextRequest) {
             },
             data: {
                 title,
-                content
+                content,
+                edited: true,
+                editedAt: new Date()
             },
             include: {
-                
+                community: true
             }
         })
 
@@ -37,14 +39,14 @@ export async function PUT(req: NextRequest) {
                 type: 'post_edited',
                 title: `Edited: ${title}`,
                 description: `You've successfully edited your signal.`,
-                slug: `/n/${slug}/post/${res.id}`,
+                slug: `/n/${res.community.slug}/post/${res.id}`,
                 postId: res.id
             }
         })
 
-        return NextResponse.json({ message: "Post created", res }, { status: 200 })
+        return NextResponse.json({ message: "Post edited", res }, { status: 200 })
     } catch (err) {
         console.error("POST error:", err)
-        return NextResponse.json({ error: "Post creation failed" }, { status: 400 })
+        return NextResponse.json({ error: "Post edition failed" }, { status: 400 })
     }
 }
