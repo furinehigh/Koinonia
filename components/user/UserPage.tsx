@@ -22,7 +22,6 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                             <img src={user.image || '/logo.png'} width={80} height={80} />
                         </div>
                         <div>
-
                             <h1 className='font-semibold text-3xl'>{user.name}</h1>
                             <div className='text-xs'>
                                 <div>
@@ -103,25 +102,24 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                         </CardTitle>
                         <CardContent className="p-0">
                             <div className="flex flex-col gap-5 w-full text-xs">
-
-                                {activities.map((a, i) => (
+                                {(activities || []).map((a, i) => (
                                     <Link key={i} href={a.slug || '#'}>
                                         <div className="border rounded p-1">
                                             <div className="flex space-x-2 items-center justify-between">
                                                 <div>
-
+                                                    <p className="bg-gray-300 rounded px-2  w-fit">{a.type}</p>
                                                     <h1 className="font-semibold text-sm">{a.title}</h1>
                                                 </div>
                                                 <p>{formatDistanceToNow(new Date(a.createdAt), { addSuffix: true })}</p>
                                             </div>
                                             <div>
                                                 <p>{a.description}</p>
-
                                             </div>
                                         </div>
                                     </Link>
                                 ))}
                             </div>
+
                         </CardContent>
                     </CardHeader>
                 </Card>

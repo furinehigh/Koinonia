@@ -23,7 +23,7 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
 
   return (
     <div className='fixed z-50 mt-15 border-r h-[95vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
-      <div className='flex flex-col space-y-2 justify-center w-full items-center'>
+      <div className='flex flex-col space-y-2 justify-center w-full items-center max-h-2/3 overflow-y-auto '>
         <Link href={'/'} className='cursor-pointer rounded p-1'>
           <Home />
         </Link>
@@ -35,16 +35,17 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
           <Tooltip >
             <TooltipTrigger>
               <Link href={'/n/' + c.slug}>
-              <div className='h-8 w-8 rounded border overflow-hidden'>
-                <img src={c.avatarUrl || '/logo.png'} alt={c.slug} />
-              </div>
+                <div className='h-8 w-8 rounded border overflow-hidden'>
+                  <img src={c.avatarUrl || '/logo.png'} alt={c.slug} />
+                </div>
               </Link>
             </TooltipTrigger>
             <TooltipContent  >{c.name}</TooltipContent>
           </Tooltip>
         ))}
       </div>
-      <div>
+      
+      <div className='max-h-1/3 overflow-y-auto'>
         <h1 className='font-semibold text-sm border-t py-2'>Spells</h1>
         <div className='rounded border flex-col'>
           {userSpells.map((s, i) => (

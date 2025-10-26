@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
     Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
+import { MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -21,6 +22,18 @@ import { Textarea } from '../ui/textarea'
 import Loader from '../Loader'
 import { toast } from 'sonner'
 import Comments from './Comments'
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 
 function PostPage({ post, comments }: {
     post: Post,
@@ -29,7 +42,9 @@ function PostPage({ post, comments }: {
     const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
     const [localPost, setLocalPost] = useState(post)
     const [loading, setLoading] = useState(true)
-
+    const [showNewDialog, setShowNewDialog] = useState(false)
+    const [showShareDialog, setShowShareDialog] = useState(false)
+    const [editPost, setEditPost] = useState(post)
 
     const increaseViews = async () => {
         try {
@@ -107,7 +122,6 @@ function PostPage({ post, comments }: {
         saveVotes(updatedVotes)
 
         try {
-
             await fetch('/api/post/actions', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -137,10 +151,29 @@ function PostPage({ post, comments }: {
         }
     }
 
+    const handleEditSubmit = async () => {
+        try {
+            const res = await fetch('/api/post/edit', {
+                headers: {
+                    "Content-Type": 'application/json'
+                },
+                method: 'PUT',
+                body: JSON.stringify(editPost)
+            })
+
+            const data = await res.json()
+
+            if (!res.ok) {
+
+            }
+        } catch (e: any) {
+            
+        }
+    }
+
     if (loading) {
         return (
             <div className='flex justify-center items-center w-full h-full'><Loader className='' size={96} /></div>
-
         )
     }
 
@@ -162,24 +195,109 @@ function PostPage({ post, comments }: {
                                     </div>
                                 </div>
                             </Link>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger className='cursor-pointer'>
-                                    <div className='flex space-x-2'>
-                                        <Button variant='outline' size='sm' className='flame-button'>
-                                            <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
-                                        </Button>
-                                        <div className='text-gray-500'>
-                                            {localPost.votes == 0 ? <div>no signal</div> : localPost.votes < 0 ? <div>signal fading</div> : (localPost.votes > 0 && localPost.votes < 3) ? <SignalLow /> : (localPost.votes > 2 && localPost.votes < 6) ? <SignalHigh /> : <Signal />}
+                            <div>
+
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger className='cursor-pointer'>
+                                        <div className='flex space-x-2'>
+                                            <Button variant='outline' size='sm' className='flame-button'>
+                                                <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
+                                            </Button>
+                                            <div className='text-gray-500'>
+                                                {localPost.votes == 0 ? <div>no signal</div> : localPost.votes < 0 ? <div>signal fading</div> : (localPost.votes > 0 && localPost.votes < 3) ? <SignalLow /> : (localPost.votes > 2 && localPost.votes < 6) ? <SignalHigh /> : <Signal />}
+                                            </div>
                                         </div>
-                                    </div>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+
+                                <DropdownMenu modal={false}>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" aria-label="Open menu" size="icon-sm">
+                                            <MoreVerticalIcon />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-40" align="end">
+                                        <DropdownMenuGroup>
+                                            <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
+                                                Edit post
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
+                                                Share post
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className='text-red-500'>Delete</DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                            <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Edit a post</DialogTitle>
+                                        <DialogDescription>
+                                            Edit the title and the content of the post.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <FieldGroup className="pb-3" onSubmit={handleEditSubmit}>
+                                        <Field>
+                                            <FieldLabel htmlFor="filename">Title</FieldLabel>
+                                            <Input value={editPost.title} onChange={(e) => setEditPost(prev => ({...prev, title: e.target.value}))} id="filename" name="filename" placeholder="document.txt" />
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="filename">Content</FieldLabel>
+                                            <Input value={editPost.content} onChange={e => setEditPost(prev => ({...prev, content: e.target.value}))} id="filename" name="filename" placeholder="document.txt" />
+                                        </Field>
+                                    </FieldGroup>
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                            <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <Button type="submit">Create</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                            <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Share File</DialogTitle>
+                                        <DialogDescription>
+                                            Anyone with the link will be able to view this file.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <FieldGroup className="py-3">
+                                        <Field>
+                                            <Label htmlFor="email">Email Address</Label>
+                                            <Input
+                                                id="email"
+                                                name="email"
+                                                type="email"
+                                                placeholder="shadcn@vercel.com"
+                                                autoComplete="off"
+                                            />
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="message">Message (Optional)</FieldLabel>
+                                            <Textarea
+                                                id="message"
+                                                name="message"
+                                                placeholder="Check out this file"
+                                            />
+                                        </Field>
+                                    </FieldGroup>
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                            <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <Button type="submit">Send Invite</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+
                         </div>
                     </CardTitle>
                     <h1 className='font-semibold'>{localPost.title}</h1>
