@@ -34,6 +34,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
+import { useSession } from 'next-auth/react'
 
 function PostPage({ post, comments }: {
     post: Post,
@@ -50,6 +51,8 @@ function PostPage({ post, comments }: {
     const [editLoading, setEditLoading] = useState(false)
     const [copied, setCopied] = useState(false)
     const [deleteLoading, setDeleteLoading] = useState(false)
+
+    const { data: session, status } = useSession()
 
     const handleCopy = async () => {
         try {
@@ -285,13 +288,17 @@ function PostPage({ post, comments }: {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-40" align="end">
                                         <DropdownMenuGroup>
-                                            <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
-                                                Edit post
-                                            </DropdownMenuItem>
                                             <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
                                                 Share post
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
+                                            {localPost.authorId === session?.user.id && (
+                                                <>
+                                                    <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+                                                        Edit post
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
+                                                </>
+                                            )}
                                         </DropdownMenuGroup>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -320,7 +327,7 @@ function PostPage({ post, comments }: {
                                             <DialogClose asChild>
                                                 <Button variant="outline">Cancel</Button>
                                             </DialogClose>
-                                            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == ''} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
+                                            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == '' || localPost.authorId !== session?.user.id} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
                                         </div>
                                     </DialogFooter>
                                 </DialogContent>
@@ -339,7 +346,7 @@ function PostPage({ post, comments }: {
                                         <DialogClose>
                                             <Button variant={'outline'}>Cancel</Button>
                                         </DialogClose>
-                                        <Button onClick={handlePostDelete} variant={'destructive'} disabled={deleteLoading}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Confirm'}</Button>
+                                        <Button onClick={handlePostDelete} variant={'destructive'} disabled={deleteLoading || localPost.authorId !== session?.user.id}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Delete'}</Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
