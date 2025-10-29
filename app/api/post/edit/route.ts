@@ -33,6 +33,10 @@ export async function PUT(req: NextRequest) {
             }
         })
 
+        if (res.authorId !== session.user.id){
+            return NextResponse.json({error: 'You are not authorized to edit this signal/post.'})
+        }
+
         await prisma.recentActivity.create({
             data: {
                 userId: session.user.id,

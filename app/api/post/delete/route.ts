@@ -24,6 +24,10 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 })
         }
 
+        if (post.authorId !== session.user.id){
+            return NextResponse.json({error: 'You are not authorized to delete this signal/post.'})
+        }
+
         const res = await prisma.post.update({
             where: {
                 id: postId
