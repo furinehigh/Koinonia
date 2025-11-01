@@ -96,13 +96,12 @@ export const authOptions: AuthOptions = {
         token.username = user.username;
       }
       return token;
-    }
+    },
 
 
   async session({ session, token }) {
       session.user.id = token.id;
       session.user.username = token.username;
-      session.user.ghostId = token.ghostId; // Optional: expose to frontend
       return session;
     },
   },
