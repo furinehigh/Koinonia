@@ -16,34 +16,8 @@ export const authOptions: AuthOptions = {
           scope: "read:user user:email"
         }
       },
+
       async profile(profile, tokens) {
-        // const ghostUserId = tokens?.userId as string | undefined;
-        // console.log('ghostId', tokens)
-
-        // const githubAlreadyLinked = await prisma.user.findUnique({
-        //   where: {
-        //     username: profile.login
-        //   }
-        // })
-
-        // if (githubAlreadyLinked) return null;
-
-        // if (ghostUserId) {
-        //   const existingUser = await prisma.user.findUnique({ where: { id: ghostUserId } });
-
-        //   if (existingUser) {
-        //     await prisma.user.update({
-        //       where: { id: existingUser.id },
-        //       data: {
-        //         email: profile.email ?? existingUser.email,
-        //         name: profile.name ?? existingUser.name,
-        //         username: profile.login,
-        //         image: profile.avatar_url,
-        //       },
-        //     });
-        //     return { id: existingUser.id };
-        //   }
-        // }
 
         return {
           id: profile.id.toString(),
@@ -53,6 +27,7 @@ export const authOptions: AuthOptions = {
           username: profile.login,
         };
       },
+
     }),
     CredentialsProvider({
       name: 'Ghost Login',
@@ -84,6 +59,51 @@ export const authOptions: AuthOptions = {
   session: { strategy: "jwt" },
 
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Only triggers during OAuth callback
+      if (account?.provider === 'github') {
+        // Get existing userId from URL query (passed via callbackUrl)
+        const url = new URL(account?.callbackUrl ?? '');
+        const ghostUserId = url.searchParams.get('userId');
+
+        if (ghostUserId) {
+          // Check if GitHub account already linked
+          const existingAccount = await prisma.account.findFirst({
+            where: { provider: 'github', providerAccountId: account.providerAccountId }
+          });
+
+          if (!existingAccount) {
+            // Link GitHub to Ghost user
+            await prisma.account.create({
+              data: {
+                userId: ghostUserId,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                token_type: account.token_type,
+                scope: account.scope,
+              }
+            });
+
+            // Update Ghost user with GitHub profile info
+            await prisma.user.update({
+              where: { id: ghostUserId },
+              data: {
+                name: profile?.name || profile?.login || undefined,
+                email: profile?.email || undefined,
+                username: profile?.login || undefined,
+                image: profile?.avatar_url || undefined,
+              }
+            });
+
+            console.log(`Linked GitHub to existing user ${ghostUserId}`);
+          }
+        }
+      }
+
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id

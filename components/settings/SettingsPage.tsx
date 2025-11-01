@@ -40,15 +40,16 @@ function SettingsPage() {
 
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    <DropdownMenuItem disabled={!session?.user.username.startsWith('Ghost')} onClick={() => { if (session?.user.username.startsWith) signIn('github', {
-                                        callbackUrl: '/',
-            state: JSON.stringify({ ghostId: session?.user.id }),
-                                    })}}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
+                                    <DropdownMenuItem disabled={!session?.user.username.startsWith('Ghost')} onClick={() => {
+                                        if (session?.user.username.startsWith) signIn('github', {
+                                            callbackUrl: `?userId=${session?.user.id || ''}`
+                                        })
+                                    }}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     </TabsContent>
-                    
+
                 </Tabs>
             </div>
         </div>
