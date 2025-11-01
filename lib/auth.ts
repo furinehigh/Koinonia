@@ -60,20 +60,16 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Only triggers during OAuth callback
       if (account?.provider === 'github') {
-        // Get existing userId from URL query (passed via callbackUrl)
         const url = new URL(account?.callbackUrl ?? '');
         const ghostUserId = url.searchParams.get('userId');
 
         if (ghostUserId) {
-          // Check if GitHub account already linked
           const existingAccount = await prisma.account.findFirst({
             where: { provider: 'github', providerAccountId: account.providerAccountId }
           });
 
           if (!existingAccount) {
-            // Link GitHub to Ghost user
             await prisma.account.create({
               data: {
                 userId: ghostUserId,
@@ -86,7 +82,6 @@ export const authOptions: AuthOptions = {
               }
             });
 
-            // Update Ghost user with GitHub profile info
             await prisma.user.update({
               where: { id: ghostUserId },
               data: {
