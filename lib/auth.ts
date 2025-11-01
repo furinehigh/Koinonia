@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { AuthOptions } from "next-auth"
-
+import {parse} from 'cookie'
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -84,30 +84,28 @@ export const authOptions: AuthOptions = {
   session: { strategy: "jwt" },
 
   callbacks: {
-  async jwt({ token, user, account }) {
-    // When GitHub sends back the OAuth response
-    if (account?.provider === "github" && account?.access_token) {
-      const parsedState = account?.state ? JSON.parse(account.state) : null;
-      if (parsedState?.ghostId) {
-        token.ghostId = parsedState.ghostId;
+    async jwt({ token, account, req, user }) {
+      if (account?.provider === "github") {
+        const cookies = req.headers.cookie ? parse(req.headers.cookie) : {};
+        if (cookies.ghostUserId) {
+          token.ghostUserId = cookies.ghostUserId;
+        }
       }
+      if (user) {
+        token.id = user.id;
+        token.username = user.username;
+      }
+      return token;
     }
 
-    if (user) {
-      token.id = user.id;
-      token.username = user.username;
-    }
-
-    return token;
-  },
 
   async session({ session, token }) {
-    session.user.id = token.id;
-    session.user.username = token.username;
-    session.user.ghostId = token.ghostId; // Optional: expose to frontend
-    return session;
+      session.user.id = token.id;
+      session.user.username = token.username;
+      session.user.ghostId = token.ghostId; // Optional: expose to frontend
+      return session;
+    },
   },
-},
 
 
   events: {

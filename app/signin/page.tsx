@@ -24,9 +24,9 @@ function SignIn() {
       <div className='mt-5'>
         <button onClick={() => {
           setLoading(true)
+          document.cookie = `ghostUserId=${session.user.id}; path=/; max-age=300`; 
           signIn('github', {
-            callbackUrl: '/',
-            state: JSON.stringify({ ghostId: session?.user.id }),
+            callbackUrl: '/'
           })
         }} className='rounded border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><FaGithub size={20} className='mr-2' /> SignIn with GitHub</>)}</button>
         <button onClick={() => {
