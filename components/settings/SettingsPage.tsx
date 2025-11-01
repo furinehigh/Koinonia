@@ -1,9 +1,20 @@
 'use client'
-import { useSession } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { FaGithub } from 'react-icons/fa'
+
 
 function SettingsPage() {
     const { data: session, status } = useSession()
@@ -24,7 +35,15 @@ function SettingsPage() {
                     <TabsContent value="account" className='flex flex-col p-5 gap-3' >
                         <div className='flex justify-between'>
                             <Label className='font-semibold'>SignIn Options</Label>
-                            <Button variant={'outline'}>{session?.user.username.startsWith('Specter') ? "Guest login" : 'GitHub lgin'}</Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger disabled={!session?.user.username.startsWith('Ghost')} className='cursor-pointer'>
+                                    <Button disabled={!session?.user.username.startsWith('Ghost')} variant={'outline'}>{session?.user.username.startsWith('Ghost') ? "Ghost login" : 'GitHub lgin'}</Button>
+
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem onClick={() => signIn('github')}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </TabsContent>
                     <TabsContent value="password">Change your password here.</TabsContent>

@@ -11,23 +11,55 @@ export const authOptions: AuthOptions = {
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      profile(profile) {
+      authorization: {
+        params: {
+          scope: "read:user user:email"
+        }
+      },
+      async profile(profile, tokens) {
+        const ghostUserId = tokens?.userId as string | undefined;
+        console.log('ghostId', ghostUserId)
+
+        const githubAlreadyLinked = await prisma.user.findUnique({
+          where: {
+            username: profile.login
+          }
+        })
+
+        if (githubAlreadyLinked) return null;
+
+        if (ghostUserId) {
+          const existingUser = await prisma.user.findUnique({ where: { id: ghostUserId } });
+
+          if (existingUser) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                email: profile.email ?? existingUser.email,
+                name: profile.name ?? existingUser.name,
+                username: profile.login,
+                image: profile.avatar_url,
+              },
+            });
+            return { id: existingUser.id };
+          }
+        }
+
         return {
           id: profile.id.toString(),
           name: profile.name || profile.login,
-          email: profile.email || `${profile.id}@github.local`, // fallback if email is null
+          email: profile.email || `${profile.id}@github.local`,
           image: profile.avatar_url,
           username: profile.login,
-
-        }
+        };
       },
     }),
     CredentialsProvider({
-      name: 'Specter Login',
+      name: 'Ghost Login',
       credentials: {},
       async authorize(_, req) {
-        const specterId = `specter_${Math.random().toString(36).slice(2, 10)}`
-        const username = `Specter_${specterId.slice(-4)}`
+        const specterId = `ghost_${Math.random().toString(36).slice(2, 10)}`
+        const username = `Ghost_${specterId.slice(-4)}`
 
         let user = await prisma.user.findUnique({ where: { id: specterId } })
         if (!user) {
@@ -35,7 +67,7 @@ export const authOptions: AuthOptions = {
             data: {
               id: specterId,
               name: username,
-              email: `${specterId}@specter.node`,
+              email: `${specterId}@ghost.node`,
               username,
               image: '/logo.png'
             }
