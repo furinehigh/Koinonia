@@ -8,7 +8,7 @@ import { FaGithub } from 'react-icons/fa'
 
 function SignIn() {
   const [loading, setLoading] = useState(false)
-  const {data: session, status} = useSession()
+  const { data: session, status } = useSession()
 
   if (session?.user) {
     redirect('/')
@@ -24,12 +24,15 @@ function SignIn() {
       <div className='mt-5'>
         <button onClick={() => {
           setLoading(true)
-          signIn('github')
-        }} className='rounded border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className=''/> : (<><FaGithub size={20} className='mr-2' /> SignIn with GitHub</>)}</button>
+          signIn('github', {
+            callbackUrl: '/',
+            userId: session?.user.id
+          })
+        }} className='rounded border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><FaGithub size={20} className='mr-2' /> SignIn with GitHub</>)}</button>
         <button onClick={() => {
           setLoading(true)
           signIn('credentials')
-        }} className='rounded mt-2 border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className=''/> : (<><Ghost size={20} className='mr-2' /> Continue as Ghost</>)}</button>
+        }} className='rounded mt-2 border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><Ghost size={20} className='mr-2' /> Continue as Ghost</>)}</button>
 
       </div>
     </div>
