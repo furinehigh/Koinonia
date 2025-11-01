@@ -2,7 +2,7 @@ import GithubProvider from "next-auth/providers/github"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { AuthOptions } from "next-auth"
+import { AuthOptions, getServerSession } from "next-auth"
 
 
 export const authOptions: AuthOptions = {
@@ -17,8 +17,9 @@ export const authOptions: AuthOptions = {
         }
       },
       async profile(profile, tokens) {
-        const ghostUserId = tokens?.id as string | undefined;
-        console.log('ghostId', tokens)
+        const session = await getServerSession(authOptions)
+        const ghostUserId = session?.user.id as string | undefined;
+        console.log('ghostId', ghostUserId)
 
         const githubAlreadyLinked = await prisma.user.findUnique({
           where: {
