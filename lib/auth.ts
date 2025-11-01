@@ -44,7 +44,7 @@ export const authOptions: AuthOptions = {
               name: username,
               email: `${specterId}@ghost.node`,
               username,
-              image: '/logo.png'
+              image: '/ghost.png'
             }
           })
           await prisma.mana.create({
@@ -84,10 +84,10 @@ export const authOptions: AuthOptions = {
             await prisma.user.update({
               where: { id: ghostUserId },
               data: {
-                name: profile?.name || profile?.login || undefined,
-                email: profile?.email || undefined,
-                username: profile?.login || undefined,
-                image: profile?.avatar_url || undefined,
+                name: profile?.name || profile?.login,
+                email: profile?.email || `${profile?.id}@github.local`,
+                image: profile?.avatar_url,
+                username: profile?.login,
               }
             });
 

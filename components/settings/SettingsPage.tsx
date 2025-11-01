@@ -14,10 +14,30 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { FaGithub } from 'react-icons/fa'
+import { toast } from 'sonner'
 
 
 function SettingsPage() {
     const { data: session, status } = useSession()
+
+    const handleGithubLink = async () => {
+        try {
+            if (session?.user.username.startsWith('Ghost')) {
+                const res = await signIn('github', {
+                    uId: `${session?.user.id || ''}`
+                })
+
+                if (!res?.ok) {
+                    toast.error("Github wasn't linked properly!!", { description: res?.error })
+                    return;
+                }
+                toast.success('Github linked successfully!!')
+
+            }
+        } catch (e: any) {
+            toast.error('Error occurred!', {description: e.message})
+        }
+    }
     return (
         <div className="ml-15 p-4 max-w-full">
             <h1 className='text-2xl font-bold'>Settings</h1>
@@ -40,11 +60,7 @@ function SettingsPage() {
 
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    <DropdownMenuItem disabled={!session?.user.username.startsWith('Ghost')} onClick={() => {
-                                        if (session?.user.username.startsWith) signIn('github', {
-                                            uId: `${session?.user.id || ''}`
-                                        })
-                                    }}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
+                                    <DropdownMenuItem disabled={!session?.user.username.startsWith('Ghost')} onClick={handleGithubLink}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
