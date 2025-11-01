@@ -42,7 +42,7 @@ function SettingsPage() {
                                 <DropdownMenuContent>
                                     <DropdownMenuItem disabled={!session?.user.username.startsWith('Ghost')} onClick={() => { if (session?.user.username.startsWith) signIn('github', {
                                         callbackUrl: '/',
-                                        userId: session.user.id
+            state: JSON.stringify({ ghostId: session?.user.id }),
                                     })}}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

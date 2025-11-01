@@ -26,7 +26,7 @@ function SignIn() {
           setLoading(true)
           signIn('github', {
             callbackUrl: '/',
-            userId: session?.user.id
+            state: JSON.stringify({ ghostId: session?.user.id }),
           })
         }} className='rounded border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><FaGithub size={20} className='mr-2' /> SignIn with GitHub</>)}</button>
         <button onClick={() => {

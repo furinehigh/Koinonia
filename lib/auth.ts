@@ -17,7 +17,7 @@ export const authOptions: AuthOptions = {
         }
       },
       async profile(profile, tokens) {
-        const ghostUserId = tokens?.userId as string | undefined;
+        const ghostUserId = tokens?.ghostId as string | undefined;
         console.log('ghostId', tokens)
 
         const githubAlreadyLinked = await prisma.user.findUnique({
@@ -84,23 +84,31 @@ export const authOptions: AuthOptions = {
   session: { strategy: "jwt" },
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.username = user.username
+  async jwt({ token, user, account }) {
+    // When GitHub sends back the OAuth response
+    if (account?.provider === "github" && account?.access_token) {
+      const parsedState = account?.state ? JSON.parse(account.state) : null;
+      if (parsedState?.ghostId) {
+        token.ghostId = parsedState.ghostId;
       }
-      return token
-    },
-
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id
-        session.user.username = token.username
-      }
-      return session
     }
 
+    if (user) {
+      token.id = user.id;
+      token.username = user.username;
+    }
+
+    return token;
   },
+
+  async session({ session, token }) {
+    session.user.id = token.id;
+    session.user.username = token.username;
+    session.user.ghostId = token.ghostId; // Optional: expose to frontend
+    return session;
+  },
+},
+
 
   events: {
     async createUser({ user }) {
