@@ -30,7 +30,6 @@ function SettingsPage() {
                 <Tabs defaultValue="account" className="w-full">
                     <TabsList>
                         <TabsTrigger value="account">Account</TabsTrigger>
-                        <TabsTrigger value="password">Password</TabsTrigger>
                     </TabsList>
                     <TabsContent value="account" className='flex flex-col p-5 gap-3' >
                         <div className='flex justify-between'>
@@ -41,12 +40,12 @@ function SettingsPage() {
 
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    <DropdownMenuItem onClick={() => signIn('github')}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
+                                    <DropdownMenuItem disabled={!session?.user.username.startsWith('Ghost')} onClick={() => { if (session?.user.username.startsWith) signIn('github')}}><FaGithub size={20} className='mr-2' />Link Github</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     </TabsContent>
-                    <TabsContent value="password">Change your password here.</TabsContent>
+                    
                 </Tabs>
             </div>
         </div>
