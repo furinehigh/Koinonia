@@ -19,7 +19,7 @@ export const authOptions: AuthOptions = {
       async profile(profile, tokens) {
         const session = await getServerSession(authOptions)
         const ghostUserId = session?.user.id as string | undefined;
-        console.log('ghostId', ghostUserId)
+        console.log('ghostId', session)
 
         const githubAlreadyLinked = await prisma.user.findUnique({
           where: {
