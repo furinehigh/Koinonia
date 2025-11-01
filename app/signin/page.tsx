@@ -24,7 +24,6 @@ function SignIn() {
       <div className='mt-5'>
         <button onClick={() => {
           setLoading(true)
-          document.cookie = `ghostUserId=${session.user.id}; path=/; max-age=300`; 
           signIn('github', {
             callbackUrl: '/'
           })
