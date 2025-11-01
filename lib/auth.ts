@@ -18,7 +18,7 @@ export const authOptions: AuthOptions = {
       },
       async profile(profile, tokens) {
         const ghostUserId = tokens?.userId as string | undefined;
-        console.log('ghostId', ghostUserId)
+        console.log('ghostId', tokens)
 
         const githubAlreadyLinked = await prisma.user.findUnique({
           where: {
