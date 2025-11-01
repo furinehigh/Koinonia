@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { AuthOptions } from "next-auth"
-import {parse} from 'cookie'
+
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -17,33 +17,33 @@ export const authOptions: AuthOptions = {
         }
       },
       async profile(profile, tokens) {
-        const ghostUserId = tokens?.ghostId as string | undefined;
-        console.log('ghostId', tokens)
+        // const ghostUserId = tokens?.userId as string | undefined;
+        // console.log('ghostId', tokens)
 
-        const githubAlreadyLinked = await prisma.user.findUnique({
-          where: {
-            username: profile.login
-          }
-        })
+        // const githubAlreadyLinked = await prisma.user.findUnique({
+        //   where: {
+        //     username: profile.login
+        //   }
+        // })
 
-        if (githubAlreadyLinked) return null;
+        // if (githubAlreadyLinked) return null;
 
-        if (ghostUserId) {
-          const existingUser = await prisma.user.findUnique({ where: { id: ghostUserId } });
+        // if (ghostUserId) {
+        //   const existingUser = await prisma.user.findUnique({ where: { id: ghostUserId } });
 
-          if (existingUser) {
-            await prisma.user.update({
-              where: { id: existingUser.id },
-              data: {
-                email: profile.email ?? existingUser.email,
-                name: profile.name ?? existingUser.name,
-                username: profile.login,
-                image: profile.avatar_url,
-              },
-            });
-            return { id: existingUser.id };
-          }
-        }
+        //   if (existingUser) {
+        //     await prisma.user.update({
+        //       where: { id: existingUser.id },
+        //       data: {
+        //         email: profile.email ?? existingUser.email,
+        //         name: profile.name ?? existingUser.name,
+        //         username: profile.login,
+        //         image: profile.avatar_url,
+        //       },
+        //     });
+        //     return { id: existingUser.id };
+        //   }
+        // }
 
         return {
           id: profile.id.toString(),
@@ -84,28 +84,23 @@ export const authOptions: AuthOptions = {
   session: { strategy: "jwt" },
 
   callbacks: {
-    async jwt({ token, account, req, user }) {
-      if (account?.provider === "github") {
-        const cookies = req.headers.cookie ? parse(req.headers.cookie) : {};
-        if (cookies.ghostUserId) {
-          token.ghostUserId = cookies.ghostUserId;
-        }
-      }
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.username = user.username;
+        token.id = user.id
+        token.username = user.username
       }
-      return token;
+      return token
     },
 
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id
+        session.user.username = token.username
+      }
+      return session
+    }
 
-  async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.username = token.username;
-      return session;
-    },
   },
-
 
   events: {
     async createUser({ user }) {
