@@ -25,7 +25,7 @@ function SignIn() {
         <button onClick={() => {
           setLoading(true)
           signIn('github', {
-            callbackUrl: `/api/auth/callback/github?userId=${session?.user.id || ''}`
+            uId: `${session?.user.id || ''}`
           })
         }} className='rounded border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><FaGithub size={20} className='mr-2' /> SignIn with GitHub</>)}</button>
         <button onClick={() => {
