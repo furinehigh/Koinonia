@@ -62,7 +62,7 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'github') {
         const ghostUserId = account?.uId ?? '';
-        console.log(account)
+        console.log('ghostUserId', ghostUserId)
 
         if (ghostUserId) {
           const existingAccount = await prisma.account.findFirst({
