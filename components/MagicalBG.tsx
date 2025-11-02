@@ -1,58 +1,86 @@
 "use client"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
+import { Ghost } from "lucide-react"
 
-const leaves = [
-  { src: "/leaves/leaf1.png", size: 40 },
-  { src: "/leaves/leaf2.png", size: 50 },
-  { src: "/leaves/leaf3.png", size: 45 },
-  { src: "/leaves/leaf4.png", size: 55 },
-  { src: "/leaves/leaf1.png", size: 60 },
-  { src: "/leaves/leaf2.png", size: 48 },
-  { src: "/leaves/leaf3.png", size: 52 },
-]
+const ghosts = Array.from({ length: 12 }).map((_, i) => ({
+  id: i,
+  size: 35 + Math.random() * 40,
+  color: Math.random() > 0.5 ? "white" : "black",
+}))
 
-export default function MagicalBG() {
-  const [positions, setPositions] = useState<{ left: number; delay: number }[]>([])
+export default function SpookyReactiveBG() {
+  const [mousePos, setMousePos] = useState({ x: -9999, y: -9999 })
+  const [isStill, setIsStill] = useState(false)
+  const [isAway, setIsAway] = useState(false)
 
   useEffect(() => {
-    setPositions(
-      leaves.map(() => ({
-        left: Math.random() * 100,
-        delay: Math.random() * 8,
-      }))
-    )
+    let timeout: ReturnType<typeof setTimeout>
+
+    const handleMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY })
+      setIsStill(false)
+      setIsAway(false)
+      clearTimeout(timeout)
+      timeout = setTimeout(() => setIsStill(true), 1200)
+    }
+
+    const handleMouseLeave = () => {
+      setIsAway(true)
+    }
+
+    window.addEventListener("mousemove", handleMove)
+    window.addEventListener("mouseleave", handleMouseLeave)
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove)
+      window.removeEventListener("mouseleave", handleMouseLeave)
+      clearTimeout(timeout)
+    }
   }, [])
+
+  const getRandomPosition = () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+  })
 
   return (
     <div className="fixed inset-0 overflow-hidden -z-10">
-      {leaves.map((item, i) => {
-        const pos = positions[i] || { left: 0, delay: 0 }
-        return (
-          <motion.img
-            key={i}
-            src={item.src}
-            className="absolute opacity-90"
-            style={{
-              width: `${item.size}px`,
-              height: `${item.size}px`,
-              left: `${pos.left}%`,
-              top: `-${item.size}px`,
-            }}
-            animate={{
-              y: ["-10vh", "110vh"],
-              x: [0, 20, -20, 10, 0],
-              rotate: [0, 45, -45, 0],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 10,
-              repeat: Infinity,
-              ease: "linear",
-              delay: pos.delay,
-            }}
-          />
-        )
-      })}
+      {ghosts.map((ghost) => (
+        <motion.div
+          key={ghost.id}
+          initial={getRandomPosition()}
+          animate={
+            isAway
+              ? getRandomPosition()
+              : {
+                  x:
+                    mousePos.x +
+                    (isStill
+                      ? (Math.random() - 0.5) * 200
+                      : (Math.random() - 0.5) * 400),
+                  y:
+                    mousePos.y +
+                    (isStill
+                      ? (Math.random() - 0.5) * 200
+                      : (Math.random() - 0.5) * 400),
+                  scale: isStill ? 1.4 : 1,
+                  rotate: Math.random() * 360,
+                }
+          }
+          transition={{
+            type: "spring",
+            stiffness: isStill ? 60 : 200,
+            damping: 15,
+            mass: 0.5,
+            duration: isAway ? 3 : 0.8,
+            repeat: isAway ? Infinity : 0,
+          }}
+          className="absolute pointer-events-none"
+        >
+          <Ghost size={ghost.size} className="opacity-80 drop-shadow-lg" />
+        </motion.div>
+      ))}
     </div>
   )
 }
