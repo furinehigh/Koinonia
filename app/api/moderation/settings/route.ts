@@ -46,9 +46,9 @@ export async function PUT(req: NextRequest) {
             }
         })
 
-        return NextResponse.json({ message: "Post edited", res }, { status: 200 })
+        return NextResponse.json({ message: "Mod settings updated", res }, { status: 200 })
     } catch (err) {
         console.error("POST error:", err)
-        return NextResponse.json({ error: "Post edition failed" }, { status: 400 })
+        return NextResponse.json({ error: "Moderation settings updation failed" }, { status: 400 })
     }
 }
