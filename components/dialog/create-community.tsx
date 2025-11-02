@@ -96,14 +96,14 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error)
+        setError(data.error + ': ' + data.description)
         return;
       }
       updateMana(mana - 10)
       toast.success("Network created!", { description: "You’ve spent 10 mana" })
       handleOpenChange(false)
     } catch (e: any) {
-      console.error(e.message)
+      toast.error(e.message)
     } finally {
       setLoading(false)
     }
@@ -165,13 +165,14 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
           ))}
         </div>
 
-        <DialogFooter className="sm:justify-start">
+        <DialogFooter className="sm:justify-start items-center">
           <DialogClose asChild>
             <Button type="button" variant="secondary">Close</Button>
           </DialogClose>
           <Button disabled={uploading || loading} onClick={handleSubmit}>
             {loading ? <LoaderIcon size={12} className="animate-spin" /> : 'Create'}
           </Button>
+          <p className="text-xs text-red-500 truncate w-[18rem]">{error}</p>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -22,13 +22,13 @@ function SignIn() {
         </p>
       </div>
       <div className='mt-5'>
-        <button onClick={() => {
+        <button disabled={loading} onClick={() => {
           setLoading(true)
           signIn('github', {
             uId: `${session?.user.id || ''}`
           })
         }} className='rounded border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><FaGithub size={20} className='mr-2' /> SignIn with GitHub</>)}</button>
-        <button onClick={() => {
+        <button disabled={loading} onClick={() => {
           setLoading(true)
           signIn('credentials')
         }} className='rounded mt-2 border w-md justify-center h-10 flex items-center cursor-pointer'>{loading ? <Loader size={32} className='' /> : (<><Ghost size={20} className='mr-2' /> Continue as Ghost</>)}</button>

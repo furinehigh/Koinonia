@@ -2,6 +2,7 @@ interface Community {
     id: string
     name: string
     description: string
+    moderators: User[]
     slug: string
     membersCount?: number
     creatorId: string
@@ -33,6 +34,8 @@ interface Post {
     editedAt: Date
     createdAt: Date
     isDeleted: boolean
+    isApproved: boolean
+    isRemoved: boolean
 }
 
 export type { Community, User, Post }

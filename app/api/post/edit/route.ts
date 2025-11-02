@@ -15,12 +15,13 @@ export async function PUT(req: NextRequest) {
         const { title, content, id } = body
 
         if (!title || !content || !id) {
-            return NextResponse.json({error: "Missing required fields"}, {status: 400})
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
         }
 
         const res = await prisma.post.update({
             where: {
-                id
+                id,
+                authorId: session.user.id
             },
             data: {
                 title,
@@ -33,8 +34,8 @@ export async function PUT(req: NextRequest) {
             }
         })
 
-        if (res.authorId !== session.user.id){
-            return NextResponse.json({error: 'You are not authorized to edit this signal/post.'})
+        if (res.authorId !== session.user.id) {
+            return NextResponse.json({ error: 'You are not authorized to edit this signal/post.' }, {status: 400})
         }
 
         await prisma.recentActivity.create({

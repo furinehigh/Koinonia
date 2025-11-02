@@ -4,8 +4,10 @@ import { prisma } from "../prisma"
 export const getAllPosts = async (slug: string) => {
   try {
     const data = await prisma.post.findMany({
-      where: { 
-        community: { slug }
+      where: {
+        community: { slug },
+        isRemoved: false,
+        isApproved: true
       },
       include: {
         author: true,
@@ -16,7 +18,7 @@ export const getAllPosts = async (slug: string) => {
       },
     })
 
-    return data 
+    return data
   } catch (e) {
     console.error("Error fetching community posts:", e)
     return []
@@ -27,6 +29,10 @@ export const getAllPosts = async (slug: string) => {
 export const recentPosts = async () => {
   try {
     const data = await prisma.post.findMany({
+      where: {
+        isRemoved: false,
+        isApproved: true
+      },
       include: {
         author: true,
         community: true
@@ -44,19 +50,22 @@ export const recentPosts = async () => {
   }
 }
 
-export const getPost = async (id: string) => {
+export const getPost = async (id: string, userId: string) => {
   try {
     const post = await prisma.post.findUnique({
       where: {
-        id
+        id,
       },
       include: {
         author: true,
         community: true
       }
     })
+    if (!post?.isApproved && post?.authorId !== userId) {
+      return {}
+    }
     return post
-  } catch (e: any) {  
+  } catch (e: any) {
     return e.message
   }
 }

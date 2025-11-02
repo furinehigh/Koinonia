@@ -18,12 +18,25 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({error: 'Missing required fields'}, {status: 400})
         }
 
+        const moderation = await prisma.communityMod.findFirst({
+            where: {
+                community: {
+                    posts: {
+                        some: {
+                            id: postId
+                        }
+                    }
+                }
+            }
+        })
+
         const data = await prisma.comment.create({
             data: {
                 content,
                 userId: session?.user.id,
                 postId,
-                parentId
+                parentId,
+                isApproved: moderation?.autoApprovalComment
             },
             include: {
                 post: {

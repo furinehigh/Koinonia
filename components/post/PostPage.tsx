@@ -230,7 +230,11 @@ function PostPage({ post, comments }: {
 
     return (
         <div className='flex flex-col'>
-
+            {!localPost.isApproved && (
+                <div className='bg-gray-100 p-2 rounded '>
+                    This post is only visible to you, because it hasn't been approved by moderators yet.
+                </div>
+            )}
             <Card key={localPost.id} className='rounded shadow-none m-3'>
                 <CardHeader>
                     <CardTitle>
@@ -262,7 +266,7 @@ function PostPage({ post, comments }: {
                             <div className='flex gap-2 items-center'>
 
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger disabled={localPost.isDeleted} className='cursor-pointer'>
+                                    <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} className='cursor-pointer'>
                                         <div className='flex space-x-2 items-center'>
                                             <Button variant='outline' size='sm' className='flame-button'>
                                                 <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
@@ -281,7 +285,7 @@ function PostPage({ post, comments }: {
                                 </DropdownMenu>
 
                                 <DropdownMenu modal={false}>
-                                    <DropdownMenuTrigger disabled={localPost.isDeleted} asChild>
+                                    <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} asChild>
                                         <Button variant="outline" aria-label="Open menu" size="icon-sm">
                                             <MoreVerticalIcon />
                                         </Button>
@@ -385,6 +389,11 @@ function PostPage({ post, comments }: {
                         <>
                             <p>Post has been deleted</p>
                             <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
+                        </>
+                    ) : localPost.isRemoved ? (
+                        <>
+                            <p>Post has been removed</p>
+                            <span className='text-sm'>This post was removed by the moderators of this community. No new echoes, replies, or votes are allowed!</span>
                         </>
                     ) : (
                         <>

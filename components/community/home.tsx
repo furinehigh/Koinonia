@@ -24,6 +24,7 @@ function CommHome({ posts }: { posts: Post[] }) {
   const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
   const [localPosts, setLocalPosts] = useState(posts)
   const router = useRouter()
+  const [approvalLoading, setApprovalLoading] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('userVotes')
@@ -85,6 +86,22 @@ function CommHome({ posts }: { posts: Post[] }) {
       })
     } catch (e) {
       console.error('vote error', e)
+    }
+  }
+
+  const handlePostApproval = async () => {
+    try {
+      setApprovalLoading(true)
+      const res = await fetch('/api/post/approve', {
+        method: 'PUT',
+        body: JSON.stringify({approve: true})
+      })
+
+      const data = await res.json()
+    } catch (e: any) {
+      toast.error("Error approving post!", {description: e.message})
+    } finally {
+      setApprovalLoading(false)
     }
   }
 
@@ -157,7 +174,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                       </div>
                     </div>
                   </Link>
-                  <DropdownMenu>
+                  {p.isApproved ? <DropdownMenu>
                     <DropdownMenuTrigger disabled={p.isDeleted} className='cursor-pointer'>
                       <div className='flex space-x-2 items-center'>
                         <Button variant='outline' size='sm' className='flame-button'>
@@ -174,7 +191,11 @@ function CommHome({ posts }: { posts: Post[] }) {
                       <DropdownMenuItem onClick={() => castSpell(p.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => castSpell(p.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
                     </DropdownMenuContent>
-                  </DropdownMenu>
+                  </DropdownMenu> : (
+                    <div>
+                      <Button>Approve</Button>
+                    </div>
+                  )}
                 </div>
               </CardTitle>
               {p.isDeleted ? (

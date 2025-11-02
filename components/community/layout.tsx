@@ -144,17 +144,32 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
                       : <Button onClick={() => handleCommJoin()}>{loading ? <Loader size={12} className='animate-spin' /> : 'Join'}</Button>}
                   </div>
                 </CardTitle>
-                <CardDescription>{community.description}</CardDescription>
+                <CardDescription className='text-xs'>{community.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className='flex justify-between'>
-                  <div className='text-sm flex items-center space-x-1'>
+                  <div className='text-xs flex items-center space-x-1'>
                     <p className='font-semibold'>{community.membersCount}</p>
-                    <p>members</p>
+                    <p>ghosts</p>
                   </div>
-                  <div className='text-sm flex items-center space-x-1'>
+                  <div className='text-xs flex items-center space-x-1'>
                     <p className='font-semibold'>{community.membersCount}</p>
-                    <p>online members</p>
+                    <p>online ghosts</p>
+                  </div>
+                </div>
+                <div className='my-3'>
+                  <h2 className='font-semibold text-sm'>Ghost busters</h2>
+                  <div className='my-1 flex flex-col gap-2'>
+                    {community.moderators.map((m, i) => (
+                      <Link href={'/u/' + m.username}>
+                        <div className='flex items-center space-x-1'>
+                          <div className='h-6 w-6 rounded border overflow-hidden'>
+                            <img src={m.image || '/ghost.png'} />
+                          </div>
+                          <div className='text-[10px]'>{m.name}</div>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </CardContent>

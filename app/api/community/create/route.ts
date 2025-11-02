@@ -38,9 +38,15 @@ export async function POST(req: NextRequest) {
       }
     })
 
+    await prisma.communityMod.create({
+      data: {
+        communityId: data.id
+      }
+    })
+
     return NextResponse.json({ message: "Community created", data }, { status: 200 })
-  } catch (err) {
+  } catch (err: any) {
     console.error("POST error:", err)
-    return NextResponse.json({ error: "Community creation failed" }, { status: 400 })
+    return NextResponse.json({ error: "Community creation failed", description: err.message }, { status: 400 })
   }
 }

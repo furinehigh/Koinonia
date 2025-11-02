@@ -7,7 +7,7 @@ import ManaShopClient from "@/components/ManaShopClient"
 async function page() {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id)
-    return <div className="p-10 text-center text-red-600">Please sign in to access the Mana Shop.</div>
+    return <div className="p-10 text-center text-red-600">Please sign in to access the Mana Shop :)</div>
 
   const spells = await getAllSpells()
   if (!spells || spells.length === 0)
