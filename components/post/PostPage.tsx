@@ -228,7 +228,7 @@ function PostPage({ post, comments }: {
             setApprovalLoading(true)
             const res = await fetch('/api/post/approve', {
                 method: 'PUT',
-                body: JSON.stringify({ approve: true })
+                body: JSON.stringify({ approve: true, id: localPost.id })
             })
 
             const data = await res.json()

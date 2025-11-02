@@ -89,12 +89,12 @@ function CommHome({ posts }: { posts: Post[] }) {
     }
   }
 
-  const handlePostApproval = async () => {
+  const handlePostApproval = async (id: string) => {
     try {
       setApprovalLoading(true)
       const res = await fetch('/api/post/approve', {
         method: 'PUT',
-        body: JSON.stringify({ approve: true })
+        body: JSON.stringify({ approve: true, id })
       })
 
       const data = await res.json()
@@ -205,7 +205,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                     </DropdownMenuContent>
                   </DropdownMenu> : (
                     <div>
-                      <Button onClick={handlePostApproval}>{approvalLoading ? <Loader2 className='animate-spin'/> : 'Approve'}</Button>
+                      <Button onClick={() => handlePostApproval(p.id)}>{approvalLoading ? <Loader2 className='animate-spin'/> : 'Approve'}</Button>
                     </div>
                   )}
                 </div>
