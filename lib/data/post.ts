@@ -1,13 +1,34 @@
 import { Post } from "@/types"
 import { prisma } from "../prisma"
 
-export const getAllPosts = async (slug: string) => {
+export const getAllPosts = async (slug: string, userId: string) => {
   try {
     const data = await prisma.post.findMany({
       where: {
         community: { slug },
         isRemoved: false,
-        isApproved: true
+        OR: [
+          { isApproved: true },
+          {
+            AND: [
+              { isApproved: false },
+              {
+                OR: [
+                  { authorId: userId },
+                  {
+                    community: {
+                      moderators: {
+                        some: {
+                          id: userId
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       include: {
         author: true,
@@ -17,6 +38,7 @@ export const getAllPosts = async (slug: string) => {
         createdAt: 'desc',
       },
     })
+
 
     return data
   } catch (e) {
@@ -55,15 +77,34 @@ export const getPost = async (id: string, userId: string) => {
     const post = await prisma.post.findUnique({
       where: {
         id,
+        OR: [
+          { isApproved: true },
+          {
+            AND: [
+              { isApproved: false },
+              {
+                OR: [
+                  { authorId: userId },
+                  {
+                    community: {
+                      moderators: {
+                        some: {
+                          id: userId
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       include: {
         author: true,
         community: true
       }
     })
-    if (!post?.isApproved && post?.authorId !== userId) {
-      return {}
-    }
     return post
   } catch (e: any) {
     return e.message

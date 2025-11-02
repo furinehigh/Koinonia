@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Ban, Signal, SignalHigh, SignalLow, Sparkles } from 'lucide-react'
+import { Ban, Loader2, Signal, SignalHigh, SignalLow, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -94,12 +94,24 @@ function CommHome({ posts }: { posts: Post[] }) {
       setApprovalLoading(true)
       const res = await fetch('/api/post/approve', {
         method: 'PUT',
-        body: JSON.stringify({approve: true})
+        body: JSON.stringify({ approve: true })
       })
 
       const data = await res.json()
+
+      if (data.error) {
+        toast.error(data.error)
+        return;
+      }
+
+      setLocalPosts(
+        localPosts.map(p =>
+          p.id === data.res.id ? { ...p, isApproved: true } : p
+        )
+      )
+
     } catch (e: any) {
-      toast.error("Error approving post!", {description: e.message})
+      toast.error("Error approving post!", { description: e.message })
     } finally {
       setApprovalLoading(false)
     }
@@ -193,7 +205,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                     </DropdownMenuContent>
                   </DropdownMenu> : (
                     <div>
-                      <Button>Approve</Button>
+                      <Button onClick={handlePostApproval}>{approvalLoading ? <Loader2 className='animate-spin'/> : 'Approve'}</Button>
                     </div>
                   )}
                 </div>

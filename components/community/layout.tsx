@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +24,7 @@ import '@/styles/flamebutton.scss'
 import { toast } from 'sonner';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 function CommLayout({ community, handleJoin, handleLeave, children }: {
   community: Community,
@@ -34,6 +35,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
 
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { data: session } = useSession()
 
   const castSpell = async (spellName: string) => {
     try {
@@ -105,9 +107,14 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
               <h1 className='text-sm '>c/{community.name}</h1>
             </Link>
 
-            <div className='ml-auto '>
+            <div className='ml-auto flex items-center'>
+              {community.moderators.some(m => m.id == session?.user.id) && <Link href={'/n/' + community.slug + '/moderation'} className='ml-2'>
+                <Button variant={'ghost'}>
+                  <Wrench />
+                </Button>
+              </Link>}
               <DropdownMenu>
-                <DropdownMenuTrigger className='cursor-pointer mt-2'>
+                <DropdownMenuTrigger className='cursor-pointer'>
                   <Button className='flame-button'>Cast Spell</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

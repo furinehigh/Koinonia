@@ -51,6 +51,7 @@ function PostPage({ post, comments }: {
     const [editLoading, setEditLoading] = useState(false)
     const [copied, setCopied] = useState(false)
     const [deleteLoading, setDeleteLoading] = useState(false)
+    const [approvalLoading, setApprovalLoading] = useState(false)
 
     const { data: session, status } = useSession()
 
@@ -222,6 +223,30 @@ function PostPage({ post, comments }: {
         }
     }
 
+    const handlePostApproval = async () => {
+        try {
+            setApprovalLoading(true)
+            const res = await fetch('/api/post/approve', {
+                method: 'PUT',
+                body: JSON.stringify({ approve: true })
+            })
+
+            const data = await res.json()
+
+            if (data.error) {
+                toast.error(data.error)
+                return;
+            }
+
+            setLocalPost(prev => ({ ...prev, isApproved: true }))
+
+        } catch (e: any) {
+            toast.error("Error approving post!", { description: e.message })
+        } finally {
+            setApprovalLoading(false)
+        }
+    }
+
     if (loading) {
         return (
             <div className='flex justify-center items-center w-full h-full'><Loader className='' size={96} /></div>
@@ -263,7 +288,7 @@ function PostPage({ post, comments }: {
                                     </div>
                                 </div>
                             </Link>
-                            <div className='flex gap-2 items-center'>
+                            {localPost.isApproved ? <div className='flex gap-2 items-center'>
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} className='cursor-pointer'>
@@ -306,7 +331,11 @@ function PostPage({ post, comments }: {
                                         </DropdownMenuGroup>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                            </div>
+                            </div> : (
+                                <div>
+                                    <Button onClick={handlePostApproval}>{approvalLoading ? <Loader2 className='animate-spin' /> : 'Approve'}</Button>
+                                </div>
+                            )}
                             <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
