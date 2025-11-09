@@ -43,11 +43,12 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: base64, name: file.name }),
       })
-      if (!res.ok) {
+      const data = await res.json()
+      if (!res.ok || data.error) {
         setAvatar('')
+        toast.error(data.error || 'Error occurred while uploading the image.', {description: 'Please try again or contact support.'})
         return;
       }
-      const data = await res.json()
       setFormData(p => ({ ...p, avatarUrl: data.data.url }))
     } catch (e: any) {
       console.error(e.message)
