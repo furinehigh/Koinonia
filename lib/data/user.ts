@@ -98,3 +98,16 @@ export const getUserActivities = async (userId: string) => {
         return e.message
     }
 }
+
+export const getUserNotifications = async (userId: string) => {
+    try {
+        const notifications = await prisma.notification.findMany({
+            where: {
+                userId
+            }
+        })
+        return notifications
+    } catch (e: any) {
+        return []
+    }
+}

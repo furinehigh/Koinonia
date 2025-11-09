@@ -23,13 +23,12 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                         </div>
                         <div>
                             <h1 className='font-semibold text-3xl'>{user.name}</h1>
-                            <div className='text-xs'>
+                            <div className='text-xs flex gap-5'>
                                 <div>
-
                                     <span className='font-semibold'>{user.mana.mana}</span> Mana
                                 </div>
                                 <div>
-                                    {user.spells.rageSpell}
+                                    Joined {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
                                 </div>
                             </div>
                         </div>
@@ -41,8 +40,11 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                                 <Link href={'/n/' + c.slug}>
                                     <Card className='rounded shadow-none w-full'>
                                         <CardHeader>
-                                            <CardTitle>
-                                                {c.name}
+                                            <CardTitle className='flex justify-between'>
+                                                <span>
+                                                    {c.name}
+                                                </span>
+                                                <span className='font-medium text-xs'>{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
                                             </CardTitle>
                                             <CardDescription>{c.description}</CardDescription>
                                         </CardHeader>
@@ -67,7 +69,10 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                                                 </>
                                             ) : (
                                                 <>
-                                                    <CardTitle className='font-semibold'>{p.title}</CardTitle>
+                                                    <CardTitle className='font-semibold flex justify-between'>
+                                                        <span>{p.title}</span>
+                                                        <span className='font-medium text-xs'>{formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}</span>
+                                                    </CardTitle>
                                                     <CardDescription>{p.content}</CardDescription>
                                                 </>
                                             )}
@@ -87,8 +92,9 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                                 <Link href={'/n/' + c.post.community.slug + '/post/' + c.post.id}>
                                     <Card className='rounded shadow-none w-full'>
                                         <CardHeader>
-                                            <CardTitle>
-                                                Echoed on: {c.post.title}
+                                            <CardTitle className='flex justify-between'>
+                                                <span>Echoed on: {c.post.title}</span>
+                                                <span className='font-medium text-xs'>{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
                                             </CardTitle>
                                             <CardDescription>{c.content}</CardDescription>
                                         </CardHeader>

@@ -68,7 +68,7 @@ function Moderation({ settings }: {
                 </div>
                 <div className='flex flex-col gap-2'>
                     <div className='flex justify-between items-center'>
-                        <Label id='apa'>Restrict Words</Label>
+                        <Label id='apa'>Restricted Words</Label>
                         <div className='flex gap-1 max-w-2/3 flex-wrap'>
                             {(modSettings?.restrictedWords || '')
                                 .split(',')

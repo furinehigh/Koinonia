@@ -3,7 +3,6 @@ A Mana based open-source community forum, where u can create communities(network
 
 NOTE: This website is not much responsive yet, so please use laptops or large devices to view the site:)
 
-IF THE VERCEL SITE IS DOWN PLEASE USE THIS: https://koinonia-pk.ditdrive.info and github login won't work on this site so u have to login as Specter/Guest on this :(
 
 # Why am i building this?
 I love building Full-Stack stuffs like this....:) thats true.... or maybe i want the Siege grant so badly...
@@ -14,22 +13,24 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Mana shop to buy spells such as Rage n Heal spells
 - Bost posts or communities with spells
 - Seperate profile page for each users.
-- Added Specter/Guest login option (for guys who think i will steal their data.... im no thief...:( u guys r bad.... and one more thing: if ur a biz then let's talk biz... cantact here: buydata@atcheap.rate :)
+- Added Ghost login option (for guys who think i will steal their data.... im no thief...:( u guys r bad.... and one more thing: if ur a biz then let's talk biz... cantact here: buydata@atcheap.rate :)
 - Changed these words:
     community -> network
     post -> signal
+    members -> ghosts
+    moderators -> ghost busters
 - Instead of votes there will be signal strength
 - Seperate page for all the signals(posts)
 - Users can add echoes(comments) to signals(posts)
 - Users can also reply to comments/echoes infinitly :) (but don't do that ∞ plsss)
 - Posts/Signals can now be deleted
 - Posts/Signal can also be edited now (u can't update images yet)
+- Proper moderation settings for moderators
+- Auto moderation
+- Ghost users can link their github account
 
 # Upcomming features and changes
-- Proper moderation tools for moderators
-- Auto moderation
 - Image moderation
-- Guest users can link their github account
 
 # Prerequisites
 - Node JS
@@ -78,6 +79,7 @@ Koinonia is a Siege(by Hack Club) project and aligns with following themes:
 - Magic
 - Signal
 - Fall
+- Spooky
 
 I will prob try to align Koinonia with all the upcomming siege themes :)
 

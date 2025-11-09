@@ -5,7 +5,17 @@ import { Button } from '../ui/button'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import { Loader2, Reply, SignalHigh, SignalLow } from 'lucide-react'
+import { Loader2, MoreVerticalIcon, Reply, SignalHigh, SignalLow } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useSession } from 'next-auth/react'
 
 function Comments({ comments, postId, isDeleted }: { comments: any[], postId: string, isDeleted: boolean }) {
   const [loading, setLoading] = useState(false)
@@ -16,7 +26,11 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
   const [localComments, setLocalComments] = useState(comments)
   const [replying, setReplying] = useState({ parentId: '', content: '' })
   const [replyLoading, setReplyLoading] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
   const router = useRouter()
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     const saved = localStorage.getItem('commentVotes')
@@ -113,22 +127,53 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
 
   const renderComment = (comment: any, depth = 0) => (
     <div key={comment.id} className={`relative mt-3 pl-${depth == 0 ? 0 : 4} border-l ${depth > 0 ? 'border-gray-300' : ''}`}>
-      
+
 
       <div className='flex space-x-2 group'>
         <div className='h-8 w-8 rounded border overflow-hidden'>
           <img src={comment.user.image || '/logo.png'} alt='user' />
         </div>
         <div className='w-full'>
-          <Link href={`/u/${comment.user.username}`} className='w-fit'>
-            <div className='font-semibold text-xs group-hover:underline underline-offset-2'>
-              {comment.user.name}
+          <div className='flex justify-between'>
+            <div>
+              <Link href={`/u/${comment.user.username}`} className='w-fit'>
+                <div className='font-semibold text-xs group-hover:underline underline-offset-2'>
+                  {comment.user.name}
+                </div>
+              </Link>
+              <div className='text-[10px] text-muted-foreground'>
+                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+              </div>
             </div>
-          </Link>
-          <div className='text-[10px] text-muted-foreground'>
-            {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+            {comment.user.id === session?.user.id && (
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger disabled={comment.isDeleted || comment.isRemoved || !comment.isApproved} asChild>
+                  <Button variant="ghost" aria-label="Open menu" size="icon-sm">
+                    <MoreVerticalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+                      Edit comment
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
-          <div className='text-xs mt-1'>{comment.content}</div>
+          <div className='text-xs mt-1'>
+            {comment.isDeleted ? (
+              <div className='font-semibold'>
+                comment has been deleted...
+              </div>
+            ) : (
+              <>
+                {comment.content}
+              </>
+            )}
+          </div>
 
           <div className='flex items-center space-x-1 mt-2'>
             <span className='text-xs'>{comment.votes}</span>
@@ -141,7 +186,9 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
               size={18}
             />
             <Reply
-              onClick={() => setReplying({ parentId: comment.id, content: '' })}
+              onClick={() => {
+                if (!comment.isDeleted && !comment.isRemoved && comment.isApproved)
+                setReplying({ parentId: comment.id, content: '' })}}
               className='cursor-pointer border p-0.5 rounded transition ml-3 hover:bg-gray-100'
               size={18}
             />

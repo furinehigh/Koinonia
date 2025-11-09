@@ -7,15 +7,15 @@ import { getAllPostComments, getAllUserComments } from '@/lib/data/comments'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-async function page({params}: {
-  params: {postId: string}
+async function page({ params }: {
+  params: { postId: string }
 }) {
   const postId = await params.postId
   const session = await getServerSession(authOptions)
 
-  const post = await getPost(postId, session?.user.id) as Post
+  const post = await getPost(postId, session?.user.id || '') as Post
   if (!post) return NotFound();
-  const comments = await getAllPostComments(postId)
+  const comments = await getAllPostComments(postId, session?.user.id || '')
   return (
     <PostPage post={post} comments={comments} />
   )

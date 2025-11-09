@@ -11,7 +11,7 @@ async function page({params}:{
     const session = await getServerSession(authOptions)
     const modSettings = await getModSettings(slug, session?.user.id)
     if (!modSettings) {
-        return <div className='text-xs m-5'>You are not a moderator of this community :(</div>
+        return <div className='text-xs m-5'>You are not a moderator/ghost buster of this community :(</div>
     }
     return (
         <Moderation settings={modSettings}/>

@@ -12,7 +12,7 @@ export default async function Home() {
   const session = await getServerSession(authOptions)
   let activities = [];
   if (session && session.user) {
-    activities = await getUserActivities(session?.user.id)
+    activities = await getUserActivities(session?.user.id || '')
   }
   return (
     <div className="ml-15 p-4 space-y-4 flex justify-between max-w-full">

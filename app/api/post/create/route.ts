@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: session.user.id,
         type: 'post_created',
-        title: `Created: ${title}`,
+        title: `Created: ${cleanTitle}`,
         description: `You've successfully created a new signal.`,
         slug: `/n/${slug}/post/${res.id}`,
         postId: res.id

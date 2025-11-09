@@ -1,41 +1,57 @@
 interface Community {
-    id: string
-    name: string
-    description: string
-    moderators: User[]
-    slug: string
-    membersCount?: number
-    creatorId: string
-    bannerUrl?: string
-    avatarUrl?: string
-    createdAt: Date
-    updatedAt: Date
+  id: string
+  name: string
+  description: string
+  moderators: User[]
+  slug: string
+  membersCount?: number
+  creatorId: string
+  bannerUrl?: string
+  avatarUrl?: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface User {
-    id: string;
-    name: string;
-    image: string;
-    username: string
+  id: string;
+  name: string;
+  image: string;
+  username: string
 }
 
 interface Post {
-    id: string
-    title: string
-    content: string
-    imageUrl: string
-    communityId: string
-    author: User
-    votes: number
-    views: number
-    authorId: string
-    community?: Community
-    edited: boolean
-    editedAt: Date
-    createdAt: Date
-    isDeleted: boolean
-    isApproved: boolean
-    isRemoved: boolean
+  id: string
+  title: string
+  content: string
+  imageUrl: string
+  communityId: string
+  author: User
+  votes: number
+  views: number
+  authorId: string
+  community?: Community
+  edited: boolean
+  editedAt: Date
+  createdAt: Date
+  isDeleted: boolean
+  isApproved: boolean
+  isRemoved: boolean
+  _count: {
+    comments: number
+  }
 }
 
-export type { Community, User, Post }
+interface Notification {
+  id: string
+  title: string
+  content: string
+  type: string
+  level: number
+  contentId: string
+  slug?: string
+  isRead: boolean
+  userId: string
+  createdAt: Date
+}
+
+export type { Community, User, Post, Notification }

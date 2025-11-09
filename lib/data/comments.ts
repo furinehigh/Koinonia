@@ -1,10 +1,35 @@
 import { prisma } from "../prisma"
 
-export const getAllPostComments = async (postId: string) => {
+export const getAllPostComments = async (postId: string, userId: string) => {
   try {
     const all = await prisma.comment.findMany({
       where: {
-        postId
+        postId,
+        isRemoved: false,
+        OR: [
+          { isApproved: true },
+          {
+            AND: [
+              { isApproved: false },
+              {
+                OR: [
+                  { userId },
+                  {
+                    post: {
+                      community: {
+                        moderators: {
+                          some: {
+                            id: userId
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       include: {
         user: true

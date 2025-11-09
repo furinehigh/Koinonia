@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Ban, Loader2, Signal, SignalHigh, SignalLow, Sparkles } from 'lucide-react'
+import { Ban, Loader2, MessageSquare, Signal, SignalHigh, SignalLow, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -205,7 +205,7 @@ function CommHome({ posts }: { posts: Post[] }) {
                     </DropdownMenuContent>
                   </DropdownMenu> : (
                     <div>
-                      <Button onClick={() => handlePostApproval(p.id)}>{approvalLoading ? <Loader2 className='animate-spin'/> : 'Approve'}</Button>
+                      <Button onClick={() => handlePostApproval(p.id)}>{approvalLoading ? <Loader2 className='animate-spin' /> : 'Approve'}</Button>
                     </div>
                   )}
                 </div>
@@ -231,7 +231,7 @@ function CommHome({ posts }: { posts: Post[] }) {
               )}
             </CardContent>
 
-            <CardFooter>
+            <CardFooter className='flex flex-col items-start'>
               <div className='flex justify-between w-full'>
                 <div className='flex items-center space-x-1'>
                   <span>{p.votes}</span>
@@ -257,6 +257,10 @@ function CommHome({ posts }: { posts: Post[] }) {
                   <span>{p.views}</span> signal strength
                 </div>
               </div>
+              <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
+                <MessageSquare size={14} />
+                <span>{p._count.comments} comments</span>
+              </p>
             </CardFooter>
           </Card>
         ))}

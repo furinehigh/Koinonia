@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
     Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Ban, Check, Copy, Loader2, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
+import { Ban, Check, Copy, Loader2, MessageSquare, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -311,7 +311,7 @@ function PostPage({ post, comments }: {
 
                                 <DropdownMenu modal={false}>
                                     <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} asChild>
-                                        <Button variant="outline" aria-label="Open menu" size="icon-sm">
+                                        <Button variant="ghost" aria-label="Open menu" size="icon-sm">
                                             <MoreVerticalIcon />
                                         </Button>
                                     </DropdownMenuTrigger>
@@ -440,7 +440,7 @@ function PostPage({ post, comments }: {
                     )}
                 </CardContent>
 
-                <CardFooter>
+                <CardFooter className='flex flex-col items-start'>
                     <div className='flex justify-between w-full'>
                         <div className='flex items-center space-x-1'>
                             <span>{localPost.votes}</span>
@@ -476,6 +476,10 @@ function PostPage({ post, comments }: {
                             <span>{localPost.views}</span> signal strength
                         </div>
                     </div>
+                    <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
+                    <MessageSquare size={14}/>
+                    <span>{localPost._count.comments} comments</span>
+                  </p>
                 </CardFooter>
             </Card>
 

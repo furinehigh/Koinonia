@@ -5,12 +5,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import AuthProvider from "./auth-provider";
-import MagicalBG from "@/components/MagicalBG";
 import { getUserSpellsCount } from "@/lib/data/spells";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { getRecentCommunities } from "@/lib/data/community";
+import StaticGrid from "@/components/GridReveal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +45,7 @@ export default async function RootLayout({
       >
         <AuthProvider>
           <div className="flex flex-col relative">
-            <MagicalBG />
+            <StaticGrid />
             <Header />
             <div className="flex">
               <Sidebar recentCommunities={recentCommunities} userSpells={session ? userSpells : []}/>

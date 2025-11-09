@@ -32,7 +32,16 @@ export const getAllPosts = async (slug: string, userId: string) => {
       },
       include: {
         author: true,
-        community: true
+        community: true,
+        _count: {
+          select: {
+            comments: {
+              where: {
+                isApproved: true,
+              }
+            }
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc',
@@ -57,7 +66,16 @@ export const recentPosts = async () => {
       },
       include: {
         author: true,
-        community: true
+        community: true,
+        _count: {
+          select: {
+            comments: {
+              where: {
+                isApproved: true,
+              }
+            }
+          }
+        }
       },
       orderBy: [
         { votes: 'desc' },
@@ -102,7 +120,16 @@ export const getPost = async (id: string, userId: string) => {
       },
       include: {
         author: true,
-        community: true
+        community: true,
+        _count: {
+          select: {
+            comments: {
+              where: {
+                isApproved: true,
+              }
+            }
+          }
+        }
       }
     })
     return post

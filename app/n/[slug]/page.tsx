@@ -8,7 +8,7 @@ async function CummunityPage({ params }: {
   params: { slug: string }
 }) {
   const session = await getServerSession(authOptions)
-  const posts = await getAllPosts(params.slug, session?.user.id)
+  const posts = await getAllPosts(params.slug, session?.user.id || '')
   return (
     <CommHome posts={posts || []} />
   )

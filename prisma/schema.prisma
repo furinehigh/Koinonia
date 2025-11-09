@@ -36,6 +36,8 @@ model User {
   recentActivities RecentActivity[]
 
   comments Comment[]
+
+  friends Friends @relation(fields: [id], references: [userId])
 }
 
 model Account {
@@ -224,4 +226,24 @@ model Comment {
   replies Comment[] @relation("CommentReplies")
 
   createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  level     Int      @default(1)
+  userId    String
+  contentId String
+  title     String
+  content   String
+  isRead    Boolean  @default(false)
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Friends {
+  id      String @id @default(cuid())
+  userId  String @unique
+  friends User[]
 }
