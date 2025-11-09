@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { ChevronLeft, Wrench } from 'lucide-react';
+import { ChevronLeft, Wand, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -115,7 +115,9 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
               </Link>}
               <DropdownMenu>
                 <DropdownMenuTrigger className='cursor-pointer'>
-                  <Button className='flame-button'>Cast Spell</Button>
+                  <Button variant='ghost' size='sm'>
+                    <Wand className='h-4 w-4' />
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>Cast a magical spell</DropdownMenuLabel>

@@ -42,14 +42,20 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
   const [editError, setEditError] = useState('')
   const [editLoading, setEditLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [selectedComment, setSelectedComment] = useState()
 
   const router = useRouter()
   const { data: session, status } = useSession()
 
   useEffect(() => {
-    const saved = localStorage.getItem('commentVotes')
-    if (saved) setCommentVotes(JSON.parse(saved))
+    try {
+      const saved = JSON.parse(localStorage.getItem('commentVotes') || '{}')
+      setCommentVotes(saved)
+    } catch {
+      localStorage.removeItem('commentVotes')
+    }
   }, [])
+
 
   const saveVotes = (votes: typeof commentVotes) => {
     setCommentVotes(votes)
@@ -140,57 +146,63 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
   }
 
   const handleEditSubmit = async () => {
-        try {
-            setEditLoading(true)
-            const res = await fetch('/api/comment/edit', {
-                headers: {
-                    "Content-Type": 'application/json'
-                },
-                method: 'PUT',
-                body: JSON.stringify(editComment)
-            })
+    try {
+      setEditLoading(true)
+      const res = await fetch('/api/comment/edit', {
+        headers: {
+          "Content-Type": 'application/json'
+        },
+        method: 'PUT',
+        body: JSON.stringify(editComment)
+      })
 
-            const data = await res.json()
+      const data = await res.json()
 
-            if (!res.ok || data.error) {
-                setEditError(data.error)
-                return;
-            }
+      if (!res.ok || data.error) {
+        setEditError(data.error)
+        return;
+      }
 
-            setShowEditDialog(false)
-            setLocalComments({ ...localComments, edited: true, editedAt: new Date() })
-        } catch (e: any) {
-            setEditError(e.message)
-        } finally {
-            setEditLoading(false)
-        }
+      setShowEditDialog(false)
+      setLocalComments(prev =>
+        prev.map(c =>
+          c.id === editComment.id
+            ? { ...c, content: editComment.content, edited: true, editedAt: new Date() }
+            : c
+        )
+      )
+    } catch (e: any) {
+      setEditError(e.message)
+    } finally {
+      setEditLoading(false)
     }
+  }
 
-    const handleCommentDelete = async (commentId: string) => {
-        try {
-            setDeleteLoading(true)
-            const res = await fetch('/api/comment/delete', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ commentId })
-            })
+  const handleCommentDelete = async (commentId: string) => {
+    try {
+      setDeleteLoading(true)
+      const res = await fetch('/api/comment/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ commentId })
+      })
 
-            const data = await res.json()
-            if (!res.ok || data.error) {
-                toast.error('Error deleting post :(', { description: data.error })
-                return;
-            }
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        toast.error('Error deleting post :(', { description: data.error })
+        return;
+      }
 
-            setLocalComments(prev => ({ ...prev, isDeleted: true }))
-            setShowDeleteDialog(false)
-        } catch (e: any) {
-            toast.error('Error deleting post :(', { description: e.message })
-        } finally {
-            setDeleteLoading(false)
-        }
+      setLocalComments(prev => prev.map(c => (c.id == commentId ? { ...c, isDeleted: true } : c)))
+      setShowDeleteDialog(false)
+    } catch (e: any) {
+      toast.error('Error deleting post :(', { description: e.message })
+    } finally {
+      setDeleteLoading(false)
     }
+  }
 
   const renderComment = (comment: any, depth = 0) => (
     <div key={comment.id} className={`relative mt-3 pl-${depth == 0 ? 0 : 4} border-l ${depth > 0 ? 'border-gray-300' : ''}`}>
@@ -207,6 +219,11 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
                 <div className='font-semibold text-xs group-hover:underline underline-offset-2'>
                   {comment.user.name}
                 </div>
+                {comment.edited && (
+                  <span className='text-xs opacity-70'>
+                    (Edited {formatDistanceToNow(new Date(comment.editedAt), { addSuffix: true })})
+                  </span>
+                )}
               </Link>
               <div className='text-[10px] text-muted-foreground'>
                 {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
@@ -223,10 +240,14 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
                   <DropdownMenuGroup>
                     <DropdownMenuItem onSelect={() => {
                       setEditComment(comment)
-                      setShowEditDialog(true)}}>
+                      setShowEditDialog(true)
+                    }}>
                       Edit comment
                     </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => {
+                      setEditComment(comment)
+                      setShowDeleteDialog(true)
+                    }} className='text-red-500'>Delete</DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -256,9 +277,11 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
             />
             <Reply
               onClick={() => {
+                if (!session) return toast.error("Login to reply");
                 if (!comment.isDeleted && !comment.isRemoved && comment.isApproved)
                   setReplying({ parentId: comment.id, content: '' })
               }}
+
               className='cursor-pointer border p-0.5 rounded transition ml-3 hover:bg-gray-100'
               size={18}
             />
@@ -279,10 +302,31 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
             </div>
           )}
 
-          {comment.replies?.map((r: any) => renderComment(r, depth + 1))}
+          {Array.isArray(comment.replies) && comment.replies.length > 0 &&
+            comment.replies?.map(r => renderComment(r, depth + 1))
+          }
+
         </div>
       </div>
 
+
+    </div>
+  )
+
+  return (
+    <div className='p-3'>
+      <div className='rounded shadow-none mb-5 flex flex-col gap-2'>
+        <h1 className='font-semibold text-sm'>Create Echoes</h1>
+        <Textarea value={content} onChange={(e) => setContent(e.target.value)} disabled={isDeleted} />
+        <Button onClick={handleSubmit} disabled={!content || loading || isDeleted}>
+          {loading ? <Loader2 className='animate-spin' /> : 'Create'}
+        </Button>
+        <p className='text-xs text-red-500'>{error}</p>
+      </div>
+
+      <div className='flex flex-col gap-4'>
+        {localComments.map(c => renderComment(c))}
+      </div>
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -303,7 +347,12 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button onClick={handleEditSubmit} disabled={editLoading || editComment?.content == '' || comment.user.id !== session?.user.id} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Update'}</Button>
+              <Button onClick={handleEditSubmit} disabled={
+                editLoading ||
+                !editComment?.content ||
+                editComment?.user.id !== session?.user.id
+              }
+                type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Update'}</Button>
             </div>
           </DialogFooter>
         </DialogContent>
@@ -322,28 +371,10 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
             <DialogClose>
               <Button variant={'outline'}>Cancel</Button>
             </DialogClose>
-            <Button onClick={() => handleCommentDelete(comment.id)} variant={'destructive'} disabled={deleteLoading || comment.user.id !== session?.user.id}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Delete'}</Button>
+            <Button onClick={() => handleCommentDelete(editComment.id)} variant={'destructive'} disabled={deleteLoading || editComment?.user.id !== session?.user.id}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Delete'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-
-  return (
-    <div className='p-3'>
-      <div className='rounded shadow-none mb-5 flex flex-col gap-2'>
-        <h1 className='font-semibold text-sm'>Create Echoes</h1>
-        <Textarea value={content} onChange={(e) => setContent(e.target.value)} disabled={isDeleted} />
-        <Button onClick={handleSubmit} disabled={!content || loading || isDeleted}>
-          {loading ? <Loader2 className='animate-spin' /> : 'Create'}
-        </Button>
-        <p className='text-xs text-red-500'>{error}</p>
-      </div>
-
-      <div className='flex flex-col gap-4'>
-        {localComments.map(c => renderComment(c))}
-      </div>
-
     </div>
   )
 }

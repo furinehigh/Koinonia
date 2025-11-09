@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import {
     Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from "@/components/ui/card"
-import { Ban, Check, Copy, Loader2, MessageSquare, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles } from 'lucide-react'
+import { Ban, Check, Copy, Loader2, MessageSquare, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles, Wand } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -293,8 +293,8 @@ function PostPage({ post, comments }: {
                                 <DropdownMenu>
                                     <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} className='cursor-pointer'>
                                         <div className='flex space-x-2 items-center'>
-                                            <Button variant='outline' size='sm' className='flame-button'>
-                                                <Sparkles className='h-4 w-4 mr-1' /> Cast Spell
+                                            <Button variant='ghost' size='sm'>
+                                                <Wand className='h-4 w-4' />
                                             </Button>
                                             <div className='text-gray-500'>
                                                 {localPost.votes == 0 ? <div>no signal</div> : localPost.votes < 0 ? <div>signal fading</div> : (localPost.votes > 0 && localPost.votes < 3) ? <SignalLow /> : (localPost.votes > 2 && localPost.votes < 6) ? <SignalHigh /> : <Signal />}

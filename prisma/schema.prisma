@@ -37,7 +37,8 @@ model User {
 
   comments Comment[]
 
-  friends Friends @relation(fields: [id], references: [userId])
+  sentFriendRequests     Friends[] @relation("RequestedFriends")
+  receivedFriendRequests Friends[] @relation("ReceivedFriends")
 }
 
 model Account {
@@ -209,15 +210,17 @@ model RecentActivity {
 }
 
 model Comment {
-  id         String  @id @default(cuid())
+  id         String    @id @default(cuid())
   content    String
-  votes      Int     @default(0)
+  votes      Int       @default(0)
   postId     String
   userId     String
   parentId   String?
-  isDeleted  Boolean @default(false)
-  isRemoved  Boolean @default(false)
-  isApproved Boolean @default(true)
+  isDeleted  Boolean   @default(false)
+  isRemoved  Boolean   @default(false)
+  isApproved Boolean   @default(true)
+  edited     Boolean   @default(false)
+  editedAt   DateTime?
 
   post Post @relation(fields: [postId], references: [id])
   user User @relation(fields: [userId], references: [id])
@@ -243,7 +246,11 @@ model Notification {
 }
 
 model Friends {
-  id      String @id @default(cuid())
-  userId  String @unique
-  friends User[]
+  id          String   @id @default(cuid())
+  requester   User     @relation("RequestedFriends", fields: [requesterId], references: [id])
+  requesterId String
+  receiver    User     @relation("ReceivedFriends", fields: [receiverId], references: [id])
+  receiverId  String
+  status      String   @default("pending") // "accepted" | "blocked"
+  createdAt   DateTime @default(now())
 }

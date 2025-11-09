@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     let { cleanText, isSpam } = sanitizeContent(content, moderation?.restrictedWords.split(','), moderation?.avoidLinks || false)
 
-    let { cleanText: cleanTitle, isSpam: spamyTitle } = sanitizeContent(title, moderation?.restrictedWords.split(','), moderation?.avoidLinks || false)
+    let { cleanText: cleanTitle, isSpam: spammyTitle } = sanitizeContent(title, moderation?.restrictedWords.split(','), moderation?.avoidLinks || false)
 
     const res = await prisma.post.create({
       data: {
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
         communityId: community.id,
         authorId: session.user.id,
         isApproved: moderation?.autoApprovalPost,
-        isRemoved: moderation?.contentModeration ? isSpam || spamyTitle : false
+        isRemoved: moderation?.contentModeration ? isSpam || spammyTitle : false
       }
     })
 

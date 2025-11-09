@@ -42,9 +42,9 @@ export async function PUT(req: NextRequest) {
         }
 
         const body = await req.json()
-        const { title, content, id } = body
+        const { content, id } = body
 
-        if (!title || !content || !id) {
+        if (!content || !id) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
         }
 
@@ -62,41 +62,41 @@ export async function PUT(req: NextRequest) {
 
         let { cleanText, isSpam } = sanitizeContent(content, moderation?.restrictedWords.split(','), moderation?.avoidLinks || false)
 
-        let { cleanText: cleanTitle, isSpam: spammyTitle } = sanitizeContent(title, moderation?.restrictedWords.split(','), moderation?.avoidLinks || false)
-
-
-        if (isSpam || spammyTitle) {
+        if (isSpam) {
             return NextResponse.json({ error: "The content looks spammy..." }, { status: 400 })
         }
 
-        const res = await prisma.post.update({
+        const res = await prisma.comment.update({
             where: {
                 id,
-                authorId: session.user.id
+                userId: session.user.id
             },
             data: {
-                title: cleanTitle,
                 content: cleanText,
                 edited: true,
                 editedAt: new Date()
             },
             include: {
-                community: true
+                post: {
+                    include: {
+                        community: true
+                    }
+                }
             }
         })
 
-        if (res.authorId !== session.user.id) {
+        if (res.userId !== session.user.id) {
             return NextResponse.json({ error: 'You are not authorized to edit this signal/post.' }, { status: 400 })
         }
 
         await prisma.recentActivity.create({
             data: {
                 userId: session.user.id,
-                type: 'post_edited',
-                title: `Edited: ${title}`,
-                description: `You've successfully edited your signal.`,
-                slug: `/n/${res.community.slug}/post/${res.id}`,
-                postId: res.id
+                type: 'comment_edited',
+                title: `Edited an echo`,
+                description: `You've successfully edited your echo on post: ${res.post.title}.`,
+                slug: `/n/${res.post.community.slug}/post/${res.post.id}`,
+                postId: res.post.id
             }
         })
 
