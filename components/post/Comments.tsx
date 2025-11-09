@@ -11,11 +11,21 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSession } from 'next-auth/react'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Input } from '../ui/input'
+import { toast } from 'sonner'
 
 function Comments({ comments, postId, isDeleted }: { comments: any[], postId: string, isDeleted: boolean }) {
   const [loading, setLoading] = useState(false)
@@ -28,6 +38,10 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
   const [replyLoading, setReplyLoading] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [editComment, setEditComment] = useState<any>()
+  const [editError, setEditError] = useState('')
+  const [editLoading, setEditLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -125,6 +139,59 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
     }
   }
 
+  const handleEditSubmit = async () => {
+        try {
+            setEditLoading(true)
+            const res = await fetch('/api/comment/edit', {
+                headers: {
+                    "Content-Type": 'application/json'
+                },
+                method: 'PUT',
+                body: JSON.stringify(editComment)
+            })
+
+            const data = await res.json()
+
+            if (!res.ok || data.error) {
+                setEditError(data.error)
+                return;
+            }
+
+            setShowEditDialog(false)
+            setLocalComments({ ...localComments, edited: true, editedAt: new Date() })
+        } catch (e: any) {
+            setEditError(e.message)
+        } finally {
+            setEditLoading(false)
+        }
+    }
+
+    const handleCommentDelete = async (commentId: string) => {
+        try {
+            setDeleteLoading(true)
+            const res = await fetch('/api/comment/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ commentId })
+            })
+
+            const data = await res.json()
+            if (!res.ok || data.error) {
+                toast.error('Error deleting post :(', { description: data.error })
+                return;
+            }
+
+            setLocalComments(prev => ({ ...prev, isDeleted: true }))
+            setShowDeleteDialog(false)
+        } catch (e: any) {
+            toast.error('Error deleting post :(', { description: e.message })
+        } finally {
+            setDeleteLoading(false)
+        }
+    }
+
   const renderComment = (comment: any, depth = 0) => (
     <div key={comment.id} className={`relative mt-3 pl-${depth == 0 ? 0 : 4} border-l ${depth > 0 ? 'border-gray-300' : ''}`}>
 
@@ -154,7 +221,9 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-40" align="end">
                   <DropdownMenuGroup>
-                    <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+                    <DropdownMenuItem onSelect={() => {
+                      setEditComment(comment)
+                      setShowEditDialog(true)}}>
                       Edit comment
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
@@ -188,7 +257,8 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
             <Reply
               onClick={() => {
                 if (!comment.isDeleted && !comment.isRemoved && comment.isApproved)
-                setReplying({ parentId: comment.id, content: '' })}}
+                  setReplying({ parentId: comment.id, content: '' })
+              }}
               className='cursor-pointer border p-0.5 rounded transition ml-3 hover:bg-gray-100'
               size={18}
             />
@@ -212,6 +282,50 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
           {comment.replies?.map((r: any) => renderComment(r, depth + 1))}
         </div>
       </div>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit a post</DialogTitle>
+            <DialogDescription>
+              Edit the title and the content of the post.
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup className="pb-3">
+            <Field>
+              <FieldLabel htmlFor="description">Content</FieldLabel>
+              <Textarea value={editComment?.content} onChange={e => setEditComment(prev => ({ ...prev, content: e.target.value }))} id="description" name="description" />
+            </Field>
+          </FieldGroup>
+          <DialogFooter className='flex justify-between'>
+            <p className='text-xs text-red-500'>{editError}</p>
+            <div className='flex gap-2'>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={handleEditSubmit} disabled={editLoading || editComment?.content == '' || comment.user.id !== session?.user.id} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Update'}</Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Delete the comment
+            </DialogTitle>
+            <DialogDescription>
+              This will only delete your comment but the replies or parent comments won't get deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose>
+              <Button variant={'outline'}>Cancel</Button>
+            </DialogClose>
+            <Button onClick={() => handleCommentDelete(comment.id)} variant={'destructive'} disabled={deleteLoading || comment.user.id !== session?.user.id}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Delete'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 
@@ -229,6 +343,7 @@ function Comments({ comments, postId, isDeleted }: { comments: any[], postId: st
       <div className='flex flex-col gap-4'>
         {localComments.map(c => renderComment(c))}
       </div>
+
     </div>
   )
 }

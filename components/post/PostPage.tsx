@@ -360,7 +360,7 @@ function PostPage({ post, comments }: {
                                             <DialogClose asChild>
                                                 <Button variant="outline">Cancel</Button>
                                             </DialogClose>
-                                            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == '' || localPost.authorId !== session?.user.id} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
+                                            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == '' || localPost.authorId !== session?.user.id} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Update'}</Button>
                                         </div>
                                     </DialogFooter>
                                 </DialogContent>
