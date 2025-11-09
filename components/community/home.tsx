@@ -19,6 +19,7 @@ import {
 import '@/styles/flamebutton.scss'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import UserPopup from '../user/UserPopup'
 
 function CommHome({ posts }: { posts: Post[] }) {
   const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
@@ -162,30 +163,33 @@ function CommHome({ posts }: { posts: Post[] }) {
             <CardHeader>
               <CardTitle>
                 <div className='flex justify-between'>
-                  <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='flex items-center space-x-2 group'>
-                    <div className='h-10 w-10 rounded border overflow-hidden'>
-                      {p.isDeleted ? <Ban className='h-full w-full' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
-                    </div>
-                    <div>
-                      <div className='font-semibold group-hover:underline underline-offset-2'>
-                        {p.isDeleted ? (
-                          'Post deleted'
-                        ) : (
-                          <>
-                            {p.author.name} {' '}
-                            {p.edited && (
-                              <span className='text-xs opacity-70'>
-                                (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
-                              </span>
-                            )}
-                          </>
-                        )}
+                  <UserPopup user={p.isDeleted ? {} : p.author}>
+                    <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='flex items-center space-x-2 group'>
+                      <div className='h-10 w-10 rounded border overflow-hidden'>
+                        {p.isDeleted ? <Ban className='h-full w-full' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
                       </div>
-                      <div className='text-xs text-muted-foreground'>
-                        {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
+                      <div>
+                        <div className='font-semibold group-hover:underline underline-offset-2'>
+                          {p.isDeleted ? (
+                            'Post deleted'
+                          ) : (
+                            <>
+                              {p.author.name} {' '}
+                              {p.edited && (
+                                <span className='text-xs opacity-70'>
+                                  (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>
+                          {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+
+                  </UserPopup>
                   {p.isApproved ? <DropdownMenu>
                     <DropdownMenuTrigger disabled={p.isDeleted} className='cursor-pointer'>
                       <div className='flex space-x-2 items-center'>
@@ -265,7 +269,7 @@ function CommHome({ posts }: { posts: Post[] }) {
           </Card>
         ))}
       </div>
-    </div>
+    </div >
   )
 }
 

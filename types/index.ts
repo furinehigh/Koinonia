@@ -17,6 +17,10 @@ interface User {
   name: string;
   image: string;
   username: string
+  createdAt: string
+  mana: {
+    mana: number
+  }
 }
 
 interface Post {

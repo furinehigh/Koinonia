@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import SignalGridFlow from './SignalGrid'
 import { Button } from './ui/button'
+import UserPopup from './user/UserPopup'
 
 function HomePosts({ posts }: { posts: Post[] }) {
   const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
@@ -111,30 +112,33 @@ function HomePosts({ posts }: { posts: Post[] }) {
                             </div>
                           )}
 
-                          <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='relative z-10 flex items-center space-x-2 group'>
-                            <div className='h-10 w-10 rounded border overflow-hidden'>
-                              {p.isDeleted ? <Ban className='h-full w-full bg-white' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
-                            </div>
-                            <div>
-                              <div className='font-semibold group-hover:underline underline-offset-2'>
-                                {p.isDeleted ? (
-                                  'Post deleted'
-                                ) : (
-                                  <>
-                                    {p.author.name} {' '}
-                                    {p.edited && (
-                                      <span className='text-xs opacity-70'>
-                                        (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
-                                      </span>
-                                    )}
-                                  </>
-                                )}
+                          <UserPopup user={p.isDeleted ? {} : p.author}>
+
+                            <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='relative z-10 flex items-center space-x-2 group'>
+                              <div className='h-10 w-10 rounded border overflow-hidden'>
+                                {p.isDeleted ? <Ban className='h-full w-full bg-white' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
                               </div>
-                              <div className='text-xs text-muted-foreground'>
-                                {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
+                              <div>
+                                <div className='font-semibold group-hover:underline underline-offset-2'>
+                                  {p.isDeleted ? (
+                                    'Post deleted'
+                                  ) : (
+                                    <>
+                                      {p.author.name} {' '}
+                                      {p.edited && (
+                                        <span className='text-xs opacity-70'>
+                                          (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                                <div className='text-xs text-muted-foreground'>
+                                  {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
+                                </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </UserPopup>
                         </div>
                       </div>
 
@@ -192,7 +196,7 @@ function HomePosts({ posts }: { posts: Post[] }) {
                     </div>
                   </div>
                   <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
-                    <MessageSquare size={14}/>
+                    <MessageSquare size={14} />
                     <span>{p._count.comments} comments</span>
                   </p>
                 </CardFooter>

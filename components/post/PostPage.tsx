@@ -35,6 +35,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { useSession } from 'next-auth/react'
+import UserPopup from '../user/UserPopup'
 
 function PostPage({ post, comments }: {
     post: Post,
@@ -264,30 +265,32 @@ function PostPage({ post, comments }: {
                 <CardHeader>
                     <CardTitle>
                         <div className='flex justify-between'>
-                            <Link href={localPost.isDeleted ? '#' : '/u/' + localPost.author.username} className='flex items-center space-x-2 group'>
-                                <div className='h-10 w-10 rounded border overflow-hidden'>
-                                    {localPost.isDeleted ? <Ban className='h-full w-full' /> : <img src={localPost.author.image || 'logo.png'} alt='user' />}
-                                </div>
-                                <div>
-                                    <div className='font-semibold group-hover:underline underline-offset-2'>
-                                        {localPost.isDeleted ? (
-                                            'Post deleted'
-                                        ) : (
-                                            <>
-                                                {localPost.author.name} {' '}
-                                                {localPost.edited && (
-                                                    <span className='text-xs opacity-70'>
-                                                        (Edited {formatDistanceToNow(new Date(localPost.editedAt), { addSuffix: true })})
-                                                    </span>
-                                                )}
-                                            </>
-                                        )}
+                            <UserPopup user={localPost.isDeleted ? {} : localPost.author}>
+                                <Link href={localPost.isDeleted ? '#' : '/u/' + localPost.author.username} className='flex items-center space-x-2 group'>
+                                    <div className='h-10 w-10 rounded border overflow-hidden'>
+                                        {localPost.isDeleted ? <Ban className='h-full w-full' /> : <img src={localPost.author.image || 'logo.png'} alt='user' />}
                                     </div>
-                                    <div className='text-xs text-muted-foreground'>
-                                        {formatDistanceToNow(new Date(localPost.createdAt), { addSuffix: true })}
+                                    <div>
+                                        <div className='font-semibold group-hover:underline underline-offset-2'>
+                                            {localPost.isDeleted ? (
+                                                'Post deleted'
+                                            ) : (
+                                                <>
+                                                    {localPost.author.name} {' '}
+                                                    {localPost.edited && (
+                                                        <span className='text-xs opacity-70'>
+                                                            (Edited {formatDistanceToNow(new Date(localPost.editedAt), { addSuffix: true })})
+                                                        </span>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                        <div className='text-xs text-muted-foreground'>
+                                            {formatDistanceToNow(new Date(localPost.createdAt), { addSuffix: true })}
+                                        </div>
                                     </div>
-                                </div>
-                            </Link>
+                                </Link>
+                            </UserPopup>
                             {localPost.isApproved ? <div className='flex gap-2 items-center'>
 
                                 <DropdownMenu>
@@ -477,9 +480,9 @@ function PostPage({ post, comments }: {
                         </div>
                     </div>
                     <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
-                    <MessageSquare size={14}/>
-                    <span>{localPost._count.comments} comments</span>
-                  </p>
+                        <MessageSquare size={14} />
+                        <span>{localPost._count.comments} comments</span>
+                    </p>
                 </CardFooter>
             </Card>
 
