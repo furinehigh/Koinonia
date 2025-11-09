@@ -1,5 +1,5 @@
 'use client'
-import { Home, Settings, UsersRound } from 'lucide-react'
+import { Home, MessageSquareText, Settings, UsersRound } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Community } from '@/types'
 import Image from 'next/image'
@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Community[], userSpells: any[] }) {
+function Sidebar({ recentCommunities, userSpells, isDisabled = false }: { recentCommunities: Community[], userSpells: any[], isDisabled?: boolean }) {
   const [expanded, setExpanded] = useState(false)
   const { mana, fetchMana } = useUserStore()
   console.log(userSpells)
@@ -22,13 +22,16 @@ function Sidebar({ recentCommunities, userSpells }: { recentCommunities: Communi
   }, [])
 
   return (
-    <div className='fixed z-50 mt-15 border-r h-[95vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
+    <div hidden={isDisabled} className='fixed z-50 mt-15 border-r h-[95vh] p-3 w-fit dark:bg-black bg-white flex flex-col justify-between'>
       <div className='flex flex-col space-y-2 justify-center w-full items-center max-h-2/3 overflow-y-auto '>
         <Link href={'/'} className='cursor-pointer rounded p-1'>
           <Home />
         </Link>
         <Link href={'/settings'} className='cursor-pointer rounded p-1'>
           <Settings />
+        </Link>
+        <Link href={'/dm'} className='cursor-pointer rounded p-1'>
+          <MessageSquareText />
         </Link>
         <div className='w-[80%] mx-auto my-2 border-b'></div>
         {recentCommunities.map((c, i) => (

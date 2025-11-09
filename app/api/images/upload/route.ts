@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     const modAPISecret = process.env.MOD_API_SECRET
 
-    const modRes = await fetch(`https://api.sightengine.com/1.0/check.json?url=${data.data.url}&models=nudity-2.1,offensive-2.0,text-content,gore-2.0,text,qr-content,tobacco,self-harm&api_user=31182880&api_secret=${modAPISecret}`)
+    const modRes = await fetch(`https://api.sightengine.com/1.0/check.json?url=${data.data.url}&models=nudity-2.1,offensive-2.0,text-content,gore-2.0,text,tobacco,self-harm&api_user=31182880&api_secret=${modAPISecret}`)
 
     const modResData = await modRes.json()
 

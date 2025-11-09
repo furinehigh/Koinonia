@@ -2,8 +2,8 @@ import React from 'react'
 
 function page() {
   return (
-    <div className=''>
-        coming sooon....
+    <div>
+      
     </div>
   )
 }
