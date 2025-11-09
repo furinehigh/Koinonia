@@ -21,7 +21,7 @@ function layout({ children }: {
                     }
                 },
                 ]} />
-            <div className='m-3'>
+            <div className='m-3 w-full'>
                 {children}
             </div>
         </div>

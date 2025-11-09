@@ -1,10 +1,9 @@
+import ChatUI from '@/components/DM/ChatUI'
 import React from 'react'
 
 function page() {
   return (
-    <div>
-      
-    </div>
+    <ChatUI />
   )
 }
 
