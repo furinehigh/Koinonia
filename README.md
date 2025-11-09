@@ -28,9 +28,16 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Proper moderation settings for moderators
 - Auto moderation
 - Ghost users can link their github account
+- Image moderation
+- Comments can now be edited and deleted
+- Added notification functionality
+- Showing user details on hovering
+- Showing home posts in grid mode
 
 # Upcomming features and changes
-- Image moderation
+- Users can make friends
+- Users can chat with their friends privately
+- True E2E based chatting system
 
 # Prerequisites
 - Node JS
@@ -80,6 +87,7 @@ Koinonia is a Siege(by Hack Club) project and aligns with following themes:
 - Signal
 - Fall
 - Spooky
+- Grid
 
 I will prob try to align Koinonia with all the upcomming siege themes :)
 
