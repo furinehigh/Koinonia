@@ -15,6 +15,7 @@ import { CirclePlus, Loader2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 
 function UserPopup({ children, user }: {
     children: React.ReactNode,
@@ -52,10 +53,12 @@ function UserPopup({ children, user }: {
                 </HoverCardTrigger>
                 <HoverCardContent align='start' className="w-80">
                     {Object.keys(user).length !== 0 ? <div className="flex gap-4">
+                        <Link href={'/u/' + user.username}>
                         <Avatar>
                             <AvatarImage src={user.image || 'logo.png'} />
                             <AvatarFallback>{user?.name?.slice(0, 3)}</AvatarFallback>
                         </Avatar>
+                        </Link>
                         <div className="space-y-1">
                             <div>
                                 <h4 className="text-sm font-semibold flex items-center gap-2">{user?.name}
@@ -72,7 +75,7 @@ function UserPopup({ children, user }: {
                                         <span className='bg-gray-200 rounded px-1 text-[10px] font-normal'>You</span>
                                     )}
                                 </h4>
-                                <p className='text-[10px]'>u/{user?.username}</p>
+                                <p className='text-[10px] hover:underline'>u/{user?.username}</p>
                             </div>
                             <p className="text-sm">
 

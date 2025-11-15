@@ -7,11 +7,27 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { Input } from "@/components/ui/input"
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem
+} from "@/components/ui/select"
+
 
 function Friends({ initialFriends }: {
     initialFriends: any[]
 }) {
-    const [friends, setFriends] = useState<any[]>(initialFriends)
+    const sortFriends = (arr: any[]) => {
+        const order = { pending: 0, accepted: 1, blocked: 2 }
+        return [...arr].sort((a, b) => order[a.status] - order[b.status])
+    }
+    const [friends, setFriends] = useState<any[]>(sortFriends(initialFriends))
+    const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'blocked'>('all')
+    const [sortByName, setSortByName] = useState<'asc' | 'desc' | null>(null)
     const [loading, setLoading] = useState(false)
 
     const handleFriendshipAction = async (id: string, action: 'block' | 'accept' | 'undo') => {
@@ -34,7 +50,12 @@ function Friends({ initialFriends }: {
             } else {
                 toast.success('Undone the friends blocking!')
             }
-            setFriends(prev => prev.map(f => f.id == id ? {...f, status: action == 'block'? 'blocked' : 'accepted'} : f))
+            setFriends(prev =>
+                sortFriends(
+                    prev.map(f => f.id == id ? { ...f, status: action == 'block' ? 'blocked' : action == 'undo' ? 'accepted' : 'accepted' } : f)
+                )
+            )
+
         } catch (e: any) {
             toast.error(e.message)
         } finally {
@@ -42,18 +63,69 @@ function Friends({ initialFriends }: {
         }
     }
 
+    const processedFriends = friends
+        .filter(f => {
+            if (filter !== 'all' && f.status !== filter) return false
+            return f.requester.name.toLowerCase().includes(search.toLowerCase())
+        })
+        .sort((a, b) => {
+            if (!sortByName) return 0
+            return sortByName === 'asc'
+                ? a.requester.name.localeCompare(b.requester.name)
+                : b.requester.name.localeCompare(a.requester.name)
+        })
+
+
     return (
         <div className=''>
             <h1 className='text-xl font-semibold'>Your friends</h1>
+            <div className="mt-4 flex gap-3 items-center ">
+                <Input
+                    placeholder="Search friends..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full"
+                />
 
-            {friends?.length == 0 && (
+                <Select
+                    value={filter}
+                    onValueChange={(v: any) => setFilter(v)}
+                >
+                    <SelectTrigger className="w-36">
+                        <SelectValue placeholder="Filter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="accepted">Accepted</SelectItem>
+                        <SelectItem value="blocked">Blocked</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={sortByName || " "}
+                    onValueChange={(v: any) => setSortByName(v || null)}
+                >
+                    <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Sort by name" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value=" ">None</SelectItem>
+                        <SelectItem value="asc">A → Z</SelectItem>
+                        <SelectItem value="desc">Z → A</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+
+            {processedFriends?.length == 0 && (
                 <div className='mt-5'>
-                    <p className='text-xs'>You have no friends or friend requests..:(</p>
+                    <p className='text-xs'>No results for the current filter..</p>
                 </div>
             )}
 
             <div className='mt-5 flex flex-col gap-2'>
-                {friends.map((f, i) => (
+                {processedFriends.map((f, i) => (
                     <Card className={`rounded shadow-none py-2 ${f.status == 'blocked' ? 'bg-gray-50' : f.status == 'pending' ? 'border-2' : ''}`}>
                         <CardContent className='px-2'>
                             {f.status == 'pending' && <p className='mb-2 text-xs'>Friend request by</p>}

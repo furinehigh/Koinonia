@@ -45,6 +45,7 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
             <div className="p-4 flex justify-between w-full">
                 <div className='flex flex-col w-2/3 p-5'>
                     <div className='flex items-center space-x-3'>
+                        
                         <div className='h-16 w-16 rounded border overflow-hidden'>
                             <img src={user.image || '/logo.png'} width={80} height={80} />
                         </div>
