@@ -16,7 +16,6 @@ async function layout({ params, children }: {
                 </div>
             </div>
             <div>
-
                 {children}
             </div>
         </div>

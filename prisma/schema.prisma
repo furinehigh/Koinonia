@@ -254,3 +254,4 @@ model Friends {
   status      String   @default("pending") // "accepted" | "blocked"
   createdAt   DateTime @default(now())
 }
+

@@ -1,84 +1,110 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import { useEffect, useRef } from "react"
 
-export default function GridReveal() {
-  const [pos, setPos] = useState({ x: 0, y: 0 })
-  const [radius, setRadius] = useState(225)
-  const [visible, setVisible] = useState(false)
+export default function ConstellationField() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const mouse = useRef({ x: 0, y: 0, active: false })
 
   useEffect(() => {
-    const onMove = (e: MouseEvent | TouchEvent) => {
-      let clientX: number
-      let clientY: number
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-      if (e instanceof TouchEvent) {
-        const t = e.touches[0] ?? e.changedTouches[0]
-        if (!t) return
-        clientX = t.clientX
-        clientY = t.clientY
-      } else {
-        clientX = (e as MouseEvent).clientX
-        clientY = (e as MouseEvent).clientY
-      }
+    const ctx = canvas.getContext("2d")!
+    let w = (canvas.width = window.innerWidth)
+    let h = (canvas.height = window.innerHeight)
 
-      setPos({ x: clientX, y: clientY })
-      setVisible(true)
+    const stars = Array.from({ length: 80 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: 1.3 + Math.random()
+    }))
+
+    const move = (e: MouseEvent) => {
+      mouse.current.x = e.clientX
+      mouse.current.y = e.clientY
+      mouse.current.active = true
     }
 
-    const onLeave = () => setVisible(false)
+    const leave = () => (mouse.current.active = false)
 
-    window.addEventListener("mousemove", onMove)
-    window.addEventListener("touchmove", onMove, { passive: true })
-    window.addEventListener("mouseleave", onLeave)
+    const resize = () => {
+      w = canvas.width = window.innerWidth
+      h = canvas.height = window.innerHeight
+    }
+
+    window.addEventListener("mousemove", move)
+    window.addEventListener("mouseleave", leave)
+    window.addEventListener("resize", resize)
+
+    const loop = () => {
+      ctx.fillStyle = "white"
+      ctx.fillRect(0, 0, w, h)
+
+      for (const s of stars) {
+        if (mouse.current.active) {
+          const dx = s.x - mouse.current.x
+          const dy = s.y - mouse.current.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 150) {
+            const f = (150 - dist) / 150
+            s.x += (dx / dist) * f * 2
+            s.y += (dy / dist) * f * 2
+          }
+        }
+
+        s.x += s.vx
+        s.y += s.vy
+
+        if (s.x < 0 || s.x > w) s.vx *= -1
+        if (s.y < 0 || s.y > h) s.vy *= -1
+      }
+
+      ctx.strokeStyle = "rgba(0,0,0,0.25)"
+      ctx.lineWidth = 0.6
+
+      for (let i = 0; i < stars.length; i++) {
+        for (let j = i + 1; j < stars.length; j++) {
+          const a = stars[i]
+          const b = stars[j]
+          const dx = a.x - b.x
+          const dy = a.y - b.y
+          const dist = dx * dx + dy * dy
+
+          if (dist < 130 * 130) {
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+          }
+        }
+      }
+
+      for (const s of stars) {
+        ctx.beginPath()
+        ctx.fillStyle = "black"
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      requestAnimationFrame(loop)
+    }
+
+    loop()
 
     return () => {
-      window.removeEventListener("mousemove", onMove)
-      window.removeEventListener("touchmove", onMove)
-      window.removeEventListener("mouseleave", onLeave)
+      window.removeEventListener("mousemove", move)
+      window.removeEventListener("mouseleave", leave)
+      window.removeEventListener("resize", resize)
     }
   }, [])
 
-  const gridPattern = `
-    repeating-linear-gradient(0deg, rgba(120,120,120,0.25) 0 1px, transparent 1px 40px),
-    repeating-linear-gradient(90deg, rgba(120,120,120,0.25) 0 1px, transparent 1px 40px)
-  `
-
   return (
-    <div className="fixed inset-0 -z-10 bg-white">
-      {/* Grid layer */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: gridPattern,
-          backgroundSize: "40px 40px",
-          WebkitMaskImage: visible
-            ? `radial-gradient(circle ${radius}px at ${pos.x}px ${pos.y}px, black 0%, transparent 100%)`
-            : "none",
-          maskImage: visible
-            ? `radial-gradient(circle ${radius}px at ${pos.x}px ${pos.y}px, black 0%, transparent 100%)`
-            : "none",
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          transition: "opacity 0.3s ease",
-          opacity: visible ? 1 : 0,
-        }}
-      />
-
-      {/* Soft glow following cursor */}
-      <div
-        className="pointer-events-none fixed -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          left: pos.x,
-          top: pos.y,
-          width: radius * 2,
-          height: radius * 2,
-          filter: "blur(25px)",
-          opacity: visible ? 0.25 : 0,
-          transition: "opacity 0.3s ease",
-          background: "radial-gradient(circle, rgba(100,100,100,0.25) 0%, rgba(255,255,255,0) 70%)",
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 -z-10"
+    />
   )
 }

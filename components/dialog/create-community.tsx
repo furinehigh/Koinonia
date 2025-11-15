@@ -10,6 +10,7 @@ import { LoaderIcon, X } from "lucide-react";
 import Loader from "../Loader";
 import { useUserStore } from "@/store/useUserStore";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 function CreateCommunityDialog({ isOpen, handleOpenChange }: {
   isOpen: boolean;
@@ -27,6 +28,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const { updateMana, mana } = useUserStore()
+  const router = useRouter()
 
   const handleAvatarSelect = () => inputRef.current?.click()
 
@@ -103,6 +105,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
       updateMana(mana - 10)
       toast.success("Network created!", { description: "You’ve spent 10 mana" })
       handleOpenChange(false)
+      router.push('/n/'+formData.slug)
     } catch (e: any) {
       toast.error(e.message)
     } finally {
