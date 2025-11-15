@@ -1,9 +1,13 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { Community, User } from '@/types'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import { useSession } from 'next-auth/react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import { toast } from 'sonner'
+import { CirclePlus, Loader2 } from 'lucide-react'
 
 function UserPage({ user, communities, recentPosts, activities, comments }: {
     user: any,
@@ -12,7 +16,30 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
     activities: any[],
     comments: any[]
 }) {
-    console.log(user)
+    const [loading, setLoading] = useState(false)
+    const { data: session } = useSession()
+
+    const handleSendFriendReq = async () => {
+        try {
+            setLoading(true)
+            const res = await fetch('/api/friends', {
+                method: "POST",
+                body: JSON.stringify({ receiverId: user.id })
+            })
+            const data = await res.json()
+
+            if (!res.ok || data.error) {
+                toast.error(data.error || 'Unexpected error occurred!')
+                return;
+            }
+
+            toast.success("Friend request successfully sent!")
+        } catch (e: any) {
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+        }
+    }
     return (
         <div className="ml-15 flex flex-col">
             <div className="p-4 flex justify-between w-full">
@@ -22,7 +49,20 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
                             <img src={user.image || '/logo.png'} width={80} height={80} />
                         </div>
                         <div>
-                            <h1 className='font-semibold text-3xl'>{user.name}</h1>
+                            <h1 className='font-semibold text-3xl flex gap-2 items-center'>{user.name}
+                                {session?.user.id !== user.id ? <Tooltip>
+                                    <TooltipTrigger>
+                                        <button className='disabled:opacity-70' onClick={handleSendFriendReq} disabled={loading}>
+                                            {loading ? <Loader2 className='animate-spin' size={18} /> : <CirclePlus size={18} />}
+                                        </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Add friend
+                                    </TooltipContent>
+                                </Tooltip> : (
+                                    <span className='bg-gray-200 rounded px-1 text-sm font-normal'>You</span>
+                                )}
+                            </h1>
                             <div className='text-xs flex gap-5'>
                                 <div>
                                     <span className='font-semibold'>{user.mana.mana}</span> Mana
