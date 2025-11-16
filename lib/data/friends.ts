@@ -1,19 +1,26 @@
 import { prisma } from "../prisma"
 
-
 export const getAllUsersFriends = async (userId: string) => {
-    try {
-        const friends = await prisma.friends.findMany({
-            where: {
-                receiverId: userId
-            },
-            include: {
-                requester: true
-            }
-        })
+  try {
+    const friends = await prisma.friends.findMany({
+      where: {
+        OR: [
+          { receiverId: userId },
+          { requesterId: userId }
+        ]
+      },
+      include: {
+        requester: true,
+        receiver: true
+      }
+    })
 
-        return friends
-    } catch (e: any) {
-        return []
-    }
+    return friends.map(f => ({
+      ...f,
+      otherUser: f.requesterId === userId ? f.receiver : f.requester,
+      isRequester: f.requesterId === userId
+    }))
+  } catch {
+    return []
+  }
 }

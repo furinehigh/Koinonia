@@ -4,16 +4,18 @@ import { getAllMessages, getDMDetails } from '@/lib/data/dm'
 import { getServerSession } from 'next-auth'
 import React from 'react'
 
-async function page({ params }: {
-  params: { id: string }
-}) {
+async function page({ params }: { params: { id: string } }) {
   const { id } = await params
   const session = await getServerSession(authOptions)
-  const messages = await getAllMessages(id)
+
   const dm = await getDMDetails(session?.user.id, id)
-  const to = dm.requester ? dm?.friendship.reciever.id : dm?.friendship.requester.id
+  if (!dm) return null
+
+  const messages = await getAllMessages(id)
+  const to = dm.otherUser.id
+
   return (
-    <ChatUI dmId={id} initialMessages={messages} to={to}/>
+    <ChatUI dmId={id} initialMessages={messages} to={to} />
   )
 }
 
