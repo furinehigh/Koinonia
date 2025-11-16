@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Community, User } from '@/types'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import Link from 'next/link'
@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { toast } from 'sonner'
 import { CirclePlus, Loader2 } from 'lucide-react'
+import io from 'socket.io-client'
 
 function UserPage({ user, communities, recentPosts, activities, comments }: {
     user: any,
@@ -18,6 +19,7 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
 }) {
     const [loading, setLoading] = useState(false)
     const { data: session } = useSession()
+    const [userStatus, setUserStatus] = useState('offline')
 
     const handleSendFriendReq = async () => {
         try {
@@ -40,12 +42,21 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
             setLoading(false)
         }
     }
+
+    const socket = io('https://koinonia.vercel.app')
+
+    useEffect(() => {
+        socket.on('user-status-update', (data) => {
+            if (data.userId == session?.user.id)
+                setUserStatus(data.status)
+        })
+    }, [])
     return (
         <div className="ml-15 flex flex-col">
             <div className="p-4 flex justify-between w-full">
                 <div className='flex flex-col w-2/3 p-5'>
                     <div className='flex items-center space-x-3'>
-                        
+
                         <div className='h-16 w-16 rounded border overflow-hidden'>
                             <img src={user.image || '/logo.png'} width={80} height={80} />
                         </div>

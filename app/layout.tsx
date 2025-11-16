@@ -36,6 +36,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions)
+
   const userSpells = await getUserSpellsCount(session?.user?.id)
   const recentCommunities = await getRecentCommunities(session?.user.id)
   return (
@@ -43,12 +44,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppings.className} antialiased`}
       >
-        <AuthProvider>
+        <AuthProvider session={session}>
           <div className="flex flex-col relative">
             <StaticGrid />
             <Header />
             <div className="flex">
-              <Sidebar recentCommunities={recentCommunities} userSpells={session ? userSpells : []}/>
+              <Sidebar recentCommunities={recentCommunities} userSpells={session ? userSpells : []} />
               <div className="mt-15 z-40 w-full">
                 {children}
               </div>
