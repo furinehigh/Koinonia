@@ -18,14 +18,28 @@ function Sidebar({ recentDMs, isDisabled = false }: { recentDMs: any[], isDisabl
                 <div className='w-[90%] mx-auto my-2 border-b'></div>
                 <div className='flex flex-col text-xs'>
 
-                    {recentDMs.map((dm, i) => (
-                        <Link href={'/dm/' + dm.id} className={`flex gap-2 items-center p-3 w-full hover:bg-gray-100 transition duration-300 ${pathname.includes(dm.id) ? 'bg-gray-200' : ''}`}>
-                            <div className='h-8 w-8 rounded border overflow-hidden'>
-                                <img src={dm.reciever.avatarUrl || '/logo.png'} alt={dm.id} />
-                            </div>
-                            <span>{dm.reciever.name}</span>
-                        </Link>
-                    ))}
+                    {recentDMs.map((dm, i) => {
+                        if (dm.reciever) {
+
+                            return (
+                                <Link href={'/dm/' + dm.id} className={`flex gap-2 items-center p-3 w-full hover:bg-gray-100 transition duration-300 ${pathname.includes(dm.id) ? 'bg-gray-200' : ''}`}>
+                                    <div className='h-8 w-8 rounded border overflow-hidden'>
+                                        <img src={dm.friendship.requester.image || '/logo.png'} alt={dm.id} />
+                                    </div>
+                                    <span>{dm.friendship.requester.name}</span>
+                                </Link>
+                            )
+                        } else if (dm.requester) {
+                            return (
+                                <Link href={'/dm/' + dm.id} className={`flex gap-2 items-center p-3 w-full hover:bg-gray-100 transition duration-300 ${pathname.includes(dm.id) ? 'bg-gray-200' : ''}`}>
+                                    <div className='h-8 w-8 rounded border overflow-hidden'>
+                                        <img src={dm.friendship.reciever.image || '/logo.png'} alt={dm.id} />
+                                    </div>
+                                    <span>{dm.friendship.reciever.name}</span>
+                                </Link>
+                            )
+                        }
+                    })}
                 </div>
             </div>
         </div>

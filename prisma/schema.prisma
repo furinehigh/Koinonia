@@ -39,6 +39,8 @@ model User {
 
   sentFriendRequests     Friends[] @relation("RequestedFriends")
   receivedFriendRequests Friends[] @relation("ReceivedFriends")
+  status                 String    @default("offline") // online | sleep | offline
+  lastOnlineAt           DateTime?
 }
 
 model Account {
@@ -251,6 +253,31 @@ model Friends {
   requesterId String
   receiver    User     @relation("ReceivedFriends", fields: [receiverId], references: [id])
   receiverId  String
+  dm          DM?      @relation("DMFriends")
   status      String   @default("pending") // "accepted" | "blocked"
   createdAt   DateTime @default(now())
+}
+
+model DM {
+  id           String   @id @default(cuid())
+  friendshipId String   @unique
+  friendship   Friends  @relation("DMFriends", fields: [friendshipId], references: [id])
+  isDeleted    Boolean  @default(false)
+  isBlocked    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  messages Messages[] @relation("DMs")
+}
+
+model Messages {
+  id        String    @id @default(cuid())
+  dmId      String
+  dm        DM        @relation("DMs", fields: [dmId], references: [id])
+  content   String    @db.Text
+  status    String    @default("unsent") // unsent | sent | recieved | read | failed
+  isDeleted Boolean   @default(false)
+  isRemoved Boolean   @default(false)
+  edited    Boolean   @default(false)
+  editedAt  DateTime?
+  createdAt DateTime  @default(now())
 }

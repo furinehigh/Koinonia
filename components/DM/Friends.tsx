@@ -15,6 +15,7 @@ import {
     SelectContent,
     SelectItem
 } from "@/components/ui/select"
+import { useRouter } from 'next/navigation'
 
 
 function Friends({ initialFriends }: {
@@ -29,6 +30,7 @@ function Friends({ initialFriends }: {
     const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'blocked'>('all')
     const [sortByName, setSortByName] = useState<'asc' | 'desc' | null>(null)
     const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
     const handleFriendshipAction = async (id: string, action: 'block' | 'accept' | 'undo') => {
         try {
@@ -74,6 +76,28 @@ function Friends({ initialFriends }: {
                 ? a.requester.name.localeCompare(b.requester.name)
                 : b.requester.name.localeCompare(a.requester.name)
         })
+
+    const handleMessageClick = async (friendshipId: string) => {
+        try {
+            setLoading(true)
+            const res = await fetch('/api/dm', {
+                method: "POST",
+                body: JSON.stringify({friendshipId})
+            })
+
+            const data = await res.json()
+            if (data.error || !res.ok){
+                toast.error(data.error)
+                return;
+            }
+
+            router.push('/dm/' + data.data.id)
+        } catch (e:any){
+            toast.error(e.message)
+        } finally {
+            setLoading(false)
+        }
+    }
 
 
     return (
@@ -144,7 +168,7 @@ function Friends({ initialFriends }: {
                                     <p className='px-2 py-1'>Blocked</p>
                                     <button onClick={() => handleFriendshipAction(f.id, 'undo')} disabled={loading} className='rounded border disabled:opacity-70 disabled:bg-gray-700 px-2 bg-gray-900 text-white hover:bg-gray-700'>Unblock</button>
                                 </div> : <div className='flex gap-2 text-xs'>
-                                    <Link href={f.id} className='rounded border px-2 py-1 hover:bg-gray-100'>Message</Link>
+                                    <button onClick={() => handleMessageClick(f.id)} disabled={loading} className='rounded border px-2 py-1 hover:bg-gray-100'>Message</button>
                                     <button onClick={() => handleFriendshipAction(f.id, 'block')} disabled={loading} className='rounded border disabled:opacity-70 disabled:bg-gray-700 px-2 bg-gray-900 text-white hover:bg-gray-700'>Block</button>
                                 </div>}
                             </div>

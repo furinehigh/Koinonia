@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "DM" ALTER COLUMN "typing" SET DEFAULT '';
