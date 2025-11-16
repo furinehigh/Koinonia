@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { useSession } from 'next-auth/react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { toast } from 'sonner'
-import { CirclePlus, Loader2 } from 'lucide-react'
+import { CirclePlus, Loader2, Moon } from 'lucide-react'
 import io from 'socket.io-client'
 
 function UserPage({ user, communities, recentPosts, activities, comments }: {
@@ -55,11 +55,27 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
         <div className="ml-15 flex flex-col">
             <div className="p-4 flex justify-between w-full">
                 <div className='flex flex-col w-2/3 p-5'>
-                    <div className='flex items-center space-x-3'>
+                    <div className='flex items-center space-x-3 '>
 
-                        <div className='h-16 w-16 rounded border overflow-hidden'>
-                            <img src={user.image || '/logo.png'} width={80} height={80} />
+                        <div className="h-16 w-16 relative rounded border overflow-hidden">
+                            <img
+                                src={user.image || "/logo.png"}
+                                width={80}
+                                height={80}
+                                className="object-cover h-full w-full"
+                            />
+
+                            <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full flex items-center justify-center">
+                                {userStatus === "sleep" ? (
+                                    <Moon size={12} className="text-gray-500" />
+                                ) : userStatus === "online" ? (
+                                    <span className="h-3 w-3 bg-green-500 rounded-full"></span>
+                                ) : (
+                                    <span className="h-3 w-3 bg-gray-400 rounded-full"></span>
+                                )}
+                            </span>
                         </div>
+
                         <div>
                             <h1 className='font-semibold text-3xl flex gap-2 items-center'>{user.name}
                                 {session?.user.id !== user.id ? <Tooltip>
