@@ -32,11 +32,12 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Comments can now be edited and deleted
 - Added notification functionality
 - Showing user details on hovering
-- Showing home posts in grid mode
+- Showing home posts in space mode, where posts orbit around their community name.
+- Users can send friends request, block friends, and reject requests easily.
+- Users can chat with their friends privately
+- 
 
 # Upcomming features and changes
-- Users can make friends
-- Users can chat with their friends privately
 - True E2E based chatting system
 
 # Prerequisites
