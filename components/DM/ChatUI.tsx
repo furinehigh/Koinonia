@@ -36,7 +36,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
       const data = await res.json()
 
-      if (!res.ok || data.error){
+      if (!res.ok || data.error) {
         toast.error(data.error || 'Unexpected error occurred!')
         return;
       }
@@ -50,20 +50,31 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     <div className='relative h-full w-full'>
       <div className='mt-5 flex flex-col gap-2 w-full'>
         {messages.map((m, i) => {
+          let className = ''
           if (m.fromUserId == session?.user.id) {
-            return (
-              <p className='bg-gray-800 text-white ml-auto rounded-full w-fit px-2 py-1 text-sm'>{m.content}</p>
-            )
+            className = 'bg-gray-800 text-white rounded-full w-fit px-2 py-1 text-sm'
           } else {
-            return (
-              <p className='bg-gray-100 rounded-full w-fit px-2 py-1 text-sm'>{m.content}</p>
-            )
+            className = 'bg-gray-100 rounded-full w-fit px-2 py-1 text-sm'
           }
+          return (
+            <div className={`flex flex-col w-full ${m.fromUserId == session?.user.id ? 'items-end' : ''}`}>
+              <p className={className}>
+                {m.content}
+              </p>
+              <span className='text-[10px] '>{new Date(m.createdAt).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+              })
+              } • {m.status}</span>
+            </div>
+
+          )
         })}
       </div>
       <div className='bg-white fixed bottom-0 w-full pb-3 pt-1'>
         <Input onKeyDown={(k) => {
-          if (k.key == "Enter"){
+          if (k.key == "Enter") {
             handleMessageSend()
           }
         }} value={content} onChange={(e) => setContent(e.target.value)} placeholder='Type a message...' className='p-5 rounded-full w-[70vw] z-[56]' />

@@ -7,7 +7,7 @@ import { Ban, MessageSquare, Signal, SignalHigh, SignalLow } from 'lucide-react'
 import { Post } from '@/types'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import SignalGridFlow from './SignalGrid'
+import SignalConstellation from './SignalConstellation'
 import { Button } from './ui/button'
 import UserPopup from './user/UserPopup'
 
@@ -84,9 +84,9 @@ function HomePosts({ posts }: { posts: Post[] }) {
         <Button className='mr-2' variant={'outline'} onClick={() => {
           if (viewMode == 'cards') setViewMode('grid')
           else setViewMode('cards')
-        }}>{viewMode == 'cards' ? 'Grid' : 'Cards'}</Button>
+        }}>{viewMode == 'cards' ? 'Space' : 'Cards'}</Button>
       </div>
-      {viewMode == 'grid' ? <SignalGridFlow posts={posts} />
+      {viewMode == 'grid' ? <SignalConstellation posts={posts} />
         : (
           <div className='my-5'>
 

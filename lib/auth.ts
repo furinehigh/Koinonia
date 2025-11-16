@@ -60,44 +60,55 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async signIn({ user, account, profile }) {
+      // Only handle GitHub provider
       if (account?.provider === 'github') {
-        const ghostUserId = user.id;
+        const githubId = account.providerAccountId
 
-        if (ghostUserId) {
-          const existingAccount = await prisma.account.findFirst({
-            where: { provider: 'github', providerAccountId: account.providerAccountId }
-          });
-
-          if (!existingAccount) {
-            await prisma.account.create({
-              data: {
-                userId: ghostUserId,
-                type: account.type,
-                provider: account.provider,
-                providerAccountId: account.providerAccountId,
-                access_token: account.access_token,
-                token_type: account.token_type,
-                scope: account.scope,
-              }
-            });
-
-            await prisma.user.update({
-              where: { id: ghostUserId },
-              data: {
-                name: profile?.name || profile?.login,
-                email: profile?.email || `${profile?.id}@github.local`,
-                image: profile?.avatar_url,
-                username: profile?.login,
-              }
-            });
-
-            console.log(`Linked GitHub to existing user ${ghostUserId}`);
+        // Someone else already linked this GitHub?
+        const existingGithub = await prisma.account.findFirst({
+          where: {
+            provider: 'github',
+            providerAccountId: githubId
           }
+        })
+
+        const isLinking = !!user && !existingGithub
+
+        // --- CASE 1: GitHub already connected to another user ---
+        if (existingGithub && existingGithub.userId !== user.id) {
+          console.log('GitHub already linked to another user.')
+          return false
+        }
+
+        // --- CASE 2: user is logged in as ghost and linking github ---
+        if (!existingGithub && user) {
+          await prisma.account.create({
+            data: {
+              userId: user.id,
+              type: account.type,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              access_token: account.access_token,
+              token_type: account.token_type,
+              scope: account.scope,
+            }
+          })
+
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              name: profile?.name || profile?.login,
+              email: profile?.email || `${profile?.id}@github.local`,
+              image: profile?.avatar_url,
+              username: profile?.login,
+            }
+          })
         }
       }
 
-      return true;
-    },
+      return true
+    }
+    ,
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id

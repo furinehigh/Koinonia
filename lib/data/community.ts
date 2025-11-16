@@ -26,7 +26,7 @@ export const communityData = async (slug: string, userId?: string): Promise<Comm
       ...data,
       membersCount: data._count.members,
       member: data.members[0]
-    } as Community & { membersCount: number }
+    } as any & { membersCount: number }
   } catch (e: any) {
     console.error("Error fetching community data:", e)
     return null

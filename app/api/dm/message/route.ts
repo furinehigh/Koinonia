@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
             data: {
                 content,
                 dmId,
-                fromUserId: session.user.id
+                fromUserId: session.user.id,
+                status: 'sent'
             }
         })
 
