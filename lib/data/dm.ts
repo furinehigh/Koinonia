@@ -17,9 +17,16 @@ export const getAllDMs = async (userId: string) => {
             requester: true,
             receiver: true
           }
+        },
+        messages: {
+            orderBy: {createdAt: 'desc'},
+            take: 1
         }
       }
+
     })
+
+    console.log(dms[0].messages)
 
     return dms.map(dm => ({
       ...dm,

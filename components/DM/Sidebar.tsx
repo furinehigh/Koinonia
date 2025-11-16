@@ -29,14 +29,16 @@ function Sidebar({ recentDMs, isDisabled = false }: { recentDMs: any[], isDisabl
                             <Link
                                 key={dm.id}
                                 href={`/dm/${dm.id}`}
-                                className={`flex gap-2 items-center p-3 w-full hover:bg-gray-100 transition duration-300 ${
-                                    pathname.includes(dm.id) ? 'bg-gray-200' : ''
-                                }`}
+                                className={`flex gap-2 items-center p-3 w-full hover:bg-gray-100 transition duration-300 ${pathname.includes(dm.id) ? 'bg-gray-200' : ''
+                                    }`}
                             >
                                 <div className="h-8 w-8 rounded border overflow-hidden">
                                     <img src={other.image || '/logo.png'} alt={other.name} />
                                 </div>
-                                <span>{other.name}</span>
+                                <div className='flex flex-col '>
+                                    <span className='font-semibold'>{other.name}</span>
+                                    <span>{dm.messages[0].content}</span>
+                                </div>
                             </Link>
                         )
                     })}

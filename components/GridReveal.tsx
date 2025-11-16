@@ -14,7 +14,7 @@ export default function ConstellationField() {
     let w = (canvas.width = window.innerWidth)
     let h = (canvas.height = window.innerHeight)
 
-    const stars = Array.from({ length: 80 }, () => ({
+    const stars = Array.from({ length: 60 }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
       vx: (Math.random() - 0.5) * 0.4,
