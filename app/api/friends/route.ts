@@ -24,10 +24,21 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Friend request already sent.' }, { status: 400 })
         }
 
-        await prisma.friends.create({
+        const data = await prisma.friends.create({
             data: {
                 receiverId,
                 requesterId: session.user.id
+            }
+        })
+
+        await prisma.notification.create({
+            data: {
+                type: 'frnd_req',
+                title: "You've got a friend request.",
+                content: `User ${session.user.username} has sent you a friend request`,
+                slug: '/dm/friends',
+                userId: receiverId,
+                contentId: data.id
             }
         })
 

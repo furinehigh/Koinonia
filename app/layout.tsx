@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { getRecentCommunities } from "@/lib/data/community";
-import StaticGrid from "@/components/GridReveal";
+import ConstellationField from "@/components/ConstellationField";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,7 +46,7 @@ export default async function RootLayout({
       >
         <AuthProvider session={session}>
           <div className="flex flex-col relative">
-            <StaticGrid />
+            <ConstellationField />
             <Header />
             <div className="flex">
               <Sidebar recentCommunities={recentCommunities} userSpells={session ? userSpells : []} />

@@ -22,6 +22,17 @@ export async function POST(req: NextRequest) {
             }
         })
 
+        await prisma.notification.create({
+            data:{
+                title: "You've got new messages.",
+                content: `Got DMs from user: ${session.user.username}`,
+                userId: to,
+                contentId: dmId,
+                slug: '/dm/' + dmId,
+                type: 'new_dms'
+            }
+        })
+
         await redisPub.publish('message-created', JSON.stringify({from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt }))
 
         return NextResponse.json({ success: true, data })
