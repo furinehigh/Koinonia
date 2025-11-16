@@ -270,14 +270,15 @@ model DM {
 }
 
 model Messages {
-  id        String    @id @default(cuid())
-  dmId      String
-  dm        DM        @relation("DMs", fields: [dmId], references: [id])
-  content   String    @db.Text
-  status    String    @default("unsent") // unsent | sent | recieved | read | failed
-  isDeleted Boolean   @default(false)
-  isRemoved Boolean   @default(false)
-  edited    Boolean   @default(false)
-  editedAt  DateTime?
-  createdAt DateTime  @default(now())
+  id         String    @id @default(cuid())
+  dmId       String
+  dm         DM        @relation("DMs", fields: [dmId], references: [id])
+  fromUserId String
+  content    String    @db.Text
+  status     String    @default("unsent") // unsent | sent | recieved | read | failed
+  deleted    String    @default("") // everyone | {userId}
+  isRemoved  Boolean   @default(false)
+  edited     Boolean   @default(false)
+  editedAt   DateTime?
+  createdAt  DateTime  @default(now())
 }

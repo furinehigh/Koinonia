@@ -90,3 +90,22 @@ export const getDMDetails = async (userId: string, DMId: string) => {
         return []
     }
 }
+
+export const getAllMessages = async (dmId: string) => {
+    try {
+        const messages = await prisma.messages.findMany({
+            where: {
+                dmId
+            },
+            orderBy: [
+                {
+                    createdAt: 'desc'
+                }
+            ]
+        })
+
+        return messages
+    } catch (e: any) {
+        return []
+    }
+}
