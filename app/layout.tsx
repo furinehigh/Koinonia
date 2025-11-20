@@ -35,6 +35,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   const session = await getServerSession(authOptions)
 
   const userSpells = await getUserSpellsCount(session?.user?.id)

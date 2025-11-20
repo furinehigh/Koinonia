@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Avatar,
     AvatarFallback,
@@ -16,13 +16,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { io } from 'socket.io-client'
 
 function UserPopup({ children, user }: {
     children: React.ReactNode,
     user: any
 }) {
     const [loading, setLoading] = useState(false)
-    const {data:session} = useSession()
+    const { data: session } = useSession()
+    const [userStatus, setUserStatus] = useState('offline')
 
     const handleSendFriendReq = async () => {
         try {
@@ -45,6 +47,15 @@ function UserPopup({ children, user }: {
             setLoading(false)
         }
     }
+
+    const socket = io('https://koinonia.vercel.app')
+
+    useEffect(() => {
+        socket.on('user-status-update', (data) => {
+            if (data.userId == session?.user.id)
+                setUserStatus(data.status)
+        })
+    }, [])
     return (
         <div>
             <HoverCard >
@@ -54,10 +65,10 @@ function UserPopup({ children, user }: {
                 <HoverCardContent align='start' className="w-80">
                     {Object.keys(user).length !== 0 ? <div className="flex gap-4">
                         <Link href={'/u/' + user.username}>
-                        <Avatar>
-                            <AvatarImage src={user.image || 'logo.png'} />
-                            <AvatarFallback>{user?.name?.slice(0, 3)}</AvatarFallback>
-                        </Avatar>
+                            <Avatar>
+                                <AvatarImage src={user.image || 'logo.png'} />
+                                <AvatarFallback>{user?.name?.slice(0, 3)}</AvatarFallback>
+                            </Avatar>
                         </Link>
                         <div className="space-y-1">
                             <div>
