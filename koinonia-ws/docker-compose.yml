@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   traefik:
-    image: registry-1.docker.io/traefik:3.2
+    image: traefik:latest
     container_name: traefik
     restart: always
     command:
