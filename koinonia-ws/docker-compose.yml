@@ -2,37 +2,74 @@ version: "3.9"
 
 services:
   traefik:
-    image: traefik:latest
+    image: traefik:v3.4
     container_name: traefik
-    restart: always
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.le.acme.tlschallenge=true"
-      - "--certificatesresolvers.le.acme.email=admin@dishis.tech"
-      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    networks:
+      - proxy
+
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - "/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
+      - "8080:8080"
 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/certs
+      - ./dynamic:/dynamic
+
+    command:
+      # EntryPoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+
+      # Attach dynamic TLS config
+      - "--providers.file.directory=/dynamic"
+      - "--providers.file.watch=true"
+
+      # Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+
+      # ACME / Let's Encrypt
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=admin@dishis.tech"
+      - "--certificatesresolvers.le.acme.storage=/certs/acme.json"
+
+      # Dashboard
+      - "--api.dashboard=true"
+
+      # Logs
+      - "--log.level=INFO"
+      - "--accesslog=true"
 
   ws:
     build: .
     container_name: community-ws
-    restart: always
+    restart: unless-stopped
     env_file: .env
+    networks:
+      - proxy
     labels:
       - "traefik.enable=true"
 
-      # incoming domain
+      # Router
       - "traefik.http.routers.communityws.rule=Host(`wss.community.dishis.tech`)"
       - "traefik.http.routers.communityws.entrypoints=websecure"
       - "traefik.http.routers.communityws.tls.certresolver=le"
 
-      # traffic → port
+      # Service (the actual port)
       - "traefik.http.services.communityws.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: false
