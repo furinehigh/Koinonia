@@ -256,6 +256,7 @@ model Friends {
   dm          DM?      @relation("DMFriends")
   status      String   @default("pending") // "accepted" | "blocked"
   createdAt   DateTime @default(now())
+  isDeleted   Boolean  @default(false)
 }
 
 model DM {

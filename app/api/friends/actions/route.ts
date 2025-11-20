@@ -43,6 +43,12 @@ export async function PUT(req: Request) {
                     data: { status: 'accepted' },
                 })
                 break
+            case "remove":
+                await prisma.friends.update({
+                    where: { id },
+                    data: { isDeleted: true },
+                })
+                break
 
             default:
                 return NextResponse.json({ error: "Invalid action" }, { status: 400 })

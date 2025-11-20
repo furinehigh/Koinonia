@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=admin@dishis.tech"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+
+  ws:
+    build: .
+    container_name: community-ws
+    restart: always
+    env_file: .env
+    labels:
+      - "traefik.enable=true"
+
+      # incoming domain
+      - "traefik.http.routers.communityws.rule=Host(`wss.community.dishis.tech`)"
+      - "traefik.http.routers.communityws.entrypoints=websecure"
+      - "traefik.http.routers.communityws.tls.certresolver=le"
+
+      # traffic → port
+      - "traefik.http.services.communityws.loadbalancer.server.port=8080"

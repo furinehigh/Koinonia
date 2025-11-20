@@ -30,7 +30,7 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const handleFriendshipAction = async (id: string, action: "block" | "accept" | "undo") => {
+  const handleFriendshipAction = async (id: string, action: "block" | "accept" | "undo" | "remove") => {
     try {
       setLoading(true)
       const res = await fetch("/api/friends/actions", {
@@ -46,13 +46,14 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
 
       if (action === "accept") toast.success("Successfully accepted the request!")
       else if (action === "block") toast.success("Successfully blocked the friend!")
-      else toast.success("Unblocked successfully")
+      else if (action == "undo") toast.success("Unblocked successfully")
+      else toast.success("Friend request removed successfully")
 
       setFriends(prev =>
         sortFriends(
           prev.map(f =>
             f.id === id
-              ? { ...f, status: action === "block" ? "blocked" : "accepted" }
+              ? { ...f, status: action === "block" ? "blocked" : "accepted", isDeleted: action === "remove" }
               : f
           )
         )
@@ -141,21 +142,23 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
       <div className="mt-5 flex flex-col gap-2">
         {processedFriends.map(f => {
           const other = f.otherUser
-
+          if (f.isDeleted) return;
           return (
             <Card
               key={f.id}
-              className={`rounded shadow-none py-2 ${
-                f.status === "blocked"
+              className={`rounded shadow-none py-2 ${f.status === "blocked"
                   ? "bg-gray-50"
                   : f.status === "pending"
-                  ? "border-2"
-                  : ""
-              }`}
+                    ? "border-2"
+                    : ""
+                }`}
             >
               <CardContent className="px-2">
-                {f.status === "pending" && (
-                  <p className="mb-2 text-xs">Friend request</p>
+                {f.status === "pending" && !f.isRequester ? (
+                  <p className="mb-2 text-xs">Friend request by</p>
+                ) : (
+                  <p className="mb-2 text-xs">You've sent this friend request to</p>
+
                 )}
 
                 <div className="flex justify-between items-center">
@@ -172,7 +175,7 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
                     <h1>{other.name}</h1>
                   </Link>
 
-                  {f.status === "pending" ? (
+                  {f.status === "pending" && !f.isRequester ? (
                     <div className="flex gap-2 text-xs">
                       <button
                         onClick={() => handleFriendshipAction(f.id, "block")}
@@ -200,7 +203,7 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
                         Unblock
                       </button>
                     </div>
-                  ) : (
+                  ) : f.status === "accepted" ? (
                     <div className="flex gap-2 text-xs">
                       <button
                         onClick={() => handleMessageClick(f.id)}
@@ -215,6 +218,17 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
                         className="rounded border px-2 bg-gray-900 text-white hover:bg-gray-700"
                       >
                         Block
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 text-xs">
+                      <p className="px-2 py-1">Request sent</p>
+                      <button
+                        onClick={() => handleFriendshipAction(f.id, "remove")}
+                        disabled={loading}
+                        className="rounded border px-2 bg-red-500 text-white hover:bg-red-400"
+                      >
+                        Remove
                       </button>
                     </div>
                   )}
