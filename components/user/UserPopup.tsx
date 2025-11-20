@@ -11,7 +11,7 @@ import {
     HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { formatDistanceToNow } from 'date-fns'
-import { CirclePlus, Loader2 } from 'lucide-react'
+import { CirclePlus, Loader2, Moon } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
@@ -48,11 +48,11 @@ function UserPopup({ children, user }: {
         }
     }
 
-    const socket = io('https://koinonia.vercel.app')
+    const socket = io('wss://wss.community.dishis.tech')
 
     useEffect(() => {
         socket.on('user-status-update', (data) => {
-            if (data.userId == session?.user.id)
+            if (data.userId == user.id)
                 setUserStatus(data.status)
         })
     }, [])
@@ -68,6 +68,15 @@ function UserPopup({ children, user }: {
                             <Avatar>
                                 <AvatarImage src={user.image || 'logo.png'} />
                                 <AvatarFallback>{user?.name?.slice(0, 3)}</AvatarFallback>
+                                <span className="absolute bottom-1 right-1 h-2 w-2 rounded-full flex items-center justify-center">
+                                    {userStatus === "sleep" ? (
+                                        <Moon size={11} className="fill-gray-500 text-gray-500" />
+                                    ) : userStatus === "online" ? (
+                                        <span className="h-2 w-2 bg-green-500 rounded-full"></span>
+                                    ) : (
+                                        <span className="h-2 w-2 bg-gray-400 rounded-full"></span>
+                                    )}
+                                </span>
                             </Avatar>
                         </Link>
                         <div className="space-y-1">

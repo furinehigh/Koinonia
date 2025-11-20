@@ -7,7 +7,8 @@ export const getAllUsersFriends = async (userId: string) => {
         OR: [
           { receiverId: userId },
           { requesterId: userId }
-        ]
+        ],
+        isDeleted: false
       },
       include: {
         requester: true,

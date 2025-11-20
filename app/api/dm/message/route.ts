@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
             }
         })
 
-        await redisPub.publish('message-created', JSON.stringify({from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt }))
+        await redisPub.publish('message-created', JSON.stringify({from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt, dmId }))
 
         return NextResponse.json({ success: true, data })
     } catch (e: any) {

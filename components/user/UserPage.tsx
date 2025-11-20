@@ -47,7 +47,7 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
 
     useEffect(() => {
         socket.on('user-status-update', (data) => {
-            if (data.userId == session?.user.id)
+            if (data.userId == user.id)
                 setUserStatus(data.status)
         })
     }, [])
@@ -67,7 +67,7 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
 
                             <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full flex items-center justify-center">
                                 {userStatus === "sleep" ? (
-                                    <Moon size={12} className="text-gray-500" />
+                                    <Moon size={12} className="fill-gray-500 text-gray-500" />
                                 ) : userStatus === "online" ? (
                                     <span className="h-3 w-3 bg-green-500 rounded-full"></span>
                                 ) : (

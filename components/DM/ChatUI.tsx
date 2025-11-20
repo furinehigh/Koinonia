@@ -1,9 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
+import { io } from 'socket.io-client'
 
 function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: any[], to: string }) {
   const [messages, setMessages] = useState(initialMessages)
@@ -46,6 +47,25 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       toast.error(e.message)
     }
   }
+
+  const socket = io('wss://wss.community.dishis.tech')
+
+  useEffect(() => {
+    socket.on('message-created', (data) => {
+      if (data.dmId == dmId)
+        setMessages(prev => ([
+          ...prev,
+          {
+            content: data.content,
+            createdAt: data.createdAt,
+            status: data.status,
+            fromUserId: data.from,
+            edited: false,
+            editedAt: null
+          }
+        ]))
+    })
+  }, [])
   return (
     <div className='relative h-full w-full'>
       <div className='mt-5 flex flex-col gap-2 w-full'>
