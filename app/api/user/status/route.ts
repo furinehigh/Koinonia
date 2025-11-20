@@ -1,4 +1,5 @@
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { redisPub } from "@/lib/redis";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,6 +17,17 @@ export async function POST(req: NextRequest) {
         const { status } = await req.json()
 
         await redisPub.publish("user_status", JSON.stringify({ userId: session.user.id, status }))
+
+        if (status == 'sleep' || status == 'offline') {
+            await prisma.user.update({
+                where: {
+                    id: session.user.id
+                },
+                data: {
+                    lastOnlineAt: new Date
+                }
+            })
+        }
 
         return NextResponse.json({ success: true })
     } catch (e: any) {
