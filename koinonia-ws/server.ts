@@ -17,10 +17,15 @@ export function initSocket(server: any) {
         const data = JSON.parse(message)
         io!.emit("user-status-update", data)
     })
-    
+
     redisSub.subscribe("message-created", (message) => {
         const data = JSON.parse(message)
         io!.emit("message-created", data)
+    })
+
+    redisSub.subscribe("user-typing", (message) => {
+        const data = JSON.parse(message)
+        io!.emit("user-typing-status", data)
     })
 
     io.on("connection", (socket) => {

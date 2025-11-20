@@ -1,15 +1,49 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { toast } from 'sonner'
 import { useSession } from 'next-auth/react'
 import { io } from 'socket.io-client'
+import './TypingDots.css'
 
 function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: any[], to: string }) {
   const [messages, setMessages] = useState(initialMessages)
   const [content, setContent] = useState('')
   const { data: session } = useSession()
+  const lastSent = useRef(0)
+  const stopTimeout = useRef<NodeJS.Timeout | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const [userTyping, setUserTyping] = useState(false)
+
+  const callAPI = (typing: boolean) => {
+    if (abortRef.current) abortRef.current.abort()
+    abortRef.current = new AbortController()
+
+    fetch(`/api/user/typing`, {
+      method: "POST",
+      signal: abortRef.current.signal,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ typing, dmId, userId: session?.user.id }),
+    }).catch(() => { })
+  }
+
+  const sendTyping = () => {
+    const now = Date.now()
+    if (now - lastSent.current < 400) return // chill bro
+    lastSent.current = now
+    callAPI(true)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setContent(e.target.value)
+    sendTyping()
+
+    if (stopTimeout.current) clearTimeout(stopTimeout.current)
+    stopTimeout.current = setTimeout(() => {
+      callAPI(false)
+    }, 1200)
+  }
 
   const handleMessageSend = async () => {
     try {
@@ -27,7 +61,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
           editedAt: null
         }
       ]))
-
+      callAPI(false)
       setContent('')
 
       const res = await fetch('/api/dm/message', {
@@ -43,6 +77,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       }
 
 
+
     } catch (e: any) {
       toast.error(e.message)
     }
@@ -52,6 +87,13 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
   useEffect(() => {
     socket.on('message-created', (data) => {
+      if (data.dmId == dmId && data.userId !== session?.user.id)
+        setUserTyping(data.typing)
+    })
+  }, [])
+
+  useEffect(() => {
+    socket.on('user-typing-status', (data) => {
       if (data.dmId == dmId)
         setMessages(prev => ([
           ...prev,
@@ -66,6 +108,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
         ]))
     })
   }, [])
+
   return (
     <div className='relative h-full w-full'>
       <div className='mt-5 flex flex-col gap-2 w-full'>
@@ -91,13 +134,22 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
           )
         })}
+        {userTyping && <div>
+          <p className='bg-gray-800 text-white rounded-full w-fit px-2 py-1 text-sm'>
+            <div className="typing-indicator">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </div>
+          </p>
+        </div>}
       </div>
       <div className='bg-white fixed bottom-0 w-full pb-3 pt-1'>
         <Input onKeyDown={(k) => {
           if (k.key == "Enter") {
             handleMessageSend()
           }
-        }} value={content} onChange={(e) => setContent(e.target.value)} placeholder='Type a message...' className='p-5 rounded-full w-[70vw] z-[56]' />
+        }} value={content} onChange={handleChange} placeholder='Type a message...' className='p-5 rounded-full w-[70vw] z-[56]' />
       </div>
     </div>
   )
