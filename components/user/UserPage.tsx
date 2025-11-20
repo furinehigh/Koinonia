@@ -43,7 +43,7 @@ function UserPage({ user, communities, recentPosts, activities, comments }: {
         }
     }
 
-    const socket = io('https://koinonia.vercel.app')
+    const socket = io('wss://wss.community.dishis.tech')
 
     useEffect(() => {
         socket.on('user-status-update', (data) => {
