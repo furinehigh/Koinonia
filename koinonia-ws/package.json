@@ -12,5 +12,10 @@
         "redis": "^5.9.0",
         "socket.io": "^4.8.1",
         "tsc": "^2.0.4"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
     }
 }
