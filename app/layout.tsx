@@ -46,10 +46,10 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${poppings.className} antialiased`}
       >
         <AuthProvider session={session}>
-          <div className="flex flex-col relative">
+          <div className="flex flex-col relative min-h-screen">
             <ConstellationField />
             <Header />
-            <div className="flex">
+            <div className="flex h-screen">
               <Sidebar recentCommunities={recentCommunities} userSpells={session ? userSpells : []} />
               <div className="mt-15 z-40 w-full">
                 {children}

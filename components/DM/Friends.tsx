@@ -100,7 +100,7 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
   }
 
   return (
-    <div>
+    <div className="mx-3">
       <h1 className="text-xl font-semibold">Your friends</h1>
 
       <div className="mt-4 flex gap-3 items-center">

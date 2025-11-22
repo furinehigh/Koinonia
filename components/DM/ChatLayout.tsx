@@ -18,8 +18,8 @@ function ChatLayout({ otherUser, children }: {
         })
     }, [])
     return (
-        <div className="w-full">
-            <div className="border-b w-full py-2">
+        <div className="w-full overflow-hidden h-full">
+            <div className="border-b w-full p-2">
                 <div className="flex gap-2 items-center">
                     <Link href={'/u/' + otherUser.username} className="h-10 w-10 rounded border overflow-hidden">
                         <img src={otherUser.image || '/logo.png'} alt="avatar" />
@@ -31,7 +31,7 @@ function ChatLayout({ otherUser, children }: {
                 </div>
             </div>
 
-            <div>{children}</div>
+            <div className=''>{children}</div>
         </div>
     )
 }

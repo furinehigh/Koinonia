@@ -10,7 +10,7 @@ function Sidebar({ recentDMs, isDisabled = false }: { recentDMs: any[], isDisabl
     return (
         <div
             hidden={isDisabled}
-            className="relative ml-17 z-50 border-r h-[95vh] p-3 w-sm dark:bg-black bg-white flex flex-col justify-between"
+            className="relative ml-17 z-50 border-r p-3 w-sm dark:bg-black bg-white flex flex-col justify-between"
         >
             <div className="flex flex-col space-y-2 w-full overflow-y-auto">
                 <h1 className="font-semibold text-xl">Direct Messages</h1>

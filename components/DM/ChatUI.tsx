@@ -32,7 +32,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     // new message from other user
     s.on("message-created", (data) => {
       if (data.dmId === dmId && data.from == to) {
-        setMessages((prev) => [...prev, {...data, fromUserId: data.from }])
+        setMessages((prev) => [...prev, { ...data, fromUserId: data.from }])
       }
     })
 
@@ -75,6 +75,14 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setContent(e.target.value)
     sendTyping()
+    let drafts = localStorage.getItem("message-drafts")
+    let parsedDrafts = JSON.parse(drafts) as Array<any> || []
+    if (parsedDrafts.some(d => d.dmId == dmId)) {
+      parsedDrafts = parsedDrafts.map(d => d.dmId == dmId ? { ...d, content: e.target.value } : d)
+      localStorage.setItem('message-drafts', JSON.stringify(parsedDrafts))
+    } else {
+      localStorage.setItem('message-drafts', JSON.stringify([...parsedDrafts, { dmId, content: e.target.value }]))
+    }
 
     if (stopTimeout.current) clearTimeout(stopTimeout.current)
 
@@ -82,6 +90,16 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       callAPI(false)
     }, 1200)
   }
+
+  useEffect(() => {
+    let drafts = localStorage.getItem("message-drafts")
+    if (drafts) {
+      const parsedDrafts = JSON.parse(drafts || '') as Array<any> || []
+      if (parsedDrafts) {
+        setContent(parsedDrafts.filter(d => d.dmId == dmId)[0].content)
+      }
+    }
+  }, [])
 
   const handleMessageSend = async () => {
     if (!content.trim()) return
@@ -101,6 +119,12 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
     callAPI(false)
     setContent("")
+    let drafts = localStorage.getItem("message-drafts")
+    let parsedDrafts = JSON.parse(drafts) as Array<any> || []
+    if (parsedDrafts.some(d => d.dmId == dmId)) {
+      parsedDrafts = parsedDrafts.map(d => d.dmId == dmId ? { ...d, content: '' } : d)
+      localStorage.setItem('message-drafts', JSON.stringify(parsedDrafts))
+    }
 
     try {
       const res = await fetch("/api/dm/message", {
@@ -119,8 +143,8 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   }
 
   return (
-    <div className="relative h-full w-full">
-      <div className="mt-5 flex flex-col gap-2 w-full">
+    <div className="relative h-full">
+      <div className="p-5 flex flex-col gap-2 max-h-[75vh] overflow-y-auto">
         {messages.map((m, i) => {
           const own = m.fromUserId === session?.user.id
 
@@ -164,13 +188,13 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
         )}
       </div>
 
-      <div className="bg-white fixed bottom-0 w-full pb-3 pt-1">
+      <div className="relative h-full mt-auto w-full flex justify-center">
         <Input
           value={content}
           onChange={handleChange}
           onKeyDown={(e) => e.key === "Enter" && handleMessageSend()}
           placeholder="Type a message..."
-          className="p-5 rounded-full w-[70vw] z-[56]"
+          className=" p-5 h-8 rounded-full w-full z-[56] mx-3 bg-white"
         />
       </div>
     </div>

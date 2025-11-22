@@ -17,9 +17,9 @@ async function layout({ children }: {
     const dms = await getAllDMs(session.user.id)
 
     return (
-        <div className='flex'>
+        <div className='flex h-full'>
             <Sidebar recentDMs={dms} />
-            <div className='m-3 w-full'>
+            <div className='mt-3 w-full'>
                 {children}
             </div>
         </div>
