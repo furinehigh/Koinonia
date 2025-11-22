@@ -35,7 +35,9 @@ I love building Full-Stack stuffs like this....:) thats true.... or maybe i want
 - Showing home posts in space mode, where posts orbit around their community name.
 - Users can send friends request, block friends, and reject requests easily.
 - Users can chat with their friends privately
-- 
+- Realtime chatting
+- Updated the whole UI to make it look like framework
+
 
 # Upcomming features and changes
 - True E2E based chatting system
@@ -89,6 +91,8 @@ Koinonia is a Siege(by Hack Club) project and aligns with following themes:
 - Fall
 - Spooky
 - Grid
+- Space
+- Framework
 
 I will prob try to align Koinonia with all the upcomming siege themes :)
 

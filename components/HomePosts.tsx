@@ -81,10 +81,10 @@ function HomePosts({ posts }: { posts: Post[] }) {
     <div className='flex flex-col'>
       <div className='flex justify-between '>
         <h1 className='font-semibold text-xl'>All Signals</h1>
-        <Button className='mr-2' variant={'outline'} onClick={() => {
+        {/* <Button className='mr-2' variant={'outline'} onClick={() => {
           if (viewMode == 'cards') setViewMode('grid')
           else setViewMode('cards')
-        }}>{viewMode == 'cards' ? 'Space' : 'Cards'}</Button>
+        }}>{viewMode == 'cards' ? 'Space' : 'Cards'}</Button> */}
       </div>
       {viewMode == 'grid' ? <SignalConstellation posts={posts} />
         : (
