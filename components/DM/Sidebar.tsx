@@ -65,7 +65,7 @@ function Sidebar({ recentDMs, isDisabled = false, userId }: { recentDMs: any[], 
                                         <span>{dm?.messages[0]?.content || ''}</span>
                                     </div>
                                 </div>
-                                {dm?.unreadMessages ? <span className='text-green-500 font-semibold'>{dm?.unreadMessages}</span> : (dm?.messages || []).filter((m: any) => m.status !== "read" && m.fromUserId !== userId) ? <span className='text-green-500 font-semibold'>{(dm?.messages || []).filter((m: any) => m.status !== "read" && m.fromUserId !== userId)?.length}</span> : ''}
+                                {dm?.unreadMessages ? <span className='text-green-500 font-semibold'>{dm?.unreadMessages}</span> : (dm?.messages || []).filter((m: any) => m.status !== "read" && m.fromUserId !== userId)?.length > 0 ? <span className='text-green-500 font-semibold'>{(dm?.messages || []).filter((m: any) => m.status !== "read" && m.fromUserId !== userId)?.length}</span> : ''}
                             </Link>
                         )
                     })}
