@@ -8,13 +8,16 @@ function ChatLayout({ otherUser, children }: {
     otherUser: any,
     children: React.ReactNode
 }) {
-    const [userStatus, setUserStatus] = useState('offline')
+    const [userStatus, setUserStatus] = useState({
+        status: 'online',
+        lastOnlineAt: new Date
+    })
     const socket = io('wss://wss.community.dishis.tech')
 
     useEffect(() => {
         socket.on('user-status-update', (data) => {
             if (data.userId == otherUser.id)
-                setUserStatus(data.status)
+                setUserStatus(data)
         })
     }, [])
     return (
@@ -26,7 +29,7 @@ function ChatLayout({ otherUser, children }: {
                     </Link>
                     <div className='flex flex-col'>
                         <Link href={'/u/' + otherUser.username}>{otherUser.name}</Link>
-                        <span className='text-xs '>{userStatus == 'online' ? 'online' : 'Last online ' + formatDistanceToNow(new Date(otherUser?.lastOnlineAt), { addSuffix: true })}</span>
+                        <span className='text-xs '>{userStatus.status == 'online' ? 'online' : 'Last online ' + formatDistanceToNow(new Date(userStatus?.lastOnlineAt), { addSuffix: true })}</span>
                     </div>
                 </div>
             </div>

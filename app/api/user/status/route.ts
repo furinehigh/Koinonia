@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
         const { status } = await req.json()
 
-        await redisPub.publish("user_status", JSON.stringify({ userId: session.user.id, status }))
+        await redisPub.publish("user_status", JSON.stringify({ userId: session.user.id, status, lastOnlineAt: new Date }))
 
         if (status == 'sleep' || status == 'offline') {
             await prisma.user.update({
