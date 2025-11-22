@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { Input } from "../ui/input"
-import { Button } from "../ui/button"
+import { useInView } from "react-intersection-observer"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import { io, Socket } from "socket.io-client"
@@ -201,38 +201,38 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     }
   }
 
-  useEffect(() => {
-    // wait for DOM to update
-    const run = () => {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (!entry.isIntersecting) return
-          if (!document.hasFocus()) return
+  // useEffect(() => {
+  //   // wait for DOM to update
+  //   const run = () => {
+  //     const observer = new IntersectionObserver((entries) => {
+  //       entries.forEach(entry => {
+  //         if (!entry.isIntersecting) return
+  //         if (!document.hasFocus()) return
 
-          const messageId = entry.target.getAttribute("data-id")
-          if (!messageId) return
+  //         const messageId = entry.target.getAttribute("data-id")
+  //         if (!messageId) return
 
-          if (!alreadyRead.current.has(messageId)) {
-            alreadyRead.current.add(messageId)
-            changeMessageStatus("read", messageId)
-          }
-        })
-      }, { threshold: 1 })
+  //         if (!alreadyRead.current.has(messageId)) {
+  //           alreadyRead.current.add(messageId)
+  //           changeMessageStatus("read", messageId)
+  //         }
+  //       })
+  //     }, { threshold: 1 })
 
-      messages.forEach(msg => {
-        if (msg.fromUserId === to) {
-          const el = messageRef.current.get(msg.id)
-          if (el) observer.observe(el)
-        }
-      })
+  //     messages.forEach(msg => {
+  //       if (msg.fromUserId === to) {
+  //         const el = messageRef.current.get(msg.id)
+  //         if (el) observer.observe(el)
+  //       }
+  //     })
 
-      return observer
-    }
+  //     return observer
+  //   }
 
-    const id = requestAnimationFrame(run)  // <-- ensures DOM is ready
+  //   const id = requestAnimationFrame(run)  // <-- ensures DOM is ready
 
-    return () => cancelAnimationFrame(id)
-  }, [messages])
+  //   return () => cancelAnimationFrame(id)
+  // }, [messages])
 
 
 
@@ -241,12 +241,23 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       <div ref={scrollRef} className="p-5 flex flex-col gap-2 max-h-[75vh] overflow-y-auto">
         {messages.map((m, i) => {
           const own = m.fromUserId === session?.user.id
+          const { ref, inView } = useInView({
+            threshold: 1,
+            triggerOnce: true, // <-- avoids repeated firing
+          })
+
+          useEffect(() => {
+            if (inView && !own && m.status !== "read") {
+              changeMessageStatus("read", m.id)
+            }
+          }, [inView])
+
 
           return (
             <div
               key={m.id}
               data-id={m.id}
-              ref={(el) => messageRef.current.set(m.id, el)}
+              ref={ref}
               className={`flex flex-col w-full ${own ? "items-end" : ""}`}
             >
 
@@ -274,7 +285,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
         {userTyping && (
           <div>
-            <p className="bg-gray-800 text-white rounded-lg w-fit px-2 py-1 text-sm">
+            <p className="bg-gray-100 rounded-lg w-fit px-2 py-1 text-sm">
               <div className="typing-indicator">
                 <span>.</span>
                 <span>.</span>
