@@ -22,19 +22,31 @@ export async function POST(req: NextRequest) {
                 status: 'sent'
             }
         })
+        await redisPub.publish('message-created', JSON.stringify({ from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt, dmId, id: data.id }))
 
-        await prisma.notification.create({
-            data:{
-                title: "You've got new messages.",
-                content: `Got DMs from user: ${session.user.username}`,
-                userId: to,
-                contentId: dmId,
-                slug: '/dm/' + dmId,
-                type: 'new_dms'
+
+        setTimeout(async () => {
+            const messages = await prisma.messages.findMany({
+                where: {
+                    status: 'sent'
+                }
+            })
+
+            if (messages.length > 1) {
+                await prisma.notification.create({
+                    data: {
+                        title: "You've got new messages.",
+                        content: `Got DMs from user: ${session.user.username}`,
+                        userId: to,
+                        contentId: dmId,
+                        slug: '/dm/' + dmId,
+                        type: 'new_dms'
+                    }
+                })
+
             }
-        })
+        }, 3000)
 
-        await redisPub.publish('message-created', JSON.stringify({from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt, dmId, id: data.id }))
 
         return NextResponse.json({ success: true, messageId: data.id })
     } catch (e: any) {
