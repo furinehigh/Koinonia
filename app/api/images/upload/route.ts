@@ -2,47 +2,61 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   try {
-    const { image, name, expiration = "0" } = await req.json()
+    const form = await req.formData()
 
-    // Create FormData
-    const formData = new FormData()
-    formData.append("image", image) // base64 string
-    formData.append("name", name)
-    formData.append("expiration", expiration.toString())
+    const file = form.get("image") as File | null
+    const name = form.get("name") as string
+    const expiration = form.get("expiration")?.toString() ?? "0"
+
+    if (!file) return NextResponse.json({ error: "Missing file" }, { status: 400 })
+
+    // re-forward FormData to RapidAPI
+    const uploadData = new FormData()
+    uploadData.append("image", file)
+    uploadData.append("name", name)
+    uploadData.append("expiration", expiration)
 
     const res = await fetch(
       "https://upload-images-hosting-get-url.p.rapidapi.com/upload",
       {
         method: "POST",
         headers: {
-          "x-rapidapi-host":
-            "upload-images-hosting-get-url.p.rapidapi.com",
+          "x-rapidapi-host": "upload-images-hosting-get-url.p.rapidapi.com",
           "x-rapidapi-key": process.env.RAPIDAPI_KEY!,
-          // Do NOT set Content-Type manually, fetch will set it for FormData
         },
-        body: formData,
+        body: uploadData,
       }
     )
 
     if (!res.ok) {
-      return NextResponse.json({ error: 'Error occurred while uploading the image' }, { status: 502 })
+      return NextResponse.json({ error: "Upload failed" }, { status: 502 })
     }
+
     const data = await res.json()
 
-    const modAPISecret = process.env.MOD_API_SECRET
+    // moderation
+    const modRes = await fetch(
+      `https://api.sightengine.com/1.0/check.json?url=${data.data.url}&models=nudity-2.1,offensive-2.0,text-content,gore-2.0,text,tobacco,self-harm&api_user=31182880&api_secret=${process.env.MOD_API_SECRET}`
+    )
 
-    const modRes = await fetch(`https://api.sightengine.com/1.0/check.json?url=${data.data.url}&models=nudity-2.1,offensive-2.0,text-content,gore-2.0,text,tobacco,self-harm&api_user=31182880&api_secret=${modAPISecret}`)
+    const modJson = await modRes.json()
 
-    const modResData = await modRes.json()
+    const safe =
+      modJson.nudity.none > 0.9 &&
+      modJson.offensive.middle_finger < 0.09 &&
+      modJson.gore.prob < 0.1 &&
+      modJson.tobacco.prob < 0.1 &&
+      modJson["self-harm"].prob < 0.1
 
-    const isImageSafe = modResData.nudity.none > 0.90 && modResData.offensive.middle_finger < 0.09 && modResData.gore.prob < 0.1 && modResData.tobacco.prob < 0.1 && modResData['self-harm'].prob < 0.1
-
-    if (!isImageSafe) {
-      return NextResponse.json({ error: 'Uploaded image was not safe for the community.' }, { status: 400 })
+    if (!safe) {
+      return NextResponse.json(
+        { error: "Image rejected by moderation." },
+        { status: 400 }
+      )
     }
 
     return NextResponse.json(data)
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

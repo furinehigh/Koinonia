@@ -43,49 +43,44 @@ function CreatePost({ slug }: {
         (inputRef.current as any).click()
     }
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return
+    
         const file = e.target.files[0]
         const url = URL.createObjectURL(file)
         setImage(url)
         setUploading(true)
+    
         try {
-            const base64 = await fileToBase64(file)
-
-            const res = await fetch("/api/images/upload", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image: base64, name: file.name }),
+          const formData = new FormData()
+          formData.append("image", file)
+          formData.append("name", file.name)
+          formData.append("expiration", "0") // optional
+    
+          const res = await fetch("/api/images/upload", {
+            method: "POST",
+            body: formData, // no headers!
+          })
+    
+          const data = await res.json()
+    
+          if (!res.ok || data.error) {
+            setImage("")
+            toast.error(data.error || "Upload failed", {
+              description: "Try again later.",
             })
-            if (!res.ok) {
-                setImage('')
-                return;
-            }
-
-            const data = await res.json()
-
-            setFormData(prev => ({
-                ...prev,
-                imageUrl: data.data.url
-            }))
-        } catch (e: any) {
-            console.error(e.message)
+            return
+          }
+    
+          setFormData(prev => ({ ...prev, imageUrl: data.data.url }))
+        } catch (err: any) {
+          console.error(err)
+          toast.error("Something went wrong.")
         } finally {
-            setUploading(false)
+          setUploading(false)
         }
-    }
-
-    const fileToBase64 = (file: File) =>
-        new Promise<string>((resolve, reject) => {
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onload = () => {
-                // Remove the data:image/...;base64, prefix
-                const base64 = (reader.result as string).split(",")[1]
-                resolve(base64)
-            }
-            reader.onerror = (err) => reject(err)
-        })
+      }
+    
 
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

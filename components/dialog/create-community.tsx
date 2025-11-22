@@ -34,41 +34,42 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
+
     const file = e.target.files[0]
     const url = URL.createObjectURL(file)
     setAvatar(url)
     setUploading(true)
+
     try {
-      const base64 = await fileToBase64(file)
+      const formData = new FormData()
+      formData.append("image", file)
+      formData.append("name", file.name)
+      formData.append("expiration", "0") // optional
+
       const res = await fetch("/api/images/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64, name: file.name }),
+        body: formData, // no headers!
       })
+
       const data = await res.json()
+
       if (!res.ok || data.error) {
-        setAvatar('')
-        toast.error(data.error || 'Error occurred while uploading the image.', {description: 'Please try again or contact support.'})
-        return;
+        setAvatar("")
+        toast.error(data.error || "Upload failed", {
+          description: "Try again later.",
+        })
+        return
       }
-      setFormData(p => ({ ...p, avatarUrl: data.data.url }))
-    } catch (e: any) {
-      console.error(e.message)
+
+      setFormData(prev => ({ ...prev, avatarUrl: data.data.url }))
+    } catch (err: any) {
+      console.error(err)
+      toast.error("Something went wrong.")
     } finally {
       setUploading(false)
     }
   }
 
-  const fileToBase64 = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(",")[1]
-        resolve(base64)
-      }
-      reader.onerror = reject
-    })
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -105,7 +106,7 @@ function CreateCommunityDialog({ isOpen, handleOpenChange }: {
       updateMana(mana - 10)
       toast.success("Network created!", { description: "You’ve spent 10 mana" })
       handleOpenChange(false)
-      router.push('/n/'+formData.slug)
+      router.push('/n/' + formData.slug)
     } catch (e: any) {
       toast.error(e.message)
     } finally {
