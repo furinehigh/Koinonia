@@ -77,7 +77,6 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     return () => {
       s.off("message-created")
       s.off("user-typing-status")
-      s.off("message-status")
     }
   }, [dmId])
 
