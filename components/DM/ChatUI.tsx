@@ -58,8 +58,10 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
     // new message from other user
     s.on("message-created", (data) => {
-      if (data.dmId === dmId && data.from == to) {
-        setMessages((prev) => [...prev, { ...data, fromUserId: data.from }])
+      if (data.dmId === dmId) {
+        if (data.from == to) {
+          setMessages((prev) => [...prev, { ...data, fromUserId: data.from }])
+        }
         changeMessageStatus('delivered', data.id)
       }
     })
@@ -200,6 +202,8 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   }
 
   useEffect(() => {
+  // wait for DOM to update
+  const run = () => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return
@@ -222,8 +226,14 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       }
     })
 
-    return () => observer.disconnect()
-  }, [messages])
+    return observer
+  }
+
+  const id = requestAnimationFrame(run)  // <-- ensures DOM is ready
+
+  return () => cancelAnimationFrame(id)
+}, [messages])
+
 
 
   return (
