@@ -73,19 +73,38 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       }
     })
 
-    // message status
-    s.on("message-status", (data) => {
-      if (data.dmId == dmId && messages.some(m => m.id == data.messageId)) {
-        setMessages(prev => prev.map(m => m.id == data.messageId ? { ...m, status: data.status, readAt: data.readAt } : m))
-      }
-    })
-
     return () => {
       s.off("message-created")
       s.off("user-typing-status")
       s.off("message-status")
     }
   }, [dmId])
+
+  useEffect(() => {
+    if (!socketRef.current) {
+      socketRef.current = io("wss://wss.community.dishis.tech", {
+        transports: ["websocket"],
+      })
+    }
+
+    const s = socketRef.current
+
+    s.on("message-status", (data) => {
+      if (data.dmId !== dmId) return;
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === data.messageId
+            ? { ...m, status: data.status, readAt: data.readAt }
+            : m
+        )
+      )
+    })
+
+    return () => {
+      s.off("message-status")
+    }
+  }, [])  // <--- no messages dependency
+
 
   const callAPI = (typing: boolean) => {
     if (abortRef.current) abortRef.current.abort()
