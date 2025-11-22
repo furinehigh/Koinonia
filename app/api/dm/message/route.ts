@@ -11,10 +11,11 @@ export async function POST(req: NextRequest) {
         if (!session?.user || !session.user.id)
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-        const { content, dmId, to } = await req.json()
+        const { content, dmId, to, id } = await req.json()
 
         const data = await prisma.messages.create({
             data: {
+                id,
                 content,
                 dmId,
                 fromUserId: session.user.id,

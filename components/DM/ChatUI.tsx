@@ -37,6 +37,13 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
   }, [messages])
 
+  const generateSecureId = (len = 32) => {
+    const arr = new Uint8Array(len)
+    crypto.getRandomValues(arr)
+    return Array.from(arr, v => v.toString(16).padStart(2, "0")).join("")
+  }
+
+
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -131,10 +138,13 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   const handleMessageSend = async () => {
     if (!content.trim()) return
 
+    const messageId = generateSecureId()
+
     // temporary optimistic message
     setMessages((prev) => [
       ...prev,
       {
+        id: messageId,
         content,
         createdAt: new Date(),
         status: "sent",
@@ -156,7 +166,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     try {
       const res = await fetch("/api/dm/message", {
         method: "POST",
-        body: JSON.stringify({ content, to, dmId }),
+        body: JSON.stringify({ content, to, dmId, id: messageId }),
       })
 
       const data = await res.json()
@@ -190,7 +200,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   useEffect(() => {
     if (!document.hasFocus()) return
 
-    const seenMessages: string[] =[]
+    const seenMessages: string[] = []
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
