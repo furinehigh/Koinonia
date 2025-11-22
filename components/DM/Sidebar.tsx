@@ -37,7 +37,7 @@ function Sidebar({ recentDMs, isDisabled = false }: { recentDMs: any[], isDisabl
                                 </div>
                                 <div className='flex flex-col '>
                                     <span className='font-semibold'>{other.name}</span>
-                                    <span>{dm.messages[0]?.content || ''}</span>
+                                    <span>{dm?.messages[0]?.content || ''}</span>
                                 </div>
                             </Link>
                         )

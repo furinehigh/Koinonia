@@ -202,37 +202,37 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   }
 
   useEffect(() => {
-  // wait for DOM to update
-  const run = () => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return
-        if (!document.hasFocus()) return
+    // wait for DOM to update
+    const run = () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return
+          if (!document.hasFocus()) return
 
-        const messageId = entry.target.getAttribute("data-id")
-        if (!messageId) return
+          const messageId = entry.target.getAttribute("data-id")
+          if (!messageId) return
 
-        if (!alreadyRead.current.has(messageId)) {
-          alreadyRead.current.add(messageId)
-          changeMessageStatus("read", messageId)
+          if (!alreadyRead.current.has(messageId)) {
+            alreadyRead.current.add(messageId)
+            changeMessageStatus("read", messageId)
+          }
+        })
+      }, { threshold: 1 })
+
+      messages.forEach(msg => {
+        if (msg.fromUserId === to) {
+          const el = messageRef.current.get(msg.id)
+          if (el) observer.observe(el)
         }
       })
-    }, { threshold: 1 })
 
-    messages.forEach(msg => {
-      if (msg.fromUserId === to) {
-        const el = messageRef.current.get(msg.id)
-        if (el) observer.observe(el)
-      }
-    })
+      return observer
+    }
 
-    return observer
-  }
+    const id = requestAnimationFrame(run)  // <-- ensures DOM is ready
 
-  const id = requestAnimationFrame(run)  // <-- ensures DOM is ready
-
-  return () => cancelAnimationFrame(id)
-}, [messages])
+    return () => cancelAnimationFrame(id)
+  }, [messages])
 
 
 
@@ -257,7 +257,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
                     : "bg-gray-100 rounded-lg w-fit px-2 py-1 text-sm"
                 }
               >
-                {m.content}
+                {m?.content}
               </p>
 
               <span className="text-[10px]">
@@ -266,7 +266,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
                   minute: "2-digit",
                   hour12: true,
                 })}{" "}
-                • {m.status}
+                • {m?.status}
               </span>
             </div>
           )
