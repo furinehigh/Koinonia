@@ -18,7 +18,7 @@ async function layout({ children }: {
 
     return (
         <div className='flex h-full'>
-            <Sidebar recentDMs={dms} />
+            <Sidebar recentDMs={dms} userId={session.user.id} />
             <div className='mt-3 w-full'>
                 {children}
             </div>
