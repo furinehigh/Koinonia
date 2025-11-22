@@ -153,7 +153,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     if (drafts) {
       const parsedDrafts = JSON.parse(drafts || '') as Array<any> || []
       if (parsedDrafts) {
-        setContent(parsedDrafts.filter(d => d.dmId == dmId)[0].content)
+        setContent(parsedDrafts.filter(d => d.dmId == dmId)[0]?.content || '')
       }
     }
   }, [])

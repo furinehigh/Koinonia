@@ -12,7 +12,7 @@ async function layout({ params, children }: {
   const { id } = await params
   const session = await getServerSession(authOptions)
 
-  const dm = await getDMDetails(session?.user.id, id)
+  const dm = await getDMDetails(session?.user.id || '', id)
   if (!dm) return NotFound()
 
   const otherUser = dm.otherUser

@@ -20,7 +20,7 @@ function ChatLayout({ otherUser }: {
         })
     }, [])
     return (
-        <div className="border-b px-4 py-3 flex items-center gap-3 bg-white">
+        <div className="border-b px-4 py-2 flex items-center gap-3 bg-white">
             <img src={otherUser.image || "/logo.png"} className="h-9 w-9 border object-cover" />
 
             <div className="flex flex-col">

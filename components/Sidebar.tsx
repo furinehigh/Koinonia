@@ -16,7 +16,7 @@ function Sidebar({ recentCommunities, userSpells, isDisabled = false }: { recent
   return (
     <div hidden={isDisabled}
       className="fixed z-50 mt-14 border-r h-[95vh] px-3 py-4 w-fit bg-white flex flex-col justify-between text-neutral-900">
-      
+
       {/* Navigation */}
       <div className="flex flex-col items-center gap-4">
         {[{ href: '/', icon: <Home /> }, { href: '/settings', icon: <Settings /> }, { href: '/dm', icon: <MessageSquareText /> }]
@@ -35,8 +35,10 @@ function Sidebar({ recentCommunities, userSpells, isDisabled = false }: { recent
         {recentCommunities.map((c) => (
           <Tooltip key={c.slug}>
             <TooltipTrigger>
-              <Link href={`/n/${c.slug}`} className="border p-[2px] hover:border-black transition">
-                <img src={c.avatarUrl || '/logo.png'} className="h-8 w-8 object-cover" />
+              <Link href={`/n/${c.slug}`}>
+                <div className="border p-[2px] hover:border-black transition">
+                  <img src={c.avatarUrl || '/logo.png'} className="h-8 w-8 object-cover" />
+                </div>
               </Link>
             </TooltipTrigger>
             <TooltipContent>{c.name}</TooltipContent>
@@ -60,12 +62,12 @@ function Sidebar({ recentCommunities, userSpells, isDisabled = false }: { recent
 
         {/* Pixel mana cell */}
         <div className="framework-fire">
-  <div className="core"></div>
-  <div className="flame"></div>
-  <div className="flame"></div>
-  <div className="flame"></div>
-  <div className="mana-readout">{mana}</div>
-</div>
+          <div className="core"></div>
+          <div className="flame"></div>
+          <div className="flame"></div>
+          <div className="flame"></div>
+          <div className="mana-readout">{mana}</div>
+        </div>
 
       </div>
     </div>

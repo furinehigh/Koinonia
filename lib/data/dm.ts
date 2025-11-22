@@ -45,7 +45,16 @@ export const getAllDMs = async (userId: string) => {
 export const getDMDetails = async (userId: string, dmId: string) => {
   try {
     const dm = await prisma.dM.findUnique({
-      where: { id: dmId },
+      where: { id: dmId,
+        OR: [
+          {friendship: {
+            requesterId: userId
+          }},
+          {friendship: {
+            receiverId: userId
+          }}
+        ]
+       },
       include: {
         friendship: {
           include: {
