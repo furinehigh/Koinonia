@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { Input } from "../ui/input"
-import { useInView } from "react-intersection-observer"
+import { Button } from "../ui/button"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import { io, Socket } from "socket.io-client"
@@ -201,38 +201,24 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     }
   }
 
-  // useEffect(() => {
-  //   // wait for DOM to update
-  //   const run = () => {
-  //     const observer = new IntersectionObserver((entries) => {
-  //       entries.forEach(entry => {
-  //         if (!entry.isIntersecting) return
-  //         if (!document.hasFocus()) return
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
 
-  //         const messageId = entry.target.getAttribute("data-id")
-  //         if (!messageId) return
+    const handler = () => {
+      const isAtBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 10
 
-  //         if (!alreadyRead.current.has(messageId)) {
-  //           alreadyRead.current.add(messageId)
-  //           changeMessageStatus("read", messageId)
-  //         }
-  //       })
-  //     }, { threshold: 1 })
+      if (isAtBottom) {
+        const unread = messages.filter(m => m.fromUserId === to && m.status !== "read")
+        unread.forEach(m => changeMessageStatus("read", m.id))
+      }
+    }
 
-  //     messages.forEach(msg => {
-  //       if (msg.fromUserId === to) {
-  //         const el = messageRef.current.get(msg.id)
-  //         if (el) observer.observe(el)
-  //       }
-  //     })
+    el.addEventListener("scroll", handler)
+    handler() // run once on mount
 
-  //     return observer
-  //   }
-
-  //   const id = requestAnimationFrame(run)  // <-- ensures DOM is ready
-
-  //   return () => cancelAnimationFrame(id)
-  // }, [messages])
+    return () => el.removeEventListener("scroll", handler)
+  }, [messages])
 
 
 
@@ -241,23 +227,12 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       <div ref={scrollRef} className="p-5 flex flex-col gap-2 max-h-[75vh] overflow-y-auto">
         {messages.map((m, i) => {
           const own = m.fromUserId === session?.user.id
-          const { ref, inView } = useInView({
-            threshold: 1,
-            triggerOnce: true, // <-- avoids repeated firing
-          })
-
-          useEffect(() => {
-            if (inView && !own && m.status !== "read") {
-              changeMessageStatus("read", m.id)
-            }
-          }, [inView])
-
 
           return (
             <div
               key={m.id}
               data-id={m.id}
-              ref={ref}
+              ref={(el) => messageRef.current.set(m.id, el)}
               className={`flex flex-col w-full ${own ? "items-end" : ""}`}
             >
 
