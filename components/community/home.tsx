@@ -1,9 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
-} from "@/components/ui/card"
-import { Ban, Loader2, MessageSquare, Signal, SignalHigh, SignalLow, Sparkles, Wand } from 'lucide-react'
+import { Ban, Loader2, MessageSquare, Signal, SignalHigh, SignalLow, Wand } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
@@ -20,6 +17,7 @@ import '@/styles/flamebutton.scss'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import UserPopup from '../user/UserPopup'
+import FrameworkPanel from '@/components/framework/panel' // <— new
 
 function CommHome({ posts }: { posts: Post[] }) {
   const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
@@ -40,46 +38,22 @@ function CommHome({ posts }: { posts: Post[] }) {
   const handleVote = async (postId: string, action: 'upvote' | 'downvote') => {
     const isUp = action === 'upvote'
     const current = userVotes[postId] ?? null
-    const newVote =
-      current === (isUp ? 'up' : 'down')
-        ? null
-        : isUp
-          ? 'up'
-          : 'down'
-    let serverAction;
+    const newVote = current === (isUp ? 'up' : 'down') ? null : isUp ? 'up' : 'down'
 
     let delta = 0
+    let serverAction: string | undefined
 
-    if (current === 'up' && newVote === null) {
-      serverAction = 'undo-upvote'
-      delta = -1
-    } else if (current === 'down' && newVote === null) {
-      serverAction = 'undo-downvote'
-      delta = +1
-    } else if (current === 'up' && newVote === 'down') {
-      serverAction = 'up-downvote'
-      delta = -2
-    } else if (current === 'down' && newVote === 'up') {
-      serverAction = 'down-upvote'
-      delta = +2
-    } else if (current === null && newVote === 'up') {
-      serverAction = 'upvote'
-      delta = +1
-    } else if (current === null && newVote === 'down') {
-      serverAction = 'downvote'
-      delta = -1
-    }
+    if (current === 'up' && newVote === null) { serverAction = 'undo-upvote'; delta = -1 }
+    else if (current === 'down' && newVote === null) { serverAction = 'undo-downvote'; delta = +1 }
+    else if (current === 'up' && newVote === 'down') { serverAction = 'up-downvote'; delta = -2 }
+    else if (current === 'down' && newVote === 'up') { serverAction = 'down-upvote'; delta = +2 }
+    else if (current === null && newVote === 'up') { serverAction = 'upvote'; delta = +1 }
+    else if (current === null && newVote === 'down') { serverAction = 'downvote'; delta = -1 }
 
-
-    setLocalPosts(prev =>
-      prev.map(p => (p.id === postId ? { ...p, votes: p.votes + delta } : p))
-    )
-
-    const updatedVotes = { ...userVotes, [postId]: newVote }
-    saveVotes(updatedVotes)
+    setLocalPosts(prev => prev.map(p => (p.id === postId ? { ...p, votes: p.votes + delta } : p)))
+    saveVotes({ ...userVotes, [postId]: newVote })
 
     try {
-
       await fetch('/api/post/actions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -97,20 +71,11 @@ function CommHome({ posts }: { posts: Post[] }) {
         method: 'PUT',
         body: JSON.stringify({ approve: true, id })
       })
-
       const data = await res.json()
 
-      if (data.error) {
-        toast.error(data.error)
-        return;
-      }
+      if (data.error) return toast.error(data.error)
 
-      setLocalPosts(
-        localPosts.map(p =>
-          p.id === data.res.id ? { ...p, isApproved: true } : p
-        )
-      )
-
+      setLocalPosts(localPosts.map(p => p.id === data.res.id ? { ...p, isApproved: true } : p))
     } catch (e: any) {
       toast.error("Error approving post!", { description: e.message })
     } finally {
@@ -123,11 +88,7 @@ function CommHome({ posts }: { posts: Post[] }) {
       const res = await fetch('/api/spell/cast', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetType: 'post',
-          targetId: postId,
-          spellName,
-        }),
+        body: JSON.stringify({ targetType: 'post', targetId: postId, spellName }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
@@ -141,135 +102,110 @@ function CommHome({ posts }: { posts: Post[] }) {
 
   return (
     <div className='flex flex-col'>
-      <div className='my-5'>
-        <h1 className='font-semibold'>Announcements</h1>
-        <Card className='rounded shadow-none w-xs m-3'>
-          <CardHeader>
-            <CardTitle>Welcome!!</CardTitle>
-            <CardDescription>
-              We are very happy to see you here in this network, start new posts and keep earning Mana and trust.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+
+      {/* Announcement */}
+      <div className='mt-5 mb-2'>
+        <h1 className='font-semibold tracking-wide text-sm uppercase opacity-70'>Announcements</h1>
+        <FrameworkPanel className='w-xs mt-3'>
+          <div className='font-semibold text-base tracking-tight mb-1'>Welcome</div>
+          <div className='text-sm opacity-70'>
+            Glad you're here. Participate, share and earn Mana.
+          </div>
+        </FrameworkPanel>
       </div>
 
+      {/* Posts */}
       <div className='my-5'>
-        <h1 className='font-semibold'>Signals</h1>
+        <h1 className='font-semibold tracking-wide text-sm uppercase opacity-70'>Signals</h1>
 
-        {localPosts.length === 0 && <div>No signals found in this network.</div>}
+        {localPosts.length === 0 && <div className='opacity-60 text-sm mt-3'>No signals found here.</div>}
 
         {localPosts.map(p => (
-          <Card key={p.id} className='rounded shadow-none m-3'>
-            <CardHeader>
-              <CardTitle>
-                <div className='flex justify-between'>
-                  <UserPopup user={p.isDeleted ? {} : p.author}>
-                    <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='flex items-center space-x-2 group'>
-                      <div className='h-10 w-10 rounded border overflow-hidden'>
-                        {p.isDeleted ? <Ban className='h-full w-full' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
-                      </div>
-                      <div>
-                        <div className='font-semibold group-hover:underline underline-offset-2'>
-                          {p.isDeleted ? (
-                            'Post deleted'
-                          ) : (
-                            <>
-                              {p.author.name} {' '}
-                              {p.edited && (
-                                <span className='text-xs opacity-70'>
-                                  (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
-                        <div className='text-xs text-muted-foreground'>
-                          {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
-                        </div>
-                      </div>
-                    </Link>
+          <FrameworkPanel key={p.id} className='mt-4'>
 
-                  </UserPopup>
-                  {p.isApproved ? <DropdownMenu>
-                    <DropdownMenuTrigger disabled={p.isDeleted} className='cursor-pointer'>
-                      <div className='flex space-x-2 items-center'>
-                        <Button variant='ghost' size='sm'>
-                          <Wand className='h-4 w-4' />
-                        </Button>
-                        <div className='text-gray-500'>
-                          {p.votes == 0 ? <div>no signal</div> : p.votes < 0 ? <div>signal fading</div> : (p.votes > 0 && p.votes < 3) ? <SignalLow /> : (p.votes > 2 && p.votes < 6) ? <SignalHigh /> : <Signal />}
-                        </div>
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => castSpell(p.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => castSpell(p.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu> : (
-                    <div>
-                      <Button onClick={() => handlePostApproval(p.id)}>{approvalLoading ? <Loader2 className='animate-spin' /> : 'Approve'}</Button>
+            {/* Header */}
+            <div className='flex justify-between border-b pb-2 mb-2'>
+              <UserPopup user={p.isDeleted ? {} : p.author}>
+                <Link className='flex items-center gap-2 group' href={p.isDeleted ? '#' : `/u/${p.author.username}`}>
+                  <img src={p.author.image || 'logo.png'} className='h-8 w-8 border object-cover' />
+                  <div>
+                    <span className='font-medium text-sm group-hover:underline'>
+                      {p.isDeleted ? 'Deleted user' : p.author.name}
+                    </span>
+                    <div className='text-[10px] opacity-60'>
+                      {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
                     </div>
-                  )}
-                </div>
-              </CardTitle>
-              {p.isDeleted ? (
-                <>
-                  <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>Post has been deleted</Link>
-                  <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
-                </>
-              ) : (
-                <><Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>{p.title}</Link><CardDescription>{p.content}</CardDescription></>
-              )}
-            </CardHeader>
-
-            <CardContent>
-              {(p.imageUrl && !p.isDeleted) && (
-                <Link href={'/n/' + p.community?.slug + '/post/' + p.id} >
-                  <div className='border rounded h-fit w-fit overflow-hidden'>
-
-                    <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
                   </div>
                 </Link>
+              </UserPopup>
+
+              {/* Spell + Vote state */}
+              {p.isApproved ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger disabled={p.isDeleted} className='cursor-pointer'>
+                    <div className='flex gap-2 items-center'>
+                      <Button variant='ghost' size='sm'>
+                        <Wand className='h-4 w-4' />
+                      </Button>
+                      <div className='text-xs opacity-60'>
+                        {p.votes <= 0 ? 'weak' :
+                          p.votes < 3 ? 'stable' :
+                            p.votes < 6 ? 'strong' : 'boosted'}
+                      </div>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>Spell Action</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => castSpell(p.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => castSpell(p.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button onClick={() => handlePostApproval(p.id)}>
+                  {approvalLoading ? <Loader2 className='animate-spin' /> : 'Approve'}
+                </Button>
               )}
-            </CardContent>
+            </div>
 
-            <CardFooter className='flex flex-col items-start'>
-              <div className='flex justify-between w-full'>
-                <div className='flex items-center space-x-1'>
-                  <span>{p.votes}</span>
+            {/* Body */}
+            {!p.isDeleted && (
+              <>
+                <Link href={`/n/${p.community?.slug}/post/${p.id}`} className='font-semibold text-lg tracking-tight'>
+                  {p.title}
+                </Link>
+                <p className='text-sm opacity-70 mt-1'>{p.content}</p>
+              </>
+            )}
 
-                  <SignalHigh
-                    onClick={() => { if (!p.isDeleted) handleVote(p.id, 'upvote') }}
-                    className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
-                      ? 'bg-gray-200'
-                      : 'hover:bg-gray-200'
-                      }`}
-                  />
+            {p.imageUrl && !p.isDeleted && (
+              <img src={p.imageUrl} className='mt-3 border max-h-[30vh] object-cover' />
+            )}
 
-                  <SignalLow
-                    onClick={() => { if (!p.isDeleted) handleVote(p.id, 'downvote') }}
-                    className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
-                      ? 'bg-gray-200'
-                      : 'hover:bg-gray-200'
-                      }`}
-                  />
-                </div>
+            {/* Footer */}
+            <div className='border-t mt-3 pt-3 text-xs flex justify-between'>
+              <div className='flex items-center gap-2'>
+                <span>{p.votes}</span>
 
-                <div>
-                  <span>{p.views}</span> signal strength
-                </div>
+                <SignalHigh
+                  onClick={() => !p.isDeleted && handleVote(p.id, 'upvote')}
+                  className='cursor-pointer border p-0.5'
+                />
+                <SignalLow
+                  onClick={() => !p.isDeleted && handleVote(p.id, 'downvote')}
+                  className='cursor-pointer border p-0.5'
+                />
               </div>
-              <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
+
+              <div className='opacity-60 flex gap-1 items-center'>
                 <MessageSquare size={14} />
-                <span>{p._count.comments} comments</span>
-              </p>
-            </CardFooter>
-          </Card>
+                {p._count.comments}
+              </div>
+            </div>
+          </FrameworkPanel>
         ))}
       </div>
-    </div >
+    </div>
   )
 }
 

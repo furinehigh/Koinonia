@@ -1,62 +1,66 @@
 "use client"
+
 import React, { useState } from "react"
-import {
-  Card,
-  CardContent
-} from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Link from "next/link"
-import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from "@/components/ui/select"
+import { toast } from "sonner"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select"
+import type { FriendEntry, FriendStatus } from "@/types"
+import FrameworkPanel from "../framework/panel"
 
-function Friends({ initialFriends }: { initialFriends: any[] }) {
-  const sortFriends = (arr: any[]) => {
-    const order = { pending: 0, accepted: 1, blocked: 2 }
-    return [...arr].sort((a, b) => order[a.status] - order[b.status])
-  }
+interface FriendsProps {
+  initialFriends: FriendEntry[]
+}
 
-  const [friends, setFriends] = useState<any[]>(sortFriends(initialFriends))
-  const [search, setSearch] = useState("")
-  const [filter, setFilter] = useState<"all" | "pending" | "accepted" | "blocked">("all")
-  const [sortByName, setSortByName] = useState<"asc" | "desc" | null>(null)
-  const [loading, setLoading] = useState(false)
+export default function Friends({ initialFriends }: FriendsProps) {
   const router = useRouter()
 
-  const handleFriendshipAction = async (id: string, action: "block" | "accept" | "undo" | "remove") => {
+  const sortPriority: Record<FriendStatus, number> = {
+    pending: 0,
+    accepted: 1,
+    blocked: 2,
+  }
+
+  const sortedInitial = [...initialFriends].sort((a, b) => sortPriority[a.status] - sortPriority[b.status])
+
+  const [friends, setFriends] = useState(sortedInitial)
+  const [query, setQuery] = useState("")
+  const [filter, setFilter] = useState<"all" | FriendStatus>("all")
+  const [sorting, setSorting] = useState<"asc" | "desc" | " ">(" ")
+  const [loading, setLoading] = useState(false)
+
+  const handleAction = async (id: string, action: "accept" | "block" | "undo" | "remove") => {
     try {
       setLoading(true)
+
       const res = await fetch("/api/friends/actions", {
         method: "PUT",
-        body: JSON.stringify({ action, id })
+        body: JSON.stringify({ action, id }),
       })
 
       const data = await res.json()
-      if (data.error || !res.ok) {
-        toast.error(data.error || "Unexpected error occurred!!")
-        return
-      }
 
-      if (action === "accept") toast.success("Successfully accepted the request!")
-      else if (action === "block") toast.success("Successfully blocked the friend!")
-      else if (action == "undo") toast.success("Unblocked successfully")
-      else toast.success("Friend request removed successfully")
+      if (!res.ok || data.error) return toast.error(data.error)
+
+      toast.success(data.message || "Updated")
 
       setFriends(prev =>
-        sortFriends(
-          prev.map(f =>
-            f.id === id
-              ? { ...f, status: action === "block" ? "blocked" : "accepted", isDeleted: action === "remove" }
-              : f
-          )
-        )
+        prev.map(f =>
+          f.id === id
+            ? {
+                ...f,
+                status:
+                  action === "block"
+                    ? "blocked"
+                    : action === "accept"
+                    ? "accepted"
+                    : f.status,
+                isDeleted: action === "remove",
+              }
+            : f,
+        ),
       )
     } catch (e: any) {
       toast.error(e.message)
@@ -65,33 +69,17 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
     }
   }
 
-  const processedFriends = friends
-    .filter(f => {
-      if (filter !== "all" && f.status !== filter) return false
-      return f.otherUser.name.toLowerCase().includes(search.toLowerCase())
-    })
-    .sort((a, b) => {
-      if (!sortByName) return 0
-      const A = a.otherUser.name
-      const B = b.otherUser.name
-      return sortByName === "asc" ? A.localeCompare(B) : B.localeCompare(A)
-    })
-
-  const handleMessageClick = async (friendshipId: string) => {
+  const handleMessage = async (friendshipId: string) => {
     try {
       setLoading(true)
       const res = await fetch("/api/dm", {
         method: "POST",
-        body: JSON.stringify({ friendshipId })
+        body: JSON.stringify({ friendshipId }),
       })
 
       const data = await res.json()
-      if (data.error || !res.ok) {
-        toast.error(data.error)
-        return
-      }
-
-      router.push("/dm/" + data.data.id)
+      if (!res.ok || data.error) return toast.error(data.error)
+      router.push(`/dm/${data.data.id}`)
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -99,20 +87,32 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
     }
   }
 
-  return (
-    <div className="mx-3">
-      <h1 className="text-xl font-semibold">Your friends</h1>
+  const visibleFriends = friends
+    .filter(f => !f.isDeleted)
+    .filter(f => (filter === "all" ? true : f.status === filter))
+    .filter(f => f.otherUser.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => {
+      if (!sorting) return 0
+      return sorting === "asc"
+        ? a.otherUser.name.localeCompare(b.otherUser.name)
+        : b.otherUser.name.localeCompare(a.otherUser.name)
+    })
 
-      <div className="mt-4 flex gap-3 items-center">
+  return (
+    <div className="space-y-6 px-4">
+      <h1 className="text-lg font-semibold tracking-tight">Friends</h1>
+
+      {/* Filters */}
+      <div className="flex gap-3 items-center">
         <Input
-          placeholder="Search friends..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          placeholder="Search…"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
           className="w-full"
         />
 
-        <Select value={filter} onValueChange={v => setFilter(v)}>
-          <SelectTrigger className="w-36">
+        <Select value={filter} onValueChange={val => setFilter(val as any)}>
+          <SelectTrigger className="w-28 text-xs">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent>
@@ -123,9 +123,9 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
           </SelectContent>
         </Select>
 
-        <Select value={sortByName || " "} onValueChange={v => setSortByName(v || null)}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Sort by name" />
+        <Select value={sorting || ""} onValueChange={val => setSorting(val || null)}>
+          <SelectTrigger className="w-28 text-xs">
+            <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value=" ">None</SelectItem>
@@ -135,111 +135,98 @@ function Friends({ initialFriends }: { initialFriends: any[] }) {
         </Select>
       </div>
 
-      {processedFriends.length === 0 && (
-        <p className="mt-5 text-xs">No results for the current filter..</p>
+      {/* Empty State */}
+      {visibleFriends.length === 0 && (
+        <p className="text-xs opacity-60">No friends match this filter.</p>
       )}
 
-      <div className="mt-5 flex flex-col gap-2">
-        {processedFriends.map(f => {
-          const other = f.otherUser
-          if (f.isDeleted) return;
-          return (
-            <Card
-              key={f.id}
-              className={`rounded shadow-none py-2 ${f.status === "blocked"
-                  ? "bg-gray-50"
-                  : f.status === "pending"
-                    ? "border-2"
-                    : ""
-                }`}
-            >
-              <CardContent className="px-2">
-                {f.status === "pending" && !f.isRequester ? (
-                  <p className="mb-2 text-xs">Friend request by</p>
-                ) : (
-                  <p className="mb-2 text-xs">You've sent this friend request to</p>
+      {/* List */}
+      <div className="space-y-3">
+        {visibleFriends.map(f => {
+          const { otherUser, status, isRequester } = f
 
+          return (
+            <FrameworkPanel key={f.id} className="flex justify-between items-center px-4 py-3">
+
+              {/* Profile */}
+              <Link href={`/u/${otherUser.username}`} className="flex gap-3 items-center hover:opacity-80 transition">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={otherUser.image || "/logo.png"} />
+                  <AvatarFallback>{otherUser.name.slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm">{otherUser.name}</span>
+              </Link>
+
+              {/* Actions */}
+              <div className="flex gap-2 text-xs">
+                {status === "pending" && !isRequester && (
+                  <>
+                    <button
+                      className="border rounded px-2 py-1 hover:bg-neutral-100"
+                      disabled={loading}
+                      onClick={() => handleAction(f.id, "block")}
+                    >
+                      Block
+                    </button>
+                    <button
+                      className="bg-neutral-900 text-white rounded px-3 py-1 hover:bg-neutral-700"
+                      disabled={loading}
+                      onClick={() => handleAction(f.id, "accept")}
+                    >
+                      Accept
+                    </button>
+                  </>
                 )}
 
-                <div className="flex justify-between items-center">
-                  <Link
-                    href={`/u/${other.username}`}
-                    className="flex gap-2 items-center hover:underline"
-                  >
-                    <Avatar>
-                      <AvatarImage src={other.image || "/logo.png"} />
-                      <AvatarFallback>
-                        {other.name.slice(0, 3)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <h1>{other.name}</h1>
-                  </Link>
+                {status === "accepted" && (
+                  <>
+                    <button
+                      onClick={() => handleMessage(f.id)}
+                      disabled={loading}
+                      className="border rounded px-2 py-1 hover:bg-neutral-100"
+                    >
+                      Message
+                    </button>
+                    <button
+                      onClick={() => handleAction(f.id, "block")}
+                      disabled={loading}
+                      className="bg-neutral-900 text-white rounded px-3 py-1 hover:bg-neutral-700"
+                    >
+                      Block
+                    </button>
+                  </>
+                )}
 
-                  {f.status === "pending" && !f.isRequester ? (
-                    <div className="flex gap-2 text-xs">
-                      <button
-                        onClick={() => handleFriendshipAction(f.id, "block")}
-                        disabled={loading}
-                        className="rounded border px-2 py-1 hover:bg-gray-100"
-                      >
-                        Block
-                      </button>
-                      <button
-                        onClick={() => handleFriendshipAction(f.id, "accept")}
-                        disabled={loading}
-                        className="rounded border px-2 bg-gray-900 text-white hover:bg-gray-700"
-                      >
-                        Accept
-                      </button>
-                    </div>
-                  ) : f.status === "blocked" ? (
-                    <div className="flex gap-2 text-xs">
-                      <p className="px-2 py-1">Blocked</p>
-                      <button
-                        onClick={() => handleFriendshipAction(f.id, "undo")}
-                        disabled={loading}
-                        className="rounded border px-2 bg-gray-900 text-white hover:bg-gray-700"
-                      >
-                        Unblock
-                      </button>
-                    </div>
-                  ) : f.status === "accepted" ? (
-                    <div className="flex gap-2 text-xs">
-                      <button
-                        onClick={() => handleMessageClick(f.id)}
-                        disabled={loading}
-                        className="rounded border px-2 py-1 hover:bg-gray-100"
-                      >
-                        Message
-                      </button>
-                      <button
-                        onClick={() => handleFriendshipAction(f.id, "block")}
-                        disabled={loading}
-                        className="rounded border px-2 bg-gray-900 text-white hover:bg-gray-700"
-                      >
-                        Block
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2 text-xs">
-                      <p className="px-2 py-1">Request sent</p>
-                      <button
-                        onClick={() => handleFriendshipAction(f.id, "remove")}
-                        disabled={loading}
-                        className="rounded border px-2 bg-red-500 text-white hover:bg-red-400"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                {status === "blocked" && (
+                  <>
+                    <span className="opacity-60 py-1">Blocked</span>
+                    <button
+                      onClick={() => handleAction(f.id, "undo")}
+                      disabled={loading}
+                      className="border px-3 rounded hover:bg-neutral-100"
+                    >
+                      Undo
+                    </button>
+                  </>
+                )}
+
+                {status === "pending" && isRequester && (
+                  <>
+                    <span className="opacity-60 py-1">Requested</span>
+                    <button
+                      onClick={() => handleAction(f.id, "remove")}
+                      disabled={loading}
+                      className="border text-red-600 px-3 rounded hover:bg-red-50"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </div>
+            </FrameworkPanel>
           )
         })}
       </div>
     </div>
   )
 }
-
-export default Friends

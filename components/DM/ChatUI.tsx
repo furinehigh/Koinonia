@@ -242,70 +242,49 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
 
   return (
-    <div className="relative h-full">
-      <div ref={scrollRef} className="p-5 flex flex-col gap-2 max-h-[75vh] overflow-y-auto">
-        {messages.map((m, i) => {
-          const own = m.fromUserId === session?.user.id
+<div className="relative flex flex-col h-full min-h-0 border-l">
 
-          return (
+    {/* messages */}
+    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 flex flex-col gap-3">
+      {messages.map(m => {
+        const own = m.fromUserId === session?.user.id
+
+        return (
+          <div key={m.id} className={`flex flex-col ${own ? "items-end" : "items-start"}`}>
             <div
-              key={m.id}
-              data-id={m.id}
-              ref={(el) => messageRef.current.set(m.id, el)}
-              className={`flex flex-col w-full ${own ? "items-end" : ""}`}
+              className={`px-3 py-2 text-[13px] border ${
+                own ? "bg-black text-white border-black" : "bg-neutral-50 border-neutral-300"
+              }`}
             >
-
-              <p
-                className={
-                  own
-                    ? "bg-gray-800 text-white rounded-lg w-fit px-2 py-1 text-sm"
-                    : "bg-gray-100 rounded-lg w-fit px-2 py-1 text-sm"
-                }
-              >
-                {m?.content}
-              </p>
-
-              <span className="text-[10px]">
-                {new Date(m.createdAt).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}{" "}
-                <>
-                  {m.fromUserId == session?.user.id && (
-                    <span>
-                      • {m?.status}</span>
-                  )}
-                </>
-              </span>
+              {m.content}
             </div>
-          )
-        })}
 
-        {userTyping && (
-          <div>
-            <p className="bg-gray-100 rounded-lg w-fit px-2 py-1 text-sm">
-              <div className="typing-indicator">
-                <span>.</span>
-                <span>.</span>
-                <span>.</span>
-              </div>
-            </p>
+            <span className="text-[9px] font-mono opacity-50 mt-1">
+              {new Date(m.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+              {own && ` · ${m.status}`}
+            </span>
           </div>
-        )}
-      </div>
+        )
+      })}
 
-      <div className="relative h-full mt-auto w-full flex justify-center">
-        <Input
-          value={content}
-          onChange={handleChange}
-          onKeyDown={(e) => e.key === "Enter" && handleMessageSend()}
-          placeholder="Type a message..."
-          className=" p-5 h-8 rounded-full w-full z-[56] mx-3 bg-white"
-        />
-      </div>
+      {userTyping && (
+        <div className="opacity-60 text-[11px] font-mono">…typing</div>
+      )}
     </div>
-  )
+
+    {/* input */}
+    <div className="border-t p-3 flex gap-2">
+      <Input
+        value={content}
+        onChange={handleChange}
+        onKeyDown={(e) => e.key === "Enter" && handleMessageSend()}
+        placeholder="Write and press Enter"
+        className="w-full text-sm border-neutral-400 focus:ring-0 rounded-none"
+      />
+    </div>
+  </div>
+)
+
 }
 
 export default ChatUI

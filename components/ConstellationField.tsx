@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 
-export default function ConstellationField() {
+export default function FrameworkField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const mouse = useRef({ x: 0, y: 0, active: false })
 
@@ -14,13 +14,15 @@ export default function ConstellationField() {
     let w = (canvas.width = window.innerWidth)
     let h = (canvas.height = window.innerHeight)
 
-    const stars = Array.from({ length: 60 }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      r: 1.3 + Math.random()
-    }))
+    // grid cells
+    const gap = 80
+    const points: { x: number; y: number; ox: number; oy: number }[] = []
+
+    for (let y = 0; y < h + gap; y += gap) {
+      for (let x = 0; x < w + gap; x += gap) {
+        points.push({ x, y, ox: x, oy: y })
+      }
+    }
 
     const move = (e: MouseEvent) => {
       mouse.current.x = e.clientX
@@ -40,56 +42,60 @@ export default function ConstellationField() {
     window.addEventListener("resize", resize)
 
     const loop = () => {
-      ctx.fillStyle = "white"
-      ctx.fillRect(0, 0, w, h)
+      ctx.clearRect(0, 0, w, h)
+      ctx.strokeStyle = "rgba(0,0,0,0.12)"
+      ctx.lineWidth = 1
 
-      for (const s of stars) {
+      // gentle movement toward/away from cursor
+      for (const p of points) {
         if (mouse.current.active) {
-          const dx = s.x - mouse.current.x
-          const dy = s.y - mouse.current.y
+          const dx = p.ox - mouse.current.x
+          const dy = p.oy - mouse.current.y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 150) {
-            const f = (150 - dist) / 150
-            s.x += (dx / dist) * f * 2
-            s.y += (dy / dist) * f * 2
+
+          if (dist < 200) {
+            const force = (200 - dist) / 200
+            p.x = p.ox + (dx / dist) * force * 15
+            p.y = p.oy + (dy / dist) * force * 15
+          } else {
+            // relax back to origin
+            p.x += (p.ox - p.x) * 0.05
+            p.y += (p.oy - p.y) * 0.05
           }
-        }
-
-        s.x += s.vx
-        s.y += s.vy
-
-        if (s.x < 0 || s.x > w) s.vx *= -1
-        if (s.y < 0 || s.y > h) s.vy *= -1
-      }
-
-      ctx.strokeStyle = "rgba(0,0,0,0.25)"
-      ctx.lineWidth = 0.6
-
-      for (let i = 0; i < stars.length; i++) {
-        for (let j = i + 1; j < stars.length; j++) {
-          const a = stars[i]
-          const b = stars[j]
-          const dx = a.x - b.x
-          const dy = a.y - b.y
-          const dist = dx * dx + dy * dy
-
-          if (dist < 130 * 130) {
-            ctx.beginPath()
-            ctx.moveTo(a.x, a.y)
-            ctx.lineTo(b.x, b.y)
-            ctx.stroke()
-          }
+        } else {
+          p.x += (p.ox - p.x) * 0.05
+          p.y += (p.oy - p.y) * 0.05
         }
       }
 
-      for (const s of stars) {
+      // draw connecting lines (like blueprint scaffold)
+      for (let i = 0; i < points.length; i++) {
+        const a = points[i]
+
+        // only connect right + down to avoid spaghetti
+        if (i + 1 < points.length && Math.abs(points[i + 1].oy - a.oy) < 5)
+          draw(a, points[i + 1])
+
+        const below = points.find(p => p.ox === a.ox && p.oy === a.oy + gap)
+        if (below) draw(a, below)
+      }
+
+      // render subtle node dots
+      ctx.fillStyle = "rgba(0,0,0,0.35)"
+      for (const p of points) {
         ctx.beginPath()
-        ctx.fillStyle = "black"
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2)
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2)
         ctx.fill()
       }
 
       requestAnimationFrame(loop)
+    }
+
+    const draw = (a: any, b: any) => {
+      ctx.beginPath()
+      ctx.moveTo(a.x, a.y)
+      ctx.lineTo(b.x, b.y)
+      ctx.stroke()
     }
 
     loop()
@@ -101,10 +107,5 @@ export default function ConstellationField() {
     }
   }, [])
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 -z-10"
-    />
-  )
+  return <canvas ref={canvasRef} className="fixed inset-0 -z-10 pointer-events-none" />
 }

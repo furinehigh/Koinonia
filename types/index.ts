@@ -58,4 +58,22 @@ interface Notification {
   createdAt: Date
 }
 
+export type FriendStatus = "pending" | "accepted" | "blocked"
+
+export interface UserLite {
+  id: string
+  name: string
+  username: string
+  image?: string | null
+}
+
+export interface FriendEntry {
+  id: string
+  otherUser: UserLite
+  isRequester?: boolean
+  status: FriendStatus
+  isDeleted?: boolean
+}
+
+
 export type { Community, User, Post, Notification }

@@ -17,9 +17,9 @@ async function layout({ children }: {
     const dms = await getAllDMs(session.user.id)
 
     return (
-        <div className='flex h-full'>
+        <div className="flex h-[calc(100vh-60px)] overflow-hidden">
             <Sidebar recentDMs={dms} userId={session.user.id} />
-            <div className='mt-3 w-full'>
+            <div className="flex-1 flex flex-col min-w-0">
                 {children}
             </div>
         </div>

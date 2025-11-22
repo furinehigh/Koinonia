@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import FrameworkPanel from '../framework/panel';
 
 function CommLayout({ community, handleJoin, handleLeave, children }: {
   community: Community,
@@ -91,7 +92,7 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
   }
 
   return (
-    <div className="ml-15 flex flex-col">
+    <div className="ml-19 flex flex-col">
       <div className="p-4 space-y-4 flex justify-between w-full">
         <div className='w-2/3'>
           <div className='flex space-x-2 items-center border-b w-full p-2'>
@@ -138,52 +139,53 @@ function CommLayout({ community, handleJoin, handleLeave, children }: {
 
         <div className='w-1/3'>
           <div className="sticky top-18">
-            <Card className='rounded shadow-none'>
-              <CardHeader>
-                <CardTitle>
-                  <div className='flex justify-between'>
-                    <div className='flex items-center space-x-1'>
-                      <div className='h-10 w-10 rounded border overflow-hidden'>
-                        <img src={community.avatarUrl || '/logo.png'} />
-                      </div>
-                      <div>{community.name}</div>
-                    </div>
-                    {community.member
-                      ? <Button onClick={() => handleCommLeave()} variant={'destructive'}>{loading ? <Loader size={12} className='animate-spin' /> : 'Leave'}</Button>
-                      : <Button onClick={() => handleCommJoin()}>{loading ? <Loader size={12} className='animate-spin' /> : 'Join'}</Button>}
-                  </div>
-                </CardTitle>
-                <CardDescription className='text-xs'>{community.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className='flex justify-between'>
-                  <div className='text-xs flex items-center space-x-1'>
-                    <p className='font-semibold'>{community.membersCount}</p>
-                    <p>ghosts</p>
-                  </div>
-                  <div className='text-xs flex items-center space-x-1'>
-                    <p className='font-semibold'>{community.membersCount}</p>
-                    <p>online ghosts</p>
-                  </div>
+            <FrameworkPanel className="mb-4">
+              <div className="flex justify-between items-center border-b pb-2">
+                <div className="flex items-center gap-2">
+                  <img src={community.avatarUrl || '/logo.png'} className="h-10 w-10 border object-cover" />
+                  <span className="font-medium tracking-tight">{community.name}</span>
                 </div>
-                <div className='my-3'>
-                  <h2 className='font-semibold text-sm'>Ghost busters</h2>
-                  <div className='my-1 flex flex-col gap-2'>
-                    {community.moderators.map((m, i) => (
-                      <Link href={'/u/' + m.username}>
-                        <div className='flex items-center space-x-1'>
-                          <div className='h-6 w-6 rounded border overflow-hidden'>
-                            <img src={m.image || '/ghost.png'} />
-                          </div>
-                          <div className='text-[10px]'>{m.name}</div>
+
+                {community.member ? (
+                  <Button onClick={handleCommLeave} variant="outline" className="text-xs uppercase tracking-wide">
+                    {loading ? <Loader className="animate-spin h-4" /> : "Leave"}
+                  </Button>
+                ) : (
+                  <Button onClick={handleCommJoin} className="text-xs uppercase tracking-wide">
+                    {loading ? <Loader className="animate-spin h-4" /> : "Join"}
+                  </Button>
+                )}
+              </div>
+
+              <p className="text-xs mt-2 opacity-70">{community.description}</p>
+
+              <div className="grid grid-cols-2 text-[11px] mt-3 border-t pt-3">
+                <div className="flex gap-1">
+                  <span className="font-bold">{community.membersCount}</span>
+                  <span>members</span>
+                </div>
+                <div className="flex gap-1 opacity-60">
+                  <span className="font-bold">{community.membersCount}</span>
+                  <span>online</span>
+                </div>
+              </div>
+              <div className='my-3'>
+                <h2 className='font-semibold text-sm'>Ghost busters</h2>
+                <div className='my-1 flex flex-col gap-2'>
+                  {community.moderators.map((m, i) => (
+                    <Link href={'/u/' + m.username}>
+                      <div className='flex items-center space-x-1'>
+                        <div className='h-6 w-6 rounded border overflow-hidden'>
+                          <img src={m.image || '/ghost.png'} />
                         </div>
-                      </Link>
-                    ))}
-                  </div>
+                        <div className='text-[10px]'>{m.name}</div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              </CardContent>
-              <CardFooter></CardFooter>
-            </Card>
+              </div>
+            </FrameworkPanel>
+
           </div>
         </div>
       </div>

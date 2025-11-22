@@ -6,127 +6,102 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { io, Socket } from "socket.io-client"
 
-function Sidebar({
-    recentDMs,
-    isDisabled = false,
-    userId,
-}: {
-    recentDMs: any[]
-    isDisabled?: boolean
-    userId: string
-}) {
-    const pathname = usePathname()
-    const [dms, setDms] = useState(recentDMs)
+function Sidebar({ recentDMs, isDisabled = false, userId }) {
+  const pathname = usePathname()
+  const [dms, setDms] = useState(recentDMs)
+  const socketRef = useRef<Socket | null>(null)
 
-    const socketRef = useRef<Socket | null>(null)
+  useEffect(() => {
+    if (!socketRef.current) {
+      socketRef.current = io("wss://wss.community.dishis.tech", { transports: ["websocket"] })
+    }
 
-    useEffect(() => {
-        if (!socketRef.current) {
-            socketRef.current = io("wss://wss.community.dishis.tech", {
-                transports: ["websocket"],
-            })
-        }
+    const s = socketRef.current
 
-        const s = socketRef.current
+    s.on("message-created", (data) => {
+      setDms(prev =>
+        prev.map(dm => dm.id === data.dmId ? {
+          ...dm,
+          messages: [...(dm.messages || []), data],
+          unreadMessages: pathname.includes(data.dmId)
+            ? dm.unreadMessages
+            : (dm.unreadMessages || 0) + 1
+        } : dm)
+      )
+    })
 
-        // New message listener
-        s.on("message-created", (data) => {
-            setDms((prev) =>
-                prev.map((dm) => {
-                    if (dm.id !== data.dmId) return dm
+    s.on("message-status", (data) => {
+      setDms(prev =>
+        prev.map(dm => dm.id === data.dmId ? {
+          ...dm,
+          messages: (dm.messages || []).map(m =>
+            m.id === data.messageId ? { ...m, status: data.status, readAt: data.readAt } : m
+          ),
+          unreadMessages: (dm.messages || []).filter(m => m.fromUserId !== userId && m.status !== "read").length
+        } : dm)
+      )
+    })
 
-                    const updatedMessages = [...(dm.messages || []), data]
+    return () => {
+      s.off("message-created")
+      s.off("message-status")
+    }
+  }, [pathname, userId])
 
-                    return {
-                        ...dm,
-                        messages: updatedMessages,
-                        unreadMessages: pathname.includes(data.dmId)
-                            ? dm.unreadMessages // viewing → don't count as unread
-                            : (dm.unreadMessages || 0) + 1,
-                    }
-                })
-            )
-        })
+  return (
+    <aside
+      hidden={isDisabled}
+      className="relative ml-20 min-h-0 overflow-y-auto border-r bg-white text-sm flex flex-col px-4 py-5 min-w-[220px] max-w-[220px]"
+    >
+      <h2 className="font-semibold tracking-tight mb-4 text-[13px] uppercase opacity-70">
+        Direct Messages
+      </h2>
 
-        // Message read/delivered status sync
-        s.on("message-status", (data) => {
-            setDms((prev) =>
-                prev.map((dm) => {
-                    if (dm.id !== data.dmId) return dm
+      <Link
+        href="/dm/friends"
+        className="flex items-center gap-2 px-2 py-1 hover:bg-neutral-100 transition"
+      >
+        <Users size={15} /> Friends
+      </Link>
 
-                    const updatedMessages = (dm.messages || []).map((m: any) =>
-                        m.id === data.messageId ? { ...m, status: data.status, readAt: data.readAt } : m
-                    )
+      <div className="border-b my-3 opacity-40" />
 
-                    // unread count logic = unread messages NOT from this user
-                    const unread = updatedMessages.filter(
-                        (m: any) => m.fromUserId !== userId && m.status !== "read"
-                    ).length
+      <div className="flex flex-col gap-1 overflow-y-auto">
+        {dms.map(dm => {
+          const selected = pathname.includes(dm.id)
+          const other = dm.otherUser
 
-                    return {
-                        ...dm,
-                        messages: updatedMessages,
-                        unreadMessages: unread,
-                    }
-                })
-            )
-        })
-
-        return () => {
-            s.off("message-created")
-            s.off("message-status")
-        }
-    }, [pathname, userId])
-
-    return (
-        <div
-            hidden={isDisabled}
-            className="relative ml-17 z-50 border-r p-3 w-sm dark:bg-black bg-white flex flex-col justify-between"
-        >
-            <div className="flex flex-col space-y-2 w-full overflow-y-auto">
-                <h1 className="font-semibold text-xl">Direct Messages</h1>
-
-                <Link href="/dm/friends" className="cursor-pointer rounded p-3 flex gap-2">
-                    <Users /> All Friends
-                </Link>
-
-                <div className="w-[90%] mx-auto my-2 border-b" />
-
-                <div className="flex flex-col text-xs">
-                    {dms.map((dm) => {
-                        const other = dm.otherUser
-                        const selected = pathname.includes(dm.id)
-
-                        return (
-                            <Link
-                                key={dm.id}
-                                href={`/dm/${dm.id}`}
-                                className={`flex justify-between items-center p-3 w-full hover:bg-gray-100 transition duration-300 ${selected ? "bg-gray-200" : ""
-                                    }`}
-                            >
-                                <div className="flex gap-2">
-                                    <div className="h-8 w-8 rounded border overflow-hidden">
-                                        <img src={other.image || "/logo.png"} alt={other.name} />
-                                    </div>
-
-                                    <div className="flex flex-col">
-                                        <span className="font-semibold">{other.name}</span>
-                                        <span className="truncate max-w-[150px] opacity-70">
-                                            {dm.messages?.[dm.messages.length - 1]?.content || ""}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {dm.unreadMessages > 0 && (
-                                    <span className="text-green-600 font-semibold">{dm.unreadMessages}</span>
-                                )}
-                            </Link>
-                        )
-                    })}
+          return (
+            <Link
+              key={dm.id}
+              href={`/dm/${dm.id}`}
+              className={`flex items-center justify-between px-2 py-2 border-l-2 transition ${
+                selected ? "border-black bg-neutral-100" : "border-transparent hover:border-neutral-400"
+              }`}
+            >
+              <div className="flex gap-2 items-center">
+                <img
+                  src={other.image || "/logo.png"}
+                  alt={other.name}
+                  className="h-7 w-7 object-cover border-[1px opacity-50]"
+                />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="font-medium text-[12px]">{other.name}</span>
+                  <span className="text-[10px] opacity-60 truncate max-w-[120px]">
+                    {dm.messages?.[dm.messages.length - 1]?.content || ""}
+                  </span>
                 </div>
-            </div>
-        </div>
-    )
+              </div>
+
+              {dm.unreadMessages > 0 && (
+                <span className="text-xs font-semibold text-black">{dm.unreadMessages}</span>
+              )}
+            </Link>
+          )
+        })}
+      </div>
+    </aside>
+  )
 }
 
 export default Sidebar

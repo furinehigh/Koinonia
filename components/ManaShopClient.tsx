@@ -1,21 +1,22 @@
 'use client'
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUserStore } from '@/store/useUserStore'
 import { toast } from 'sonner'
+import FrameworkPanel from './framework/panel'
 
 interface ManaShopClientProps {
   spells: any[]
 }
 
 export default function ManaShopClient({ spells }: ManaShopClientProps) {
-  const [loading, setLoading] = useState<{ [key: string]: boolean }>({})
-  const [owned, setOwned] = useState<{ [key: string]: boolean }>({})
+  const [loading, setLoading] = useState({})
+  const [owned, setOwned] = useState({})
   const { mana, updateMana } = useUserStore()
 
   const handleBuy = async (spellId: string, price: number, name: string) => {
-    if (mana < price) return alert('Not enough mana!')
+    if (mana < price) return toast.error("Not enough mana.")
+
     setLoading(prev => ({ ...prev, [spellId]: true }))
 
     try {
@@ -24,48 +25,66 @@ export default function ManaShopClient({ spells }: ManaShopClientProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ spellId }),
       })
+
       const data = await res.json()
+
       if (data.success) {
         updateMana(mana - price)
         setOwned(prev => ({ ...prev, [spellId]: true }))
-        toast.success('Spell Bought Successfully!', {description: `You've successfully bought ${name}`})
+        toast.success('Purchased', { description: `${name} added to your inventory.` })
       } else {
-        toast.error("Error buying spell!", {description: data.error})
+        toast.error("Failed", { description: data.error })
       }
-    } catch (e: any) {
-        toast.error("Error buying spell!", {description: e.message})
+
+    } catch (e) {
+      toast.error("Error", { description: e.message })
     } finally {
       setLoading(prev => ({ ...prev, [spellId]: false }))
     }
   }
 
   return (
-    <div className='space-y-6 w-full'>
-      <h1 className="text-3xl font-bold text-center">🪄 Mana Shop</h1>
-      <p className="text-center text-muted-foreground">
-        Balance: <span className="font-semibold text-blue-600">{mana ?? 0}</span> Mana
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {spells.map(spell => (
-          <Card key={spell.id} className="rounded-lg shadow hover:shadow-lg transition duration-200">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>{spell.name}</span>
-                <span className="text-sm text-blue-600 font-semibold">{spell.price} Mana</span>
-              </CardTitle>
-              <CardDescription>{spell.effect}</CardDescription>
-            </CardHeader>
-            <CardContent>
+    <div className="w-full flex flex-col gap-6">
+
+      {/* Header */}
+      <div className="text-center space-y-1">
+        <h1 className="text-xl font-semibold tracking-tight">Mana Shop</h1>
+        <p className="text-[12px] text-neutral-500">
+          Balance: <span className="font-semibold text-neutral-800">{mana ?? 0}</span> mana
+        </p>
+      </div>
+
+      {/* Shop Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {spells.map(spell => {
+          const disabled = loading[spell.id] || owned[spell.id] || mana < spell.price
+
+          return (
+            <FrameworkPanel key={spell.id} className="p-4 flex flex-col gap-4">
+              
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-[14px]">{spell.name}</span>
+                <span className="text-[12px] opacity-70">{spell.price} mana</span>
+              </div>
+
+              <p className="text-[12px] opacity-70 line-clamp-2">{spell.effect}</p>
+
               <Button
-                className="w-full flame-button"
-                disabled={loading[spell.id] || owned[spell.id] || mana < spell.price}
+                disabled={disabled}
                 onClick={() => handleBuy(spell.id, spell.price, spell.name)}
+                className={`w-full h-[36px] ${
+                  owned[spell.id] ? 'bg-neutral-200 text-neutral-600' : ''
+                }`}
               >
-                {owned[spell.id] ? 'Owned' : loading[spell.id] ? 'Buying...' : 'Buy Spell'}
+                {owned[spell.id]
+                  ? 'Owned'
+                  : loading[spell.id]
+                  ? 'Processing...'
+                  : 'Acquire'}
               </Button>
-            </CardContent>
-          </Card>
-        ))}
+            </FrameworkPanel>
+          )
+        })}
       </div>
     </div>
   )

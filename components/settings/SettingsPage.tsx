@@ -39,7 +39,7 @@ function SettingsPage() {
         }
     }
     return (
-        <div className="ml-15 p-4 max-w-full">
+        <div className="ml-19 p-4 max-w-full">
             <h1 className='text-2xl font-bold'>Settings</h1>
             {/* <div>
                 <div className='h-10 w-10 rounded border overflow-hidden'>

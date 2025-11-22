@@ -18,8 +18,14 @@ async function layout({ params, children }: {
   const otherUser = dm.otherUser
 
   return (
-    <ChatLayout otherUser={otherUser} children={children} />
-  )
+  <div className="flex flex-col h-full">
+    <ChatLayout otherUser={otherUser} />
+    <div className="flex-1 min-h-0"> 
+      {children}
+    </div>
+  </div>
+)
+
 }
 
 export default layout

@@ -94,113 +94,102 @@ function HomePosts({ posts }: { posts: Post[] }) {
             {localPosts.length === 0 && <div>No signals found on Koinonia.</div>}
 
             {localPosts.map(p => (
-              <Card key={p.id} className='rounded shadow-none m-3'>
-                <CardHeader>
-                  <CardTitle>
-                    <div className='flex justify-between items-center'>
-                      <div className='flex flex-col space-y-1'>
-                        {p.community && (
-                          <Link href={`/n/${p.community.slug}`} className='flex items-center space-x-1'>
-                            <span className='text-sm font-medium hover:underline'>n/{p.community.name}</span>
+              <Card
+                key={p.id}
+                className="border border-neutral-300 bg-white rounded-none p-0 transition-all hover:border-neutral-600"
+              >
+                <CardHeader className="border-b border-neutral-200 px-4 py-3">
+                  <div className="flex justify-between">
+                    <div className="flex flex-col gap-1">
+                      {p.community && (
+                        <Link
+                          href={`/n/${p.community.slug}`}
+                          className="text-xs uppercase tracking-wide text-neutral-500 hover:text-neutral-800"
+                        >
+                          n/{p.community.name}
+                        </Link>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <UserPopup user={p.isDeleted ? {} : p.author}>
+                          <Link
+                            href={p.isDeleted ? '#' : '/u/' + p.author.username}
+                            className="group flex items-center gap-2"
+                          >
+                            <img
+                              src={p.author.image || "logo.png"}
+                              className="h-8 w-8 border border-neutral-300 object-cover"
+                            />
+
+                            <span className="text-sm font-medium group-hover:underline">
+                              {p.author.name}
+                            </span>
                           </Link>
-                        )}
-                        <div className='flex items-center space-x-2 relative'>
-                          {/* Community avatar behind author */}
-                          {p.community && (
-                            <div className='absolute -left-2 top-0 h-10 w-10 rounded border overflow-hidden'>
-                              <img src={p.community.avatarUrl || 'logo.png'} alt='community' />
-                            </div>
-                          )}
+                        </UserPopup>
 
-                          <UserPopup user={p.isDeleted ? {} : p.author}>
-
-                            <Link href={p.isDeleted ? '#' : '/u/' + p.author.username} className='relative z-10 flex items-center space-x-2 group'>
-                              <div className='h-10 w-10 rounded border overflow-hidden'>
-                                {p.isDeleted ? <Ban className='h-full w-full bg-white' /> : <img src={p.author.image || 'logo.png'} alt='user' />}
-                              </div>
-                              <div>
-                                <div className='font-semibold group-hover:underline underline-offset-2'>
-                                  {p.isDeleted ? (
-                                    'Post deleted'
-                                  ) : (
-                                    <>
-                                      {p.author.name} {' '}
-                                      {p.edited && (
-                                        <span className='text-xs opacity-70'>
-                                          (Edited {formatDistanceToNow(new Date(p.editedAt), { addSuffix: true })})
-                                        </span>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                                <div className='text-xs text-muted-foreground'>
-                                  {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
-                                </div>
-                              </div>
-                            </Link>
-                          </UserPopup>
-                        </div>
-                      </div>
-
-                      <div className='text-gray-500'>
-                        {p.votes == 0 ? <div>no signal</div> : p.votes < 0 ? <div>signal fading</div> : (p.votes > 0 && p.votes < 3) ? <SignalLow /> : (p.votes > 2 && p.votes < 6) ? <SignalHigh /> : <Signal />}
+                        <span className="text-xs opacity-50">
+                          {formatDistanceToNow(new Date(p.createdAt), { addSuffix: true })}
+                        </span>
                       </div>
                     </div>
-                  </CardTitle>
 
-                  {p.isDeleted ? (
-                    <>
-                      <Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>Post has been deleted</Link>
-                      <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
-                    </>
-                  ) : (
-                    <><Link href={'/n/' + p.community?.slug + '/post/' + p.id} className='font-semibold'>{p.title}</Link><CardDescription>{p.content}</CardDescription></>
-                  )}
+                    <div className="text-neutral-600">
+                      {p.votes == 0 ? "—" :
+                        p.votes < 0 ? "↓ weak" :
+                          p.votes < 3 ? "↗ stable" :
+                            p.votes < 6 ? "↑ strong" : "⬆︎ signal"}
+                    </div>
+                  </div>
                 </CardHeader>
 
-                <CardContent>
-                  {(p.imageUrl && !p.isDeleted) && (
-                    <Link href={'/n/' + p.community?.slug + '/post/' + p.id} >
-                      <div className='border rounded h-fit w-fit overflow-hidden'>
+                <CardContent className="px-4 py-4">
+                  <Link
+                    href={`/n/${p.community?.slug}/post/${p.id}`}
+                    className="font-semibold tracking-tight text-lg hover:opacity-80"
+                  >
+                    {p.title}
+                  </Link>
 
-                        <img src={p.imageUrl} alt='post' className='max-h-[30vh] max-w-full' />
-                      </div>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    {p.content}
+                  </p>
+
+                  {p.imageUrl && !p.isDeleted && (
+                    <Link href={`/n/${p.community?.slug}/post/${p.id}`}>
+                      <img
+                        src={p.imageUrl}
+                        className="mt-3 border border-neutral-300 max-h-[40vh] object-cover"
+                      />
                     </Link>
                   )}
                 </CardContent>
 
-                <CardFooter className='flex flex-col items-start'>
-                  <div className='flex justify-between w-full'>
-                    <div className='flex items-center space-x-1'>
-                      <span>{p.votes}</span>
+                <CardFooter className="border-t border-neutral-200 px-4 py-3 text-xs flex justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{p.votes}</span>
 
-                      <SignalHigh
-                        onClick={() => { if (!p.isDeleted) handleVote(p.id, 'upvote') }}
-                        className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[p.id] === 'up'
-                          ? 'bg-gray-200'
-                          : 'hover:bg-gray-200'
-                          }`}
-                      />
+                    <SignalHigh
+                      onClick={() => !p.isDeleted && handleVote(p.id, 'upvote')}
+                      className={`cursor-pointer h-5 w-5 p-0.5 border border-neutral-300 hover:border-neutral-800 transition 
+          ${userVotes[p.id] === 'up' ? 'bg-neutral-200' : ''}`}
+                    />
 
-                      <SignalLow
-                        onClick={() => { if (!p.isDeleted) handleVote(p.id, 'downvote') }}
-                        className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[p.id] === 'down'
-                          ? 'bg-gray-200'
-                          : 'hover:bg-gray-200'
-                          }`}
-                      />
-                    </div>
-
-                    <div>
-                      <span>{p.views}</span> signal strength
-                    </div>
+                    <SignalLow
+                      onClick={() => !p.isDeleted && handleVote(p.id, 'downvote')}
+                      className={`cursor-pointer h-5 w-5 p-0.5 border border-neutral-300 hover:border-neutral-800 transition
+          ${userVotes[p.id] === 'down' ? 'bg-neutral-200' : ''}`}
+                    />
                   </div>
-                  <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
+
+                  <div className="opacity-60">{p.views} viewed</div>
+
+                  <div className="flex gap-1 items-center opacity-60">
                     <MessageSquare size={14} />
-                    <span>{p._count.comments} comments</span>
-                  </p>
+                    {p._count.comments}
+                  </div>
                 </CardFooter>
               </Card>
+
             ))}
           </div>
         )}

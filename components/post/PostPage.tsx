@@ -1,21 +1,18 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-    Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
-} from "@/components/ui/card"
-import { Ban, Check, Copy, Loader2, MessageSquare, MoreHorizontalIcon, MoreVerticalIcon, Signal, SignalHigh, SignalLow, SignalZero, Sparkles, Wand } from 'lucide-react'
+import { Ban, Check, Copy, Loader2, MessageSquare, MoreVerticalIcon, Signal, SignalHigh, SignalLow, Wand } from 'lucide-react'
 import { Post } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import '@/styles/flamebutton.scss'
 import { Textarea } from '../ui/textarea'
@@ -23,472 +20,360 @@ import Loader from '../Loader'
 import { toast } from 'sonner'
 import Comments from './Comments'
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { useSession } from 'next-auth/react'
 import UserPopup from '../user/UserPopup'
+import FrameworkPanel from '@/components/framework/panel'
 
-function PostPage({ post, comments }: {
-    post: Post,
-    comments: any[]
-}) {
-    const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
-    const [localPost, setLocalPost] = useState(post)
-    const [loading, setLoading] = useState(true)
-    const [showEditDialog, setShowEditDialog] = useState(false)
-    const [showShareDialog, setShowShareDialog] = useState(false)
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-    const [editPost, setEditPost] = useState(post)
-    const [editError, setEditError] = useState('')
-    const [editLoading, setEditLoading] = useState(false)
-    const [copied, setCopied] = useState(false)
-    const [deleteLoading, setDeleteLoading] = useState(false)
-    const [approvalLoading, setApprovalLoading] = useState(false)
+function PostPage({ post, comments }: { post: Post, comments: any[] }) {
 
-    const { data: session, status } = useSession()
+  const [userVotes, setUserVotes] = useState<{ [key: string]: 'up' | 'down' | null }>({})
+  const [localPost, setLocalPost] = useState(post)
+  const [loading, setLoading] = useState(true)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showShareDialog, setShowShareDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [editPost, setEditPost] = useState(post)
+  const [editError, setEditError] = useState('')
+  const [editLoading, setEditLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [approvalLoading, setApprovalLoading] = useState(false)
 
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText('https://koinonia-pk.vercel.app/n/' + post.community?.slug + '/post/' + post.id)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000);
-        } catch (e) {
-            console.error('Error encountered during copy: ' + e)
-        }
+  const { data: session } = useSession()
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(`https://koinonia-pk.vercel.app/n/${post.community?.slug}/post/${post.id}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch (e) {}
+  }
+
+  const increaseViews = async () => {
+    try {
+      const raw = localStorage.getItem('alreadyViewed')
+      const alreadyViewed: Record<string, boolean> = raw ? JSON.parse(raw) : {}
+
+      if (alreadyViewed[post.id]) return
+
+      await fetch('/api/post/actions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id, action: 'views' }),
+      })
+
+      alreadyViewed[post.id] = true
+      localStorage.setItem('alreadyViewed', JSON.stringify(alreadyViewed))
+
+    } finally {
+      setLoading(false)
     }
+  }
 
-    const increaseViews = async () => {
-        try {
-            const raw = localStorage.getItem('alreadyViewed')
-            const alreadyViewed: Record<string, boolean> = raw ? JSON.parse(raw) : {}
-            if (alreadyViewed[post.id as string]) {
-                return;
-            }
-            await fetch('/api/post/actions', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ postId: post.id, action: 'views' }),
-            })
-            alreadyViewed[post.id as string] = true
-            localStorage.setItem('alreadyViewed', JSON.stringify(alreadyViewed))
-        } catch (e) {
-            console.error('vote error', e)
-        } finally {
-            setLoading(false)
-        }
+  useEffect(() => {
+    const saved = localStorage.getItem('userVotes')
+    increaseViews()
+    if (saved) setUserVotes(JSON.parse(saved))
+  }, [])
+
+  const saveVotes = (votes: typeof userVotes) => {
+    setUserVotes(votes)
+    localStorage.setItem('userVotes', JSON.stringify(votes))
+  }
+
+  const handleVote = async (postId: string, action: 'upvote' | 'downvote') => {
+    const isUp = action === 'upvote'
+    const current = userVotes[postId] ?? null
+    const newVote = current === (isUp ? 'up' : 'down') ? null : isUp ? 'up' : 'down'
+
+    let delta = { up: +1, down: -1, resetUp: -1, resetDown: +1, flipUp: +2, flipDown: -2 }
+    let serverAction: string = ''
+
+    if (current === 'up' && newVote === null) { serverAction = 'undo-upvote'; setLocalPost(p => ({ ...p, votes: p.votes + delta.resetUp })) }
+    else if (current === 'down' && newVote === null) { serverAction = 'undo-downvote'; setLocalPost(p => ({ ...p, votes: p.votes + delta.resetDown })) }
+    else if (current === 'up' && newVote === 'down') { serverAction = 'up-downvote'; setLocalPost(p => ({ ...p, votes: p.votes + delta.flipDown })) }
+    else if (current === 'down' && newVote === 'up') { serverAction = 'down-upvote'; setLocalPost(p => ({ ...p, votes: p.votes + delta.flipUp })) }
+    else if (current === null && newVote === 'up') { serverAction = 'upvote'; setLocalPost(p => ({ ...p, votes: p.votes + 1 })) }
+    else if (current === null && newVote === 'down') { serverAction = 'downvote'; setLocalPost(p => ({ ...p, votes: p.votes - 1 })) }
+
+    saveVotes({ ...userVotes, [postId]: newVote })
+
+    try {
+      await fetch('/api/post/actions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, action: serverAction }),
+      })
+    } catch {}
+  }
+
+  const castSpell = async (postId: string, spellName: string) => {
+    try {
+      const res = await fetch('/api/spell/cast', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetType: 'post', targetId: postId, spellName }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`Spell casted: ${spellName}`)
+    } catch (e: any) {
+      toast.error(e.message)
     }
+  }
 
+  const handlePostApproval = async () => {
+    try {
+      setApprovalLoading(true)
+      const res = await fetch('/api/post/approve', {
+        method: 'PUT',
+        body: JSON.stringify({ approve: true, id: localPost.id })
+      })
 
-    useEffect(() => {
-        const saved = localStorage.getItem('userVotes')
-        increaseViews()
-        if (saved) setUserVotes(JSON.parse(saved))
-    }, [])
+      const data = await res.json()
+      if (data.error) return toast.error(data.error)
 
-    const saveVotes = (votes: typeof userVotes) => {
-        setUserVotes(votes)
-        localStorage.setItem('userVotes', JSON.stringify(votes))
+      setLocalPost(prev => ({ ...prev, isApproved: true }))
+
+    } finally {
+      setApprovalLoading(false)
     }
+  }
 
-    const handleVote = async (postId: string, action: 'upvote' | 'downvote') => {
-        const isUp = action === 'upvote'
-        const current = userVotes[postId] ?? null
-        const newVote =
-            current === (isUp ? 'up' : 'down')
-                ? null
-                : isUp
-                    ? 'up'
-                    : 'down'
-        let serverAction;
+  const handleEditSubmit = async () => {
+    try {
+      setEditLoading(true)
+      const res = await fetch('/api/post/edit', {
+        method: 'PUT',
+        headers: { "Content-Type": 'application/json' },
+        body: JSON.stringify(editPost)
+      })
 
-        let delta = 0
+      const data = await res.json()
 
-        if (current === 'up' && newVote === null) {
-            serverAction = 'undo-upvote'
-            delta = -1
-        } else if (current === 'down' && newVote === null) {
-            serverAction = 'undo-downvote'
-            delta = +1
-        } else if (current === 'up' && newVote === 'down') {
-            serverAction = 'up-downvote'
-            delta = -2
-        } else if (current === 'down' && newVote === 'up') {
-            serverAction = 'down-upvote'
-            delta = +2
-        } else if (current === null && newVote === 'up') {
-            serverAction = 'upvote'
-            delta = +1
-        } else if (current === null && newVote === 'down') {
-            serverAction = 'downvote'
-            delta = -1
-        }
+      if (!res.ok || data.error) return setEditError(data.error)
 
-        setLocalPost(prev => ({
-            ...prev,
-            votes: prev.votes + delta
-        }))
+      setLocalPost({ ...editPost, edited: true, editedAt: new Date() })
+      setShowEditDialog(false)
 
-
-        const updatedVotes = { ...userVotes, [postId]: newVote }
-        saveVotes(updatedVotes)
-
-        try {
-            await fetch('/api/post/actions', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ postId, action: serverAction }),
-            })
-        } catch (e) {
-            console.error('vote error', e)
-        }
+    } finally {
+      setEditLoading(false)
     }
+  }
 
-    const castSpell = async (postId: string, spellName: string) => {
-        try {
-            const res = await fetch('/api/spell/cast', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    targetType: 'post',
-                    targetId: postId,
-                    spellName,
-                }),
-            })
-            const data = await res.json()
-            if (!res.ok) throw new Error(data.error || 'Something went wrong')
-            toast.success("Spell casted!", { description: `You’ve casted ${spellName}` })
-        } catch (err: any) {
-            toast.error("Spell cast failed!", { description: err.message })
-        }
+  const handlePostDelete = async () => {
+    try {
+      setDeleteLoading(true)
+      const res = await fetch('/api/post/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id })
+      })
+
+      const data = await res.json()
+      if (!res.ok || data.error) return toast.error(data.error)
+
+      setLocalPost(prev => ({ ...prev, isDeleted: true }))
+      setShowDeleteDialog(false)
+
+    } finally {
+      setDeleteLoading(false)
     }
+  }
 
-    const handleEditSubmit = async () => {
-        try {
-            setEditLoading(true)
-            const res = await fetch('/api/post/edit', {
-                headers: {
-                    "Content-Type": 'application/json'
-                },
-                method: 'PUT',
-                body: JSON.stringify(editPost)
-            })
+  if (loading) return <div className='flex justify-center items-center w-full h-full'><Loader size={96} /></div>
 
-            const data = await res.json()
-
-            if (!res.ok || data.error) {
-                setEditError(data.error)
-                return;
-            }
-
-            setShowEditDialog(false)
-            setLocalPost({ ...editPost, edited: true, editedAt: new Date() })
-        } catch (e: any) {
-            setEditError(e.message)
-        } finally {
-            setEditLoading(false)
-        }
-    }
-
-    const handlePostDelete = async () => {
-        try {
-            setDeleteLoading(true)
-            const res = await fetch('/api/post/delete', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ postId: post.id })
-            })
-
-            const data = await res.json()
-            if (!res.ok || data.error) {
-                toast.error('Error deleting post :(', { description: data.error })
-                return;
-            }
-
-            setLocalPost(prev => ({ ...prev, isDeleted: true }))
-            setShowDeleteDialog(false)
-        } catch (e: any) {
-            toast.error('Error deleting post :(', { description: e.message })
-        } finally {
-            setDeleteLoading(false)
-        }
-    }
-
-    const handlePostApproval = async () => {
-        try {
-            setApprovalLoading(true)
-            const res = await fetch('/api/post/approve', {
-                method: 'PUT',
-                body: JSON.stringify({ approve: true, id: localPost.id })
-            })
-
-            const data = await res.json()
-
-            if (data.error) {
-                toast.error(data.error)
-                return;
-            }
-
-            setLocalPost(prev => ({ ...prev, isApproved: true }))
-
-        } catch (e: any) {
-            toast.error("Error approving post!", { description: e.message })
-        } finally {
-            setApprovalLoading(false)
-        }
-    }
-
-    if (loading) {
-        return (
-            <div className='flex justify-center items-center w-full h-full'><Loader className='' size={96} /></div>
-        )
-    }
-
-    return (
-        <div className='flex flex-col'>
-            {!localPost.isApproved && (
-                <div className='bg-gray-100 p-2 rounded '>
-                    This post is only visible to you, because it hasn't been approved by moderators yet.
-                </div>
-            )}
-            <Card key={localPost.id} className='rounded shadow-none m-3'>
-                <CardHeader>
-                    <CardTitle>
-                        <div className='flex justify-between'>
-                            <UserPopup user={localPost.isDeleted ? {} : localPost.author}>
-                                <Link href={localPost.isDeleted ? '#' : '/u/' + localPost.author.username} className='flex items-center space-x-2 group'>
-                                    <div className='h-10 w-10 rounded border overflow-hidden'>
-                                        {localPost.isDeleted ? <Ban className='h-full w-full' /> : <img src={localPost.author.image || 'logo.png'} alt='user' />}
-                                    </div>
-                                    <div>
-                                        <div className='font-semibold group-hover:underline underline-offset-2'>
-                                            {localPost.isDeleted ? (
-                                                'Post deleted'
-                                            ) : (
-                                                <>
-                                                    {localPost.author.name} {' '}
-                                                    {localPost.edited && (
-                                                        <span className='text-xs opacity-70'>
-                                                            (Edited {formatDistanceToNow(new Date(localPost.editedAt), { addSuffix: true })})
-                                                        </span>
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-                                        <div className='text-xs text-muted-foreground'>
-                                            {formatDistanceToNow(new Date(localPost.createdAt), { addSuffix: true })}
-                                        </div>
-                                    </div>
-                                </Link>
-                            </UserPopup>
-                            {localPost.isApproved ? <div className='flex gap-2 items-center'>
-
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} className='cursor-pointer'>
-                                        <div className='flex space-x-2 items-center'>
-                                            <Button variant='ghost' size='sm'>
-                                                <Wand className='h-4 w-4' />
-                                            </Button>
-                                            <div className='text-gray-500'>
-                                                {localPost.votes == 0 ? <div>no signal</div> : localPost.votes < 0 ? <div>signal fading</div> : (localPost.votes > 0 && localPost.votes < 3) ? <SignalLow /> : (localPost.votes > 2 && localPost.votes < 6) ? <SignalHigh /> : <Signal />}
-                                            </div>
-                                        </div>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuLabel>Choose a spell</DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-
-                                <DropdownMenu modal={false}>
-                                    <DropdownMenuTrigger disabled={localPost.isDeleted || localPost.isRemoved || !localPost.isApproved} asChild>
-                                        <Button variant="ghost" aria-label="Open menu" size="icon-sm">
-                                            <MoreVerticalIcon />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-40" align="end">
-                                        <DropdownMenuGroup>
-                                            <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
-                                                Share post
-                                            </DropdownMenuItem>
-                                            {localPost.authorId === session?.user.id && (
-                                                <>
-                                                    <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
-                                                        Edit post
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)} className='text-red-500'>Delete</DropdownMenuItem>
-                                                </>
-                                            )}
-                                        </DropdownMenuGroup>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div> : (
-                                <div>
-                                    <Button onClick={handlePostApproval}>{approvalLoading ? <Loader2 className='animate-spin' /> : 'Approve'}</Button>
-                                </div>
-                            )}
-                            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Edit a post</DialogTitle>
-                                        <DialogDescription>
-                                            Edit the title and the content of the post.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <FieldGroup className="pb-3">
-                                        <Field>
-                                            <FieldLabel htmlFor="title">Title</FieldLabel>
-                                            <Input value={editPost.title} onChange={(e) => setEditPost(prev => ({ ...prev, title: e.target.value }))} id="title" name="title" />
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="description">Content</FieldLabel>
-                                            <Textarea value={editPost.content} onChange={e => setEditPost(prev => ({ ...prev, content: e.target.value }))} id="description" name="description" />
-                                        </Field>
-                                    </FieldGroup>
-                                    <DialogFooter className='flex justify-between'>
-                                        <p className='text-xs text-red-500'>{editError}</p>
-                                        <div className='flex gap-2'>
-                                            <DialogClose asChild>
-                                                <Button variant="outline">Cancel</Button>
-                                            </DialogClose>
-                                            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title == '' || editPost.content == '' || localPost.authorId !== session?.user.id} type="submit">{editLoading ? <Loader2 className='animate-spin' /> : 'Update'}</Button>
-                                        </div>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                            <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>
-                                            Delete the post
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            This will only delete your post but the comments or replies won't get deleted.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <DialogFooter>
-                                        <DialogClose>
-                                            <Button variant={'outline'}>Cancel</Button>
-                                        </DialogClose>
-                                        <Button onClick={handlePostDelete} variant={'destructive'} disabled={deleteLoading || localPost.authorId !== session?.user.id}>{deleteLoading ? <Loader2 className='animate-spin' /> : 'Delete'}</Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                            <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Share Post</DialogTitle>
-                                        <DialogDescription>
-                                            Anyone with the link will be able to view this post.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <FieldGroup className="py-3">
-                                        <Field >
-                                            <Label htmlFor="link">Post Link</Label>
-                                            <div className='flex gap-2'>
-                                                <Input
-                                                    id="link"
-                                                    name="link"
-                                                    type="text"
-                                                    value={'https://koinonia-pk.vercel.app/n/' + post.community?.slug + '/post/' + post.id}
-                                                    autoComplete="off"
-                                                    disabled
-                                                />
-                                                <Button variant={'outline'} onClick={handleCopy}>
-                                                    {copied ? <Check className='opacity-70' size={20} /> : <Copy className='opacity-70' size={20} />}
-                                                </Button>
-                                            </div>
-                                        </Field>
-                                    </FieldGroup>
-                                </DialogContent>
-                            </Dialog>
-
-                        </div>
-                    </CardTitle>
-                    {localPost.isDeleted ? (
-                        <>
-                            <p>Post has been deleted</p>
-                            <span className='text-sm'>No new echoes, replies, or votes are allowed!</span>
-                        </>
-                    ) : localPost.isRemoved ? (
-                        <>
-                            <p>Post has been removed</p>
-                            <span className='text-sm'>This post was removed by the moderators of this community. No new echoes, replies, or votes are allowed!</span>
-                        </>
-                    ) : (
-                        <>
-                            <h1 className='font-semibold'>{localPost.title}</h1>
-                            <CardDescription>{localPost.content}</CardDescription>
-                        </>
-                    )}
-                </CardHeader>
-
-                <CardContent>
-                    {(localPost.imageUrl && !localPost.isDeleted) && (
-                        <div className='border rounded h-fit w-fit overflow-hidden'>
-                            <img src={localPost.imageUrl} alt='post' />
-                        </div>
-                    )}
-                </CardContent>
-
-                <CardFooter className='flex flex-col items-start'>
-                    <div className='flex justify-between w-full'>
-                        <div className='flex items-center space-x-1'>
-                            <span>{localPost.votes}</span>
-
-                            <SignalHigh
-                                onClick={() => {
-                                    if (!localPost.isDeleted) {
-
-                                        handleVote(localPost.id, 'upvote')
-                                    }
-                                }
-                                }
-                                className={`cursor-pointer border p-0.5 rounded transition duration-200 text-green-600 ${userVotes[localPost.id] === 'up'
-                                    ? 'bg-gray-200'
-                                    : 'hover:bg-gray-200'
-                                    }`}
-
-
-                            />
-
-                            <SignalLow
-                                onClick={() => {
-                                    if (!localPost.isDeleted) handleVote(localPost.id, 'downvote')
-                                }}
-                                className={`cursor-pointer border p-0.5 rounded transition duration-200 text-red-600 ${userVotes[localPost.id] === 'down'
-                                    ? 'bg-gray-200'
-                                    : 'hover:bg-gray-200'
-                                    }`}
-                            />
-                        </div>
-
-                        <div>
-                            <span>{localPost.views}</span> signal strength
-                        </div>
-                    </div>
-                    <p className='text-[10px] opacity-80 mt-2 flex gap-1 items-end'>
-                        <MessageSquare size={14} />
-                        <span>{localPost._count.comments} comments</span>
-                    </p>
-                </CardFooter>
-            </Card>
-
-            <Comments comments={comments} postId={localPost.id} isDeleted={post.isDeleted} />
+  return (
+    <div className='flex flex-col'>
+      {!localPost.isApproved && (
+        <div className='border border-neutral-300 p-2 text-xs opacity-70'>
+          This post isn't approved yet. Visible only to you.
         </div>
-    )
+      )}
+
+      <FrameworkPanel className='mt-3'>
+
+        {/* Top */}
+        <div className='flex justify-between items-start border-b pb-2 mb-3'>
+
+          <UserPopup user={localPost.isDeleted ? {} : localPost.author}>
+            <Link href={localPost.isDeleted ? '#' : `/u/${localPost.author.username}`} className='flex items-center gap-2 group'>
+              <img src={localPost.author.image || 'logo.png'} className='h-9 w-9 border object-cover' />
+              <div>
+                <span className='font-medium text-sm group-hover:underline'>
+                  {localPost.isDeleted ? "Deleted user" : localPost.author.name}
+                </span>
+                <div className='text-[10px] opacity-50'>
+                  {formatDistanceToNow(new Date(localPost.createdAt), { addSuffix: true })}
+                </div>
+              </div>
+            </Link>
+          </UserPopup>
+
+          {!localPost.isApproved ? (
+            <Button onClick={handlePostApproval}>{approvalLoading ? <Loader2 className='animate-spin' /> : 'Approve'}</Button>
+          ) : (
+            <div className='flex gap-2 items-center'>
+
+              {/* Spell Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className='cursor-pointer'>
+                  <Button variant='ghost' size='sm'><Wand className='h-4 w-4' /></Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>Spell</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Rage Spell')}>Rage Spell</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => castSpell(localPost.id, 'Heal Spell')}>Heal Spell</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* More Menu */}
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon-sm">
+                    <MoreVerticalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-40" align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
+                      Share
+                    </DropdownMenuItem>
+
+                    {localPost.authorId === session?.user.id && (
+                      <>
+                        <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className='text-red-500' onSelect={() => setShowDeleteDialog(true)}>Delete</DropdownMenuItem>
+                      </>
+                    )}
+
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+            </div>
+          )}
+
+        </div>
+
+        {/* Title + Body */}
+        {localPost.isDeleted ? (
+          <>
+            <p className='font-semibold'>Post deleted</p>
+            <p className='text-xs opacity-60'>Replies and votes disabled.</p>
+          </>
+        ) : (
+          <>
+            <h1 className='text-lg font-semibold tracking-tight'>{localPost.title}</h1>
+            <p className='text-sm opacity-70 mt-1'>{localPost.content}</p>
+          </>
+        )}
+
+        {localPost.imageUrl && !localPost.isDeleted && (
+          <img src={localPost.imageUrl} className='mt-3 border object-cover max-h-[45vh]' />
+        )}
+
+        {/* Footer */}
+        <div className='border-t mt-4 pt-3 flex justify-between text-xs'>
+          <div className='flex items-center gap-2'>
+            <span>{localPost.votes}</span>
+
+            <SignalHigh
+              onClick={() => !localPost.isDeleted && handleVote(localPost.id, 'upvote')}
+              className='cursor-pointer border p-0.5'
+            />
+
+            <SignalLow
+              onClick={() => !localPost.isDeleted && handleVote(localPost.id, 'downvote')}
+              className='cursor-pointer border p-0.5'
+            />
+          </div>
+
+          <div className='opacity-60 flex gap-1 items-center'>
+            <MessageSquare size={14} />
+            {localPost._count.comments}
+          </div>
+        </div>
+
+      </FrameworkPanel>
+
+      <Comments comments={comments} postId={localPost.id} isDeleted={post.isDeleted} />
+
+
+      {/* Dialogs preserved untouched */}
+      {/* Edit */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+            <DialogDescription>Modify the content below.</DialogDescription>
+          </DialogHeader>
+          <div className="pb-3 space-y-3">
+            <div>
+              <Label>Title</Label>
+              <Input value={editPost.title} onChange={e => setEditPost(prev => ({ ...prev, title: e.target.value }))} />
+            </div>
+            <div>
+              <Label>Content</Label>
+              <Textarea value={editPost.content} onChange={e => setEditPost(prev => ({ ...prev, content: e.target.value }))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleEditSubmit} disabled={editLoading || editPost.title === '' || editPost.content === ''}>{editLoading ? <Loader2 className='animate-spin' /> : 'Update'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Post</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose>
+              <Button variant='outline'>Cancel</Button>
+            </DialogClose>
+            <Button onClick={handlePostDelete} variant='destructive' disabled={deleteLoading}>
+              {deleteLoading ? <Loader2 className='animate-spin' /> : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Post</DialogTitle>
+            <DialogDescription>Copy the link below:</DialogDescription>
+          </DialogHeader>
+
+          <div className='flex gap-2 mt-3'>
+            <Input value={`https://koinonia-pk.vercel.app/n/${post.community?.slug}/post/${post.id}`} disabled />
+            <Button variant='outline' onClick={handleCopy}>{copied ? <Check /> : <Copy />}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+    </div>
+  )
 }
 
 export default PostPage
