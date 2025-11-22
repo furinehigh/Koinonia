@@ -62,7 +62,8 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
         if (data.from == to) {
           setMessages((prev) => [...prev, { ...data, fromUserId: data.from }])
         }
-        changeMessageStatus('delivered', data.id)
+        if (data.to == session?.user.id)
+          changeMessageStatus('delivered', data.id)
       }
     })
 
@@ -271,7 +272,12 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
                   minute: "2-digit",
                   hour12: true,
                 })}{" "}
-                • {m?.status}
+                <>
+                  {m.fromUserId == session?.user.id && (
+                    <span>
+                      • {m?.status}</span>
+                  )}
+                </>
               </span>
             </div>
           )
