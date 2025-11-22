@@ -22,6 +22,8 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const messageRef = useRef(new Map())
+  const alreadyRead = useRef(new Set<string>())
+
 
   useEffect(() => {
     const el = scrollRef.current
@@ -198,27 +200,23 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   }
 
   useEffect(() => {
-    if (!document.hasFocus()) return
-
-    const seenMessages: string[] = []
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const messageId = entry.target.getAttribute("data-id")
-          if (!messageId) return
+        if (!entry.isIntersecting) return
+        if (!document.hasFocus()) return
 
-          seenMessages.push(messageId)
+        const messageId = entry.target.getAttribute("data-id")
+        if (!messageId) return
+
+        if (!alreadyRead.current.has(messageId)) {
+          alreadyRead.current.add(messageId)
           changeMessageStatus("read", messageId)
-
         }
       })
-    }, {
-      threshold: 1
-    })
+    }, { threshold: 1 })
 
     messages.forEach(msg => {
-      if (msg.fromUserId == to) {
+      if (msg.fromUserId === to) {
         const el = messageRef.current.get(msg.id)
         if (el) observer.observe(el)
       }
@@ -226,6 +224,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
     return () => observer.disconnect()
   }, [messages])
+
 
   return (
     <div className="relative h-full">
@@ -235,10 +234,12 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
           return (
             <div
-              key={i}
+              key={m.id}
+              data-id={m.id}
               ref={(el) => messageRef.current.set(m.id, el)}
               className={`flex flex-col w-full ${own ? "items-end" : ""}`}
             >
+
               <p
                 className={
                   own
