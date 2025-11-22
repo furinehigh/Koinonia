@@ -27,6 +27,10 @@ export function initSocket(server: any) {
         const data = JSON.parse(message)
         io!.emit("user-typing-status", data)
     })
+    redisSub.subscribe("message_status", (message) => {
+        const data = JSON.parse(message)
+        io!.emit("message-status", data)
+    })
 
     io.on("connection", (socket) => {
         console.log("User connected: ", socket.id)

@@ -33,9 +33,9 @@ export async function POST(req: NextRequest) {
             }
         })
 
-        await redisPub.publish('message-created', JSON.stringify({from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt, dmId }))
+        await redisPub.publish('message-created', JSON.stringify({from: data.fromUserId, to, content, status: data.status, createdAt: data.createdAt, dmId, id: data.id }))
 
-        return NextResponse.json({ success: true, data })
+        return NextResponse.json({ success: true, messageId: data.id })
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 400 })
     }

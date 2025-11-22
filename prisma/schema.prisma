@@ -276,7 +276,8 @@ model Messages {
   dm         DM        @relation("DMs", fields: [dmId], references: [id])
   fromUserId String
   content    String    @db.Text
-  status     String    @default("unsent") // unsent | sent | recieved | read | failed
+  status     String    @default("unsent") // unsent | sent | delivered | read | failed
+  readAt     DateTime?
   deleted    String    @default("") // everyone | {userId}
   isRemoved  Boolean   @default(false)
   edited     Boolean   @default(false)

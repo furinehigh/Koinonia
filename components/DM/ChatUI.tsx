@@ -19,6 +19,24 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
   const lastSent = useRef(0)
   const stopTimeout = useRef<NodeJS.Timeout | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+
+  const messageRef = useRef(new Map())
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight })
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    // smooth scroll? sure, why not.
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+  }, [messages])
+
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -33,6 +51,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
     s.on("message-created", (data) => {
       if (data.dmId === dmId && data.from == to) {
         setMessages((prev) => [...prev, { ...data, fromUserId: data.from }])
+        changeMessageStatus('delivered', data.id)
       }
     })
 
@@ -43,9 +62,17 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       }
     })
 
+    // message status
+    s.on("message-status", (data) => {
+      if (data.dmId == dmId && messages.some(m => m.id == data.messageId)) {
+        setMessages(prev => prev.map(m => m.id == data.messageId ? { ...m, status: data.status, readAt: data.readAt } : m))
+      }
+    })
+
     return () => {
       s.off("message-created")
       s.off("user-typing-status")
+      s.off("message-status")
     }
   }, [dmId])
 
@@ -110,7 +137,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
       {
         content,
         createdAt: new Date(),
-        status: "unsent",
+        status: "sent",
         fromUserId: session?.user.id,
         edited: false,
         editedAt: null,
@@ -136,28 +163,77 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
       if (!res.ok || data.error) {
         toast.error(data.error || "Unexpected error occurred!")
+        changeMessageStatus('failed', data.messageId)
       }
     } catch (e: any) {
       toast.error(e.message)
     }
   }
 
+  const changeMessageStatus = async (status: string, messageId: string) => {
+    setMessages(prev => prev.map(m => m.id == messageId ? { ...m, status } : m))
+    try {
+      const res = await fetch('/api/dm/message/status', {
+        method: "POST",
+        body: JSON.stringify({ messageId, status, dmId })
+      })
+
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        toast.error(data.errro || "Unexpected error occurred!")
+      }
+    } catch (e: any) {
+      console.log(e.message)
+    }
+  }
+
+  useEffect(() => {
+    if (!document.hasFocus()) return
+
+    const seenMessages: string[] =[]
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const messageId = entry.target.getAttribute("data-id")
+          if (!messageId) return
+
+          seenMessages.push(messageId)
+          changeMessageStatus("read", messageId)
+
+        }
+      })
+    }, {
+      threshold: 1
+    })
+
+    messages.forEach(msg => {
+      if (msg.fromUserId == to) {
+        const el = messageRef.current.get(msg.id)
+        if (el) observer.observe(el)
+      }
+    })
+
+    return () => observer.disconnect()
+  }, [messages])
+
   return (
     <div className="relative h-full">
-      <div className="p-5 flex flex-col gap-2 max-h-[75vh] overflow-y-auto">
+      <div ref={scrollRef} className="p-5 flex flex-col gap-2 max-h-[75vh] overflow-y-auto">
         {messages.map((m, i) => {
           const own = m.fromUserId === session?.user.id
 
           return (
             <div
               key={i}
+              ref={(el) => messageRef.current.set(m.id, el)}
               className={`flex flex-col w-full ${own ? "items-end" : ""}`}
             >
               <p
                 className={
                   own
-                    ? "bg-gray-800 text-white rounded-full w-fit px-2 py-1 text-sm"
-                    : "bg-gray-100 rounded-full w-fit px-2 py-1 text-sm"
+                    ? "bg-gray-800 text-white rounded-lg w-fit px-2 py-1 text-sm"
+                    : "bg-gray-100 rounded-lg w-fit px-2 py-1 text-sm"
                 }
               >
                 {m.content}
@@ -177,7 +253,7 @@ function ChatUI({ dmId, initialMessages, to }: { dmId: string, initialMessages: 
 
         {userTyping && (
           <div>
-            <p className="bg-gray-800 text-white rounded-full w-fit px-2 py-1 text-sm">
+            <p className="bg-gray-800 text-white rounded-lg w-fit px-2 py-1 text-sm">
               <div className="typing-indicator">
                 <span>.</span>
                 <span>.</span>
